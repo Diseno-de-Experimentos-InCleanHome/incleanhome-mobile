@@ -31,6 +31,10 @@ import com.incleanhome.mobile.search.presentation.WorkerDetailScreen
 import com.incleanhome.mobile.search.presentation.WorkerDetailViewModel
 import com.incleanhome.mobile.search.presentation.WorkerSearchScreen
 import com.incleanhome.mobile.search.presentation.WorkerSearchViewModel
+import com.incleanhome.mobile.worker.presentation.WorkerAvailabilityScreen
+import com.incleanhome.mobile.worker.presentation.WorkerAvailabilityViewModel
+import com.incleanhome.mobile.worker.presentation.WorkerProfileScreen
+import com.incleanhome.mobile.worker.presentation.WorkerProfileViewModel
 import kotlinx.coroutines.launch
 
 private object Routes {
@@ -41,6 +45,8 @@ private object Routes {
     const val WORKER_HOME = "worker_home"
     const val WORKER_SEARCH = "worker_search"
     const val WORKER_DETAIL = "worker_detail/{workerId}"
+    const val WORKER_PROFILE = "worker_profile"
+    const val WORKER_AVAILABILITY = "worker_availability"
 
     fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
 }
@@ -125,7 +131,11 @@ fun AppNavigation(
             )
         }
         composable(Routes.WORKER_HOME) {
-            WorkerHomeScreen(onLogout = logout)
+            WorkerHomeScreen(
+                onProfile = { navController.navigate(Routes.WORKER_PROFILE) },
+                onAvailability = { navController.navigate(Routes.WORKER_AVAILABILITY) },
+                onLogout = logout
+            )
         }
         composable(Routes.WORKER_SEARCH) {
             val workerSearchViewModel: WorkerSearchViewModel = viewModel(
@@ -151,6 +161,28 @@ fun AppNavigation(
             )
             WorkerDetailScreen(
                 viewModel = workerDetailViewModel,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.WORKER_PROFILE) {
+            val workerProfileViewModel: WorkerProfileViewModel = viewModel(
+                factory = WorkerProfileViewModel.Factory
+            )
+            WorkerProfileScreen(
+                viewModel = workerProfileViewModel,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.WORKER_AVAILABILITY) {
+            val workerId = (sessionState as? SessionState.Authenticated)
+                ?.session
+                ?.userId
+                ?: return@composable
+            val workerAvailabilityViewModel: WorkerAvailabilityViewModel = viewModel(
+                factory = WorkerAvailabilityViewModel.Factory(workerId)
+            )
+            WorkerAvailabilityScreen(
+                viewModel = workerAvailabilityViewModel,
                 onBack = navController::popBackStack
             )
         }
