@@ -10,7 +10,7 @@ object RetrofitClient {
     private const val BASE_URL = "http://10.0.2.2:5000/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.BASIC
     }
 
     private val client = OkHttpClient.Builder()
