@@ -13,9 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
@@ -25,6 +27,10 @@ import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorVerifyScreen
+import com.incleanhome.mobile.search.presentation.WorkerDetailScreen
+import com.incleanhome.mobile.search.presentation.WorkerDetailViewModel
+import com.incleanhome.mobile.search.presentation.WorkerSearchScreen
+import com.incleanhome.mobile.search.presentation.WorkerSearchViewModel
 import kotlinx.coroutines.launch
 
 private object Routes {
@@ -33,6 +39,10 @@ private object Routes {
     const val TWO_FACTOR_VERIFY = "two_factor_verify"
     const val CLIENT_HOME = "client_home"
     const val WORKER_HOME = "worker_home"
+    const val WORKER_SEARCH = "worker_search"
+    const val WORKER_DETAIL = "worker_detail/{workerId}"
+
+    fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
 }
 
 @Composable
@@ -109,10 +119,40 @@ fun AppNavigation(
             TwoFactorVerifyScreen(loginViewModel = loginViewModel)
         }
         composable(Routes.CLIENT_HOME) {
-            ClientHomeScreen(onLogout = logout)
+            ClientHomeScreen(
+                onSearchWorkers = { navController.navigate(Routes.WORKER_SEARCH) },
+                onLogout = logout
+            )
         }
         composable(Routes.WORKER_HOME) {
             WorkerHomeScreen(onLogout = logout)
+        }
+        composable(Routes.WORKER_SEARCH) {
+            val workerSearchViewModel: WorkerSearchViewModel = viewModel(
+                factory = WorkerSearchViewModel.Factory
+            )
+            WorkerSearchScreen(
+                viewModel = workerSearchViewModel,
+                onBack = navController::popBackStack,
+                onWorkerClick = { workerId ->
+                    navController.navigate(Routes.workerDetail(workerId))
+                }
+            )
+        }
+        composable(
+            route = Routes.WORKER_DETAIL,
+            arguments = listOf(
+                navArgument("workerId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val workerId = backStackEntry.arguments?.getInt("workerId") ?: return@composable
+            val workerDetailViewModel: WorkerDetailViewModel = viewModel(
+                factory = WorkerDetailViewModel.Factory(workerId)
+            )
+            WorkerDetailScreen(
+                viewModel = workerDetailViewModel,
+                onBack = navController::popBackStack
+            )
         }
     }
 }

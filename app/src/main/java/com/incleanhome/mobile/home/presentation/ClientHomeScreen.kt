@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ClientHomeScreen(
+    onSearchWorkers: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -30,6 +31,10 @@ fun ClientHomeScreen(
         Spacer(modifier = Modifier.height(12.dp))
         Text("Rol: client", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = onSearchWorkers) {
+            Text("Buscar trabajadores")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onLogout) {
             Text("Cerrar sesión")
         }
