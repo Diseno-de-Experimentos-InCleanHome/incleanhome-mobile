@@ -95,6 +95,32 @@ class AuthRepository(
         }
     }
 
+    suspend fun verifyTwoFactor(challengeToken: String, code: String): LoginResult {
+        return try {
+            mapResponse(
+                api.verifyTwoFactor(
+                    Verify2faRequest(
+                        challengeToken = challengeToken,
+                        code = code
+                    )
+                )
+            )
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: HttpException) {
+            val message = when (exception.code()) {
+                400 -> "El código de verificación no es válido."
+                401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
+                else -> "No se pudo verificar la autenticación en dos pasos."
+            }
+            LoginResult.Error(message)
+        } catch (exception: IOException) {
+            LoginResult.Error("No se pudo conectar con el servidor.")
+        } catch (exception: Exception) {
+            LoginResult.Error("Ocurrió un error inesperado.")
+        }
+    }
+
     private fun mapResponse(response: AuthResponse): LoginResult {
         val nextStep = when {
             response.requiresTermsAcceptance == true -> LoginNextStep.TERMS

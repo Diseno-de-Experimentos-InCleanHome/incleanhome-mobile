@@ -25,6 +25,7 @@ data class LoginUiState(
     val totpCode: String = "",
     val isTwoFactorSetupLoading: Boolean = false,
     val isTwoFactorEnableLoading: Boolean = false,
+    val isTwoFactorVerifyLoading: Boolean = false,
     val twoFactorErrorMessage: String? = null,
     val authenticatedRole: String? = null
 )
@@ -193,6 +194,56 @@ class LoginViewModel(
                     _uiState.update {
                         it.copy(
                             isTwoFactorEnableLoading = false,
+                            twoFactorErrorMessage = "El servidor devolvió una respuesta inesperada."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun verifyTwoFactor() {
+        val state = _uiState.value
+        val token = challengeToken
+        if (state.isTwoFactorVerifyLoading || token == null) return
+
+        if (state.totpCode.length != 6) {
+            _uiState.update {
+                it.copy(twoFactorErrorMessage = "Ingresa un código TOTP de 6 dígitos.")
+            }
+            return
+        }
+
+        _uiState.update {
+            it.copy(isTwoFactorVerifyLoading = true, twoFactorErrorMessage = null)
+        }
+
+        viewModelScope.launch {
+            when (val result = repository.verifyTwoFactor(token, state.totpCode)) {
+                is LoginResult.Authenticated -> {
+                    accessToken = result.token
+                    challengeToken = null
+                    _uiState.update {
+                        it.copy(
+                            isTwoFactorVerifyLoading = false,
+                            authenticatedRole = result.user.role
+                        )
+                    }
+                }
+
+                is LoginResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isTwoFactorVerifyLoading = false,
+                            twoFactorErrorMessage = result.message
+                        )
+                    }
+                }
+
+                is LoginResult.Challenge -> {
+                    _uiState.update {
+                        it.copy(
+                            isTwoFactorVerifyLoading = false,
                             twoFactorErrorMessage = "El servidor devolvió una respuesta inesperada."
                         )
                     }

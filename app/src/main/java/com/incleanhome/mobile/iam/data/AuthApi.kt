@@ -18,4 +18,9 @@ interface AuthApi {
         @Header("Authorization") authorization: String,
         @Body request: Enable2faRequest
     ): AuthResponse
+
+    @POST("auth/2fa/verify")
+    suspend fun verifyTwoFactor(
+        @Body request: Verify2faRequest
+    ): AuthResponse
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,34 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.incleanhome.mobile.iam.data.LoginNextStep
 
 @Composable
-fun LoginScreen(
-    modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
+fun TwoFactorVerifyScreen(
+    loginViewModel: LoginViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by loginViewModel.uiState.collectAsState()
-
-    if (uiState.nextStep == LoginNextStep.TWO_FA_SETUP) {
-        TwoFactorSetupScreen(
-            loginViewModel = loginViewModel,
-            modifier = modifier
-        )
-        return
-    }
-
-    if (uiState.nextStep == LoginNextStep.TWO_FA_VERIFY) {
-        TwoFactorVerifyScreen(
-            loginViewModel = loginViewModel,
-            modifier = modifier
-        )
-        return
-    }
-
     val focusManager = LocalFocusManager.current
 
     Column(
@@ -62,84 +43,73 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "InCleanHome",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        OutlinedTextField(
-            value = uiState.email,
-            onValueChange = loginViewModel::onEmailChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Email") },
-            singleLine = true,
-            enabled = !uiState.isLoading,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
+        val authenticatedRole = uiState.authenticatedRole
+        if (authenticatedRole != null) {
+            Text(
+                text = "Autenticación completada",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
             )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Rol: $authenticatedRole",
+                style = MaterialTheme.typography.titleMedium
+            )
+            return@Column
+        }
+
+        Text(
+            text = "Verificación en dos pasos",
+            style = MaterialTheme.typography.headlineSmall
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "Ingresa el código generado por Google Authenticator o Microsoft Authenticator."
+        )
+        Spacer(modifier = Modifier.height(24.dp))
         OutlinedTextField(
-            value = uiState.password,
-            onValueChange = loginViewModel::onPasswordChange,
+            value = uiState.totpCode,
+            onValueChange = loginViewModel::onTotpCodeChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Contraseña") },
+            label = { Text("Código TOTP") },
+            supportingText = { Text("6 dígitos") },
             singleLine = true,
-            enabled = !uiState.isLoading,
-            visualTransformation = PasswordVisualTransformation(),
+            enabled = !uiState.isTwoFactorVerifyLoading,
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
+                keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
                     focusManager.clearFocus()
-                    loginViewModel.login()
+                    loginViewModel.verifyTwoFactor()
                 }
             )
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 focusManager.clearFocus()
-                loginViewModel.login()
+                loginViewModel.verifyTwoFactor()
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading
+            enabled = uiState.totpCode.length == 6 && !uiState.isTwoFactorVerifyLoading
         ) {
-            if (uiState.isLoading) {
+            if (uiState.isTwoFactorVerifyLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.height(20.dp),
+                    modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp
                 )
             } else {
-                Text("Iniciar sesión")
+                Text("Verificar")
             }
         }
 
-        uiState.errorMessage?.let { message ->
+        uiState.twoFactorErrorMessage?.let { message ->
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.error
-            )
-        }
-
-        uiState.nextStep?.let { nextStep ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Siguiente paso: ${nextStep.label}",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        uiState.authenticatedMessage?.let { message ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary
             )
         }
     }

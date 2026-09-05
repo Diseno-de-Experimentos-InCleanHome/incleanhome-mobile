@@ -30,3 +30,8 @@ data class TwoFactorSetupResponse(
 data class Enable2faRequest(
     val code: String
 )
+
+data class Verify2faRequest(
+    val challengeToken: String,
+    val code: String
+)
