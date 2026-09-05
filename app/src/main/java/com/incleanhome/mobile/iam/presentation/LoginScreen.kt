@@ -26,31 +26,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.incleanhome.mobile.iam.data.LoginNextStep
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
+    loginViewModel: LoginViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by loginViewModel.uiState.collectAsState()
-
-    if (uiState.nextStep == LoginNextStep.TWO_FA_SETUP) {
-        TwoFactorSetupScreen(
-            loginViewModel = loginViewModel,
-            modifier = modifier
-        )
-        return
-    }
-
-    if (uiState.nextStep == LoginNextStep.TWO_FA_VERIFY) {
-        TwoFactorVerifyScreen(
-            loginViewModel = loginViewModel,
-            modifier = modifier
-        )
-        return
-    }
 
     val focusManager = LocalFocusManager.current
 

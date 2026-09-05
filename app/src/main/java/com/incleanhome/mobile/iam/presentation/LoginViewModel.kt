@@ -3,10 +3,13 @@ package com.incleanhome.mobile.iam.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.incleanhome.mobile.core.session.SessionManager
+import com.incleanhome.mobile.core.session.UserSession
 import com.incleanhome.mobile.iam.data.AuthRepository
 import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.data.LoginResult
 import com.incleanhome.mobile.iam.data.TwoFactorSetupResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,13 +34,13 @@ data class LoginUiState(
 )
 
 class LoginViewModel(
+    private val sessionManager: SessionManager,
     private val repository: AuthRepository = AuthRepository()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     private var challengeToken: String? = null
-    private var accessToken: String? = null
 
     fun onEmailChange(email: String) {
         _uiState.update {
@@ -75,26 +78,36 @@ class LoginViewModel(
             when (val result = repository.login(email, state.password)) {
                 is LoginResult.Challenge -> {
                     challengeToken = result.challengeToken
-                    accessToken = null
                     _uiState.update {
-                        it.copy(isLoading = false, nextStep = result.nextStep)
+                        it.copy(
+                            isLoading = false,
+                            nextStep = result.nextStep,
+                            totpCode = "",
+                            twoFactorQrCodeDataUrl = null,
+                            twoFactorSecret = null,
+                            twoFactorErrorMessage = null,
+                            authenticatedRole = null
+                        )
                     }
                 }
 
                 is LoginResult.Authenticated -> {
-                    challengeToken = null
-                    accessToken = result.token
+                    val persistenceError = persistAuthenticatedSession(result)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            authenticatedMessage = "Sesión iniciada para ${result.user.name}."
+                            errorMessage = persistenceError,
+                            authenticatedMessage = if (persistenceError == null) {
+                                "Sesión iniciada para ${result.user.name}."
+                            } else {
+                                null
+                            }
                         )
                     }
                 }
 
                 is LoginResult.Error -> {
                     challengeToken = null
-                    accessToken = null
                     _uiState.update {
                         it.copy(isLoading = false, errorMessage = result.message)
                     }
@@ -171,12 +184,16 @@ class LoginViewModel(
         viewModelScope.launch {
             when (val result = repository.enableTwoFactor(token, state.totpCode)) {
                 is LoginResult.Authenticated -> {
-                    accessToken = result.token
-                    challengeToken = null
+                    val persistenceError = persistAuthenticatedSession(result)
                     _uiState.update {
                         it.copy(
                             isTwoFactorEnableLoading = false,
-                            authenticatedRole = result.user.role
+                            twoFactorErrorMessage = persistenceError,
+                            authenticatedRole = if (persistenceError == null) {
+                                result.user.role.lowercase()
+                            } else {
+                                null
+                            }
                         )
                     }
                 }
@@ -221,12 +238,16 @@ class LoginViewModel(
         viewModelScope.launch {
             when (val result = repository.verifyTwoFactor(token, state.totpCode)) {
                 is LoginResult.Authenticated -> {
-                    accessToken = result.token
-                    challengeToken = null
+                    val persistenceError = persistAuthenticatedSession(result)
                     _uiState.update {
                         it.copy(
                             isTwoFactorVerifyLoading = false,
-                            authenticatedRole = result.user.role
+                            twoFactorErrorMessage = persistenceError,
+                            authenticatedRole = if (persistenceError == null) {
+                                result.user.role.lowercase()
+                            } else {
+                                null
+                            }
                         )
                     }
                 }
@@ -252,14 +273,49 @@ class LoginViewModel(
         }
     }
 
+    fun clearAuthenticationState() {
+        challengeToken = null
+        _uiState.value = LoginUiState()
+    }
+
+    private suspend fun persistAuthenticatedSession(result: LoginResult.Authenticated): String? {
+        val normalizedRole = result.user.role.lowercase()
+        if (
+            normalizedRole != SessionManager.CLIENT_ROLE &&
+            normalizedRole != SessionManager.WORKER_ROLE
+        ) {
+            return "El servidor devolvió un rol de usuario desconocido."
+        }
+
+        return try {
+            sessionManager.saveSession(
+                UserSession(
+                    userId = result.user.id,
+                    role = normalizedRole,
+                    name = result.user.name,
+                    email = result.user.email,
+                    token = result.token
+                )
+            )
+            challengeToken = null
+            null
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            "No se pudo guardar la sesión de forma segura."
+        }
+    }
+
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-                    return LoginViewModel() as T
+        fun Factory(sessionManager: SessionManager): ViewModelProvider.Factory {
+            return object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+                        return LoginViewModel(sessionManager = sessionManager) as T
+                    }
+                    throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
                 }
-                throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }
         }
     }

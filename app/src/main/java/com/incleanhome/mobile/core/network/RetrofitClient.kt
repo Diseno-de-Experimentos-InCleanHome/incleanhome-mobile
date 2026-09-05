@@ -13,9 +13,19 @@ object RetrofitClient {
         level = HttpLoggingInterceptor.Level.BASIC
     }
 
+    @Volatile
+    private var tokenProvider: () -> String? = { null }
+
+    private val authInterceptor = AuthInterceptor { tokenProvider() }
+
     private val client = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
         .addInterceptor(loggingInterceptor)
         .build()
+
+    fun setTokenProvider(provider: () -> String?) {
+        tokenProvider = provider
+    }
 
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
