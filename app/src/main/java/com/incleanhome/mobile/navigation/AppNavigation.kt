@@ -580,6 +580,17 @@ private fun NavHostController.navigateAndClearBackStack(route: String) {
 
 private fun NavHostController.navigateTopLevel(route: String, homeRoute: String) {
     if (currentDestination?.route == route) return
+
+    if (route == homeRoute) {
+        val returnedToHome = popBackStack(homeRoute, inclusive = false)
+        if (!returnedToHome && currentDestination?.route != homeRoute) {
+            navigate(homeRoute) {
+                launchSingleTop = true
+            }
+        }
+        return
+    }
+
     navigate(route) {
         popUpTo(homeRoute) { saveState = true }
         launchSingleTop = true

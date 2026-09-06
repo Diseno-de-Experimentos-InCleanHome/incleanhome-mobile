@@ -182,6 +182,33 @@
 
     <!-- Search, profiles, availability and statistics -->
     <string name="title_search_workers">Buscar trabajadores</string>
+    <string name="search_marketplace_title">Buscar personal</string>
+    <string name="search_marketplace_subtitle">Encuentra a la persona ideal para tu hogar</string>
+    <string name="search_filters">Filtros de búsqueda</string>
+    <string name="search_results">Resultados</string>
+    <string name="search_view_profile">Ver perfil</string>
+    <string name="search_more_items"> · +%1$d</string>
+    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="other">%1$d servicios</item></plurals>
+    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="other">%1$d servicios realizados</item></plurals>
+    <string name="worker_profile_title">Perfil</string>
+    <string name="worker_about">Sobre mí</string>
+    <string name="worker_work_zones">Zonas de trabajo</string>
+    <string name="worker_information">Información profesional</string>
+    <string name="worker_availability">Disponibilidad</string>
+    <string name="worker_reviews">Reseñas</string>
+    <string name="worker_book_service">Reservar servicio</string>
+    <string name="worker_rate_value">%1$s por hora</string>
+    <string name="worker_experience_value">%1$d años de experiencia</string>
+    <string name="worker_age_value">%1$d años</string>
+    <string name="availability_time_range">%1$s – %2$s</string>
+    <string name="booking_worker_section">Trabajador</string>
+    <string name="booking_service_section">Servicio</string>
+    <string name="booking_schedule_section">Fecha y horario</string>
+    <string name="booking_address_section">Dirección</string>
+    <string name="booking_summary">Resumen de reserva</string>
+    <string name="booking_summary_service">Servicio</string>
+    <string name="booking_summary_schedule">Fecha y horario</string>
+    <string name="booking_summary_rate">Tarifa disponible</string>
     <string name="empty_search_results">No encontramos trabajadores con esos filtros.</string>
     <string name="field_service_type">Tipo de servicio</string>
     <string name="all_services">Todos los servicios</string>

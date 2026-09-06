@@ -70,10 +70,10 @@ fun presentationValue(value: String): String {
 }
 
 @Composable
-fun presentationValues(values: Iterable<String>): String {
+fun presentationValues(values: Iterable<String>, separator: String = ", "): String {
     val labels = mutableListOf<String>()
     for (value in values) labels += presentationValue(value)
-    return labels.joinToString()
+    return labels.joinToString(separator)
 }
 
 fun formatDate(value: String): String = parseOrOriginal(value) {
@@ -100,6 +100,24 @@ fun formatDateTime(value: String): String = runCatching {
 }.getOrDefault(value)
 
 fun formatCurrency(amount: BigDecimal): String = "S/ ${amount.setScale(2, RoundingMode.HALF_UP).toPlainString()}"
+
+fun formatRating(rating: BigDecimal): String = rating.setScale(1, RoundingMode.HALF_UP).toPlainString()
+
+fun humanizeIdentifier(value: String): String = value
+    .trim()
+    .replace('_', ' ')
+    .replaceFirstChar { it.titlecase(spanishPeru) }
+
+fun formatDayOfWeek(dayOfWeek: Int): String = when (dayOfWeek) {
+    0 -> "Domingo"
+    1 -> "Lunes"
+    2 -> "Martes"
+    3 -> "Miércoles"
+    4 -> "Jueves"
+    5 -> "Viernes"
+    6 -> "Sábado"
+    else -> "Día no disponible"
+}
 
 private inline fun parseOrOriginal(value: String, formatter: (String) -> String): String = try {
     formatter(value)
