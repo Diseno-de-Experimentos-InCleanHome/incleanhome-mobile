@@ -26,6 +26,7 @@ import com.incleanhome.mobile.worker.data.WorkerProfile
 fun WorkerProfileScreen(
     viewModel: WorkerProfileViewModel,
     onBack: () -> Unit,
+    onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -74,6 +75,8 @@ fun WorkerProfileScreen(
 
             uiState.profile != null -> uiState.profile?.let { profile ->
                 WorkerProfileContent(profile)
+                Spacer(Modifier.height(12.dp))
+                Button(onClick = onEdit) { Text("Editar perfil") }
             }
         }
     }

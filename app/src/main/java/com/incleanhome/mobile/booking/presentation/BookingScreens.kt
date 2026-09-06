@@ -16,9 +16,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,6 +35,7 @@ fun MyBookingsScreen(
     viewModel: BookingListViewModel,
     onBack: () -> Unit,
     onReviewClick: (Int) -> Unit,
+    onCancelClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) = BookingListScreen(
     title = "Mis reservas",
@@ -38,6 +44,7 @@ fun MyBookingsScreen(
     onBack = onBack,
     onBookingClick = {},
     onReviewClick = onReviewClick,
+    onCancelClick = onCancelClick,
     modifier = modifier
 )
 
@@ -54,6 +61,7 @@ fun WorkerRequestsScreen(
     onBack = onBack,
     onBookingClick = onBookingClick,
     onReviewClick = {},
+    onCancelClick = {},
     modifier = modifier
 )
 
@@ -65,9 +73,11 @@ private fun BookingListScreen(
     onBack: () -> Unit,
     onBookingClick: (Int) -> Unit,
     onReviewClick: (Int) -> Unit,
+    onCancelClick: (Int) -> Unit,
     modifier: Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
+    var cancellationTarget by remember { mutableStateOf<Booking?>(null) }
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         Header(title, onBack)
         Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
@@ -105,11 +115,16 @@ private fun BookingListScreen(
                                 }
                             }
                         }
+                        if (!workerView && (booking.status == BookingStatus.PENDING || booking.status == BookingStatus.ACCEPTED)) {
+                            Button(onClick = { cancellationTarget = booking }, enabled = state.updatingBookingId == null, modifier = Modifier.fillMaxWidth()) { Text("Cancelar reserva") }
+                        }
                     }
                 }
             }
         }
+        state.successMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
     }
+    cancellationTarget?.let { booking -> AlertDialog(onDismissRequest={cancellationTarget=null}, title={Text("Cancelar reserva")}, text={Text("¿Deseas cancelar esta reserva?")}, confirmButton={TextButton({onCancelClick(booking.id);cancellationTarget=null}){Text("Confirmar")}}, dismissButton={TextButton({cancellationTarget=null}){Text("Volver")}}) }
 }
 
 @Composable

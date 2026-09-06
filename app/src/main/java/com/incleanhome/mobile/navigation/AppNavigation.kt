@@ -56,6 +56,7 @@ import com.incleanhome.mobile.worker.presentation.WorkerAvailabilityScreen
 import com.incleanhome.mobile.worker.presentation.WorkerAvailabilityViewModel
 import com.incleanhome.mobile.worker.presentation.WorkerProfileScreen
 import com.incleanhome.mobile.worker.presentation.WorkerProfileViewModel
+import com.incleanhome.mobile.profile.presentation.*
 import kotlinx.coroutines.launch
 
 private object Routes {
@@ -71,6 +72,9 @@ private object Routes {
     const val WORKER_SEARCH = "worker_search"
     const val WORKER_DETAIL = "worker_detail/{workerId}"
     const val WORKER_PROFILE = "worker_profile"
+    const val CLIENT_PROFILE = "client_profile"
+    const val WORKER_PROFILE_EDIT = "worker_profile_edit"
+    const val WORKER_STATS = "worker_stats"
     const val WORKER_AVAILABILITY = "worker_availability"
     const val CREATE_BOOKING = "create_booking/{workerId}"
     const val CLIENT_BOOKINGS = "client_bookings"
@@ -201,6 +205,7 @@ fun AppNavigation(
                 onBookings = { navController.navigate(Routes.CLIENT_BOOKINGS) },
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onEvents = { navController.navigate(Routes.CLIENT_EVENTS) },
+                onProfile = { navController.navigate(Routes.CLIENT_PROFILE) },
                 onLogout = logout
             )
         }
@@ -213,6 +218,7 @@ fun AppNavigation(
                 onReviews = { navController.navigate(Routes.WORKER_REVIEWS) },
                 onEvents = { navController.navigate(Routes.WORKER_EVENTS) },
                 onEventApplications = { navController.navigate(Routes.WORKER_APPLICATIONS) },
+                onStats = { navController.navigate(Routes.WORKER_STATS) },
                 onLogout = logout
             )
         }
@@ -281,7 +287,8 @@ fun AppNavigation(
                 onBack = navController::popBackStack,
                 onReviewClick = { bookingId ->
                     navController.navigate(Routes.createReview(bookingId))
-                }
+                },
+                onCancelClick = { bookingId -> bookingsViewModel.cancel(bookingId) }
             )
         }
         composable(
@@ -456,9 +463,13 @@ fun AppNavigation(
             )
             WorkerProfileScreen(
                 viewModel = workerProfileViewModel,
-                onBack = navController::popBackStack
+                onBack = navController::popBackStack,
+                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) }
             )
         }
+        composable(Routes.CLIENT_PROFILE) { val vm: ClientProfileViewModel = viewModel(factory=ClientProfileViewModel.Factory); ClientProfileScreen(vm, navController::popBackStack) }
+        composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, navController::popBackStack) }
+        composable(Routes.WORKER_STATS) { val vm: WorkerStatsViewModel = viewModel(factory=WorkerStatsViewModel.Factory); WorkerStatsScreen(vm, navController::popBackStack) }
         composable(Routes.WORKER_AVAILABILITY) {
             val workerId = (sessionState as? SessionState.Authenticated)
                 ?.session

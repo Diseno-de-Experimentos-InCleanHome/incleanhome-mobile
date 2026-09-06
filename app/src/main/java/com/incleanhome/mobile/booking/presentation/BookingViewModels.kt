@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.incleanhome.mobile.booking.data.Booking
 import com.incleanhome.mobile.booking.data.BookingRepository
 import com.incleanhome.mobile.booking.data.BookingResult
+import com.incleanhome.mobile.booking.data.BookingStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +16,9 @@ import kotlinx.coroutines.launch
 data class BookingListUiState(
     val isLoading: Boolean = true,
     val bookings: List<Booking> = emptyList(),
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val updatingBookingId: Int? = null,
+    val successMessage: String? = null
 )
 
 class BookingListViewModel(
@@ -36,6 +39,16 @@ class BookingListViewModel(
                 is BookingResult.Error -> _uiState.update {
                     it.copy(isLoading = false, errorMessage = result.message)
                 }
+            }
+        }
+    }
+    fun cancel(bookingId: Int) {
+        if (_uiState.value.updatingBookingId != null) return
+        _uiState.update { it.copy(updatingBookingId = bookingId, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            when (val result = repository.updateStatus(bookingId, BookingStatus.CANCELLED)) {
+                is BookingResult.Success -> _uiState.update { state -> state.copy(updatingBookingId = null, bookings = state.bookings.map { if (it.id == bookingId) result.data else it }, successMessage = "Reserva cancelada.") }
+                is BookingResult.Error -> _uiState.update { it.copy(updatingBookingId = null, errorMessage = result.message) }
             }
         }
     }

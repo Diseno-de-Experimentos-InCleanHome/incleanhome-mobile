@@ -20,6 +20,7 @@ fun ClientHomeScreen(
     onBookings: () -> Unit,
     onMessages: () -> Unit,
     onEvents: () -> Unit,
+    onProfile: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -49,6 +50,8 @@ fun ClientHomeScreen(
         Button(onClick = onEvents) {
             Text("Mis eventos")
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(onClick = onProfile) { Text("Mi perfil") }
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onLogout) {
             Text("Cerrar sesión")
