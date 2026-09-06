@@ -12,11 +12,96 @@ import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.LoadingState
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatMonth
 import com.incleanhome.mobile.ui.format.presentationValue
 import com.incleanhome.mobile.worker.data.WorkerProfile
 
 @Composable private fun Head(title:String,back:()->Unit){ScreenHeader(title,back)}
 @Composable fun ClientProfileScreen(vm:ClientProfileViewModel,onBack:()->Unit){val s by vm.state.collectAsState();var editing by remember{mutableStateOf(false)};var name by remember{mutableStateOf("")};var phone by remember{mutableStateOf("")};Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){Head("Mi perfil",onBack);when{ s.loading->CircularProgressIndicator();s.error!=null->{Text(s.error!!,color=MaterialTheme.colorScheme.error);Button(vm::load){Text("Reintentar")}};s.profile!=null->{val p=s.profile!!;if(!editing){Text("Nombre: ${p.name}");Text("Teléfono: ${p.phone?:"-"}");Button({name=p.name;phone=p.phone.orEmpty();editing=true}){Text("Editar perfil")}}else{OutlinedTextField(name,{name=it},label={Text("Nombre")},singleLine=true);OutlinedTextField(phone,{phone=it},label={Text("Teléfono")},singleLine=true);Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){Button({vm.save(name,phone) ;editing=false},enabled=!s.saving){Text("Guardar")};TextButton({editing=false}){Text("Cancelar")}}};if(s.saving)CircularProgressIndicator();s.success?.let{Text(it,color=MaterialTheme.colorScheme.primary)}}}}}
-@Composable fun WorkerProfileEditScreen(vm:WorkerProfileEditViewModel,onBack:()->Unit){val s by vm.state.collectAsState();val p=s.profile;var name by remember(p){mutableStateOf(p?.name.orEmpty())};var phone by remember(p){mutableStateOf(p?.phone.orEmpty())};var age by remember(p){mutableStateOf(p?.age?.toString().orEmpty())};var exp by remember(p){mutableStateOf(p?.experienceYears?.toString().orEmpty())};var rate by remember(p){mutableStateOf(p?.hourlyRate?.toPlainString().orEmpty())};var services by remember(p){mutableStateOf(p?.serviceTypes?.joinToString(", ").orEmpty())};var zones by remember(p){mutableStateOf(p?.zones?.joinToString(", ").orEmpty())};var bio by remember(p){mutableStateOf(p?.bio.orEmpty())};Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){Head(stringResource(R.string.title_edit_profile),onBack);when{ s.loading->LoadingState();s.error!=null&&p==null->ErrorRetryState(s.error!!,vm::load);p!=null->{listOf("Nombre" to name,"Teléfono" to phone,"Edad" to age,"Experiencia (años)" to exp,"Tarifa por hora" to rate,"Servicios (separados por coma)" to services,"Zonas (separadas por coma)" to zones,"Biografía" to bio).forEach{(label,value)->OutlinedTextField(value,{v->when(label){"Nombre"->name=v;"Teléfono"->phone=v;"Edad"->age=v;"Experiencia (años)"->exp=v;"Tarifa por hora"->rate=v;"Servicios (separados por coma)"->services=v;"Zonas (separadas por coma)"->zones=v;else->bio=v}},label={Text(label)},singleLine=label!="Biografía",modifier=Modifier.fillMaxWidth(),enabled=!s.saving)};Text(stringResource(R.string.label_gender,presentationValue(p.gender)));Button({vm.save(name,phone,age,exp,rate,services,zones,bio)},enabled=!s.saving,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.action_save))};if(s.saving)LoadingState();s.success?.let{Text(it,color=MaterialTheme.colorScheme.primary)};s.error?.let{Text(it,color=MaterialTheme.colorScheme.error)}}}}}
+@Composable
+fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) {
+    val s by vm.state.collectAsState()
+    val p = s.profile
+    var name by remember(p) { mutableStateOf(p?.name.orEmpty()) }
+    var phone by remember(p) { mutableStateOf(p?.phone.orEmpty()) }
+    var age by remember(p) { mutableStateOf(p?.age?.toString().orEmpty()) }
+    var exp by remember(p) { mutableStateOf(p?.experienceYears?.toString().orEmpty()) }
+    var rate by remember(p) { mutableStateOf(p?.hourlyRate?.toPlainString().orEmpty()) }
+    var services by remember(p) { mutableStateOf(p?.serviceTypes?.joinToString(",").orEmpty()) }
+    var zones by remember(p) { mutableStateOf(p?.zones?.joinToString(", ").orEmpty()) }
+    var bio by remember(p) { mutableStateOf(p?.bio.orEmpty()) }
+
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Head(stringResource(R.string.title_edit_profile), onBack)
+        when {
+            s.loading -> LoadingState()
+            s.error != null && p == null -> ErrorRetryState(s.error!!, vm::load)
+            p != null -> {
+                listOf(
+                    "Nombre" to name,
+                    "Teléfono" to phone,
+                    "Edad" to age,
+                    "Experiencia (años)" to exp,
+                    "Tarifa por hora" to rate
+                ).forEach { (label, value) ->
+                    OutlinedTextField(
+                        value = value,
+                        onValueChange = { newValue ->
+                            when (label) {
+                                "Nombre" -> name = newValue
+                                "Teléfono" -> phone = newValue
+                                "Edad" -> age = newValue
+                                "Experiencia (años)" -> exp = newValue
+                                else -> rate = newValue
+                            }
+                        },
+                        label = { Text(label) },
+                        singleLine = label != "Biografía",
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !s.saving
+                    )
+                }
+                Text(stringResource(R.string.auth_services), style = MaterialTheme.typography.labelLarge)
+                ServiceTypeSelector(
+                    selectedValues = parseServiceTypes(services),
+                    onSelectionChange = { services = it.joinToString(",") },
+                    enabled = !s.saving
+                )
+                OutlinedTextField(
+                    value = zones,
+                    onValueChange = { zones = it },
+                    label = { Text("Zonas (separadas por coma)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !s.saving
+                )
+                OutlinedTextField(
+                    value = bio,
+                    onValueChange = { bio = it },
+                    label = { Text("Biografía") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !s.saving
+                )
+                Text(stringResource(R.string.label_gender, presentationValue(p.gender)))
+                Button(
+                    onClick = { vm.save(name, phone, age, exp, rate, services, zones, bio) },
+                    enabled = !s.saving,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.action_save))
+                }
+                if (s.saving) LoadingState()
+                s.success?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+                s.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            }
+        }
+    }
+}
+
+private fun parseServiceTypes(value: String): List<String> =
+    value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
 @Composable fun WorkerStatsScreen(vm:WorkerStatsViewModel,onBack:()->Unit){val s by vm.state.collectAsState();Column(Modifier.fillMaxSize().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){Head(stringResource(R.string.title_statistics),onBack);when{s.loading->LoadingState();s.error!=null->ErrorRetryState(s.error!!,vm::load);s.stats!=null->{val x=s.stats!!;Text(stringResource(R.string.stats_completed_services,x.completedServices));Text(stringResource(R.string.stats_average_rating,x.averageRating.toPlainString()));Text(stringResource(R.string.stats_services_by_month),style=MaterialTheme.typography.titleMedium);if(x.monthlyServiceCounts.isEmpty())EmptyState(stringResource(R.string.empty_monthly_stats)) else x.monthlyServiceCounts.forEach{Text("${formatMonth(it.month)}: ${it.count}")}}}}}

@@ -37,6 +37,7 @@ import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.LoadingState
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.SingleServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatCurrency
 import com.incleanhome.mobile.ui.format.presentationValues
 
@@ -57,14 +58,16 @@ fun WorkerSearchScreen(
     ) {
         ScreenHeader(stringResource(R.string.title_search_workers), onBack)
         Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = uiState.serviceType,
-            onValueChange = viewModel::onServiceTypeChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.field_service_type)) },
-            singleLine = true,
-            enabled = !uiState.isLoading,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        Text(
+            text = stringResource(R.string.field_service_type),
+            style = MaterialTheme.typography.labelLarge
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        SingleServiceTypeSelector(
+            selectedValue = uiState.serviceType,
+            onSelectionChange = viewModel::onServiceTypeChange,
+            allServicesLabel = stringResource(R.string.all_services),
+            enabled = !uiState.isLoading
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(

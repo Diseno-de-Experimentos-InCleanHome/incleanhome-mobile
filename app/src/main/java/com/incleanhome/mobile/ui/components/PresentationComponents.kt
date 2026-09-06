@@ -171,7 +171,9 @@ fun InCleanHomeTextField(
     supportingText: (@Composable () -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    isError: Boolean = false,
+    trailingIcon: (@Composable () -> Unit)? = null
 ) {
     OutlinedTextField(
         value = value,
@@ -183,6 +185,8 @@ fun InCleanHomeTextField(
         maxLines = maxLines,
         label = { Text(label) },
         supportingText = supportingText,
+        isError = isError,
+        trailingIcon = trailingIcon,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         visualTransformation = visualTransformation,

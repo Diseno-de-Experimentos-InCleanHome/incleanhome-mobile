@@ -25,9 +25,13 @@ private val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyl
 
 private val presentationValues = mapOf(
     "limpieza_general" to R.string.service_general_cleaning,
+    "cocina" to R.string.service_cooking,
+    "lavanderia" to R.string.service_laundry,
+    "planchado" to R.string.service_ironing,
     "limpieza_profunda" to R.string.service_deep_cleaning,
     "cuidado_ninos" to R.string.service_child_care,
     "cuidado_adultos" to R.string.service_adult_care,
+    "jardineria" to R.string.service_gardening,
     "female" to R.string.gender_female,
     "male" to R.string.gender_male,
     "other" to R.string.gender_other,
@@ -42,6 +46,17 @@ private val presentationValues = mapOf(
     "staffed" to R.string.status_staffed,
     "in_progress" to R.string.status_in_progress,
     "withdrawn" to R.string.status_withdrawn
+)
+
+val CanonicalServiceTypes = listOf(
+    "limpieza_general",
+    "cocina",
+    "lavanderia",
+    "planchado",
+    "cuidado_ninos",
+    "cuidado_adultos",
+    "jardineria",
+    "limpieza_profunda"
 )
 
 @StringRes

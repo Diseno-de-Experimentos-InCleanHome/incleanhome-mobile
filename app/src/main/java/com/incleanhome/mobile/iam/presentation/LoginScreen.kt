@@ -1,31 +1,39 @@
 package com.incleanhome.mobile.iam.presentation
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
+import com.incleanhome.mobile.ui.components.InCleanHomeTextField
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.theme.Navy
 
 @Composable
 fun LoginScreen(
@@ -34,105 +42,85 @@ fun LoginScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by loginViewModel.uiState.collectAsState()
-
     val focusManager = LocalFocusManager.current
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "InCleanHome",
-            style = MaterialTheme.typography.headlineMedium
+    AuthScreen(modifier = modifier, verticalArrangement = Arrangement.Center) {
+        AuthBrand()
+        Spacer(Modifier.height(40.dp))
+        AuthTitle(
+            title = stringResource(R.string.auth_login_title),
+            subtitle = stringResource(R.string.auth_login_subtitle)
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        OutlinedTextField(
+        Spacer(Modifier.height(28.dp))
+        InCleanHomeTextField(
             value = uiState.email,
             onValueChange = loginViewModel::onEmailChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Email") },
-            singleLine = true,
+            label = stringResource(R.string.auth_email),
             enabled = !uiState.isLoading,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
             )
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
+        Spacer(Modifier.height(16.dp))
+        InCleanHomeTextField(
             value = uiState.password,
             onValueChange = loginViewModel::onPasswordChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Contraseña") },
-            singleLine = true,
+            label = stringResource(R.string.auth_password),
             enabled = !uiState.isLoading,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    focusManager.clearFocus()
-                    loginViewModel.login()
+            keyboardActions = KeyboardActions(onDone = {
+                focusManager.clearFocus()
+                loginViewModel.login()
+            }),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility,
+                        contentDescription = stringResource(
+                            if (passwordVisible) R.string.auth_hide_password else R.string.auth_show_password
+                        )
+                    )
                 }
-            )
+            }
         )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(
+        uiState.errorMessage?.let { message ->
+            Spacer(Modifier.height(12.dp))
+            AuthInlineError(message)
+        }
+        Spacer(Modifier.height(24.dp))
+        PrimaryButton(
+            text = stringResource(R.string.auth_sign_in),
             onClick = {
                 focusManager.clearFocus()
                 loginViewModel.login()
             },
+            enabled = !uiState.isLoading,
+            loading = uiState.isLoading
+        )
+        Spacer(Modifier.height(16.dp))
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.height(20.dp),
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text("Iniciar sesión")
+            Text(
+                text = stringResource(R.string.auth_no_account),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Navy
+            )
+            TextButton(
+                onClick = onCreateAccount,
+                enabled = !uiState.isLoading,
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(stringResource(R.string.auth_create_account))
             }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = onCreateAccount,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading
-        ) {
-            Text("Crear cuenta")
-        }
-
-        uiState.errorMessage?.let { message ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-
-        uiState.nextStep?.let { nextStep ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Siguiente paso: ${nextStep.label}",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        uiState.authenticatedMessage?.let { message ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary
-            )
         }
     }
 }

@@ -23,6 +23,7 @@ import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.LoadingState
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatCurrency
 import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatDateRange
@@ -51,7 +52,12 @@ fun CreateEventScreen(viewModel:CreateEventViewModel,onBack:()->Unit,onDone:()->
         ScreenHeader(stringResource(R.string.title_create_event),onBack)
         if(s.created!=null){Text(stringResource(R.string.event_created),style=MaterialTheme.typography.headlineSmall);Text(s.created?.title.orEmpty());Button(onClick=onDone,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.title_my_events))};return@Column}
         Field(s.title,viewModel::title,stringResource(R.string.field_title),s.submitting);Field(s.description,viewModel::description,stringResource(R.string.field_description_optional),s.submitting,3)
-        Field(s.services,viewModel::services,stringResource(R.string.field_services_csv),s.submitting)
+        Text(stringResource(R.string.auth_services), style=MaterialTheme.typography.labelLarge)
+        ServiceTypeSelector(
+            selectedValues=parseServiceTypes(s.services),
+            onSelectionChange={viewModel.services(it.joinToString(","))},
+            enabled=!s.submitting
+        )
         Field(s.zone,viewModel::zone,stringResource(R.string.field_zone),s.submitting);Field(s.address,viewModel::address,stringResource(R.string.field_address),s.submitting)
         Field(s.date,viewModel::date,stringResource(R.string.field_date_iso),s.submitting);Field(s.start,viewModel::start,stringResource(R.string.field_start_time),s.submitting)
         Field(s.end,viewModel::end,stringResource(R.string.field_end_time),s.submitting);Field(s.workers,viewModel::workers,stringResource(R.string.field_workers_count),s.submitting,keyboard=KeyboardType.Number)
@@ -112,3 +118,5 @@ fun MyApplicationsScreen(viewModel:MyApplicationsViewModel,onBack:()->Unit,onEve
 @Composable private fun LoadableList(loading:Boolean,error:String?,empty:Boolean,emptyText:String,retry:()->Unit,content: @Composable ()->Unit){when{loading->LoadingState();error!=null->ErrorRetryState(error,retry);empty->EmptyState(emptyText);else->content()}}
 @Composable private fun Field(value:String,onChange:(String)->Unit,label:String,disabled:Boolean,minLines:Int=1,keyboard:KeyboardType=KeyboardType.Text){OutlinedTextField(value,onChange,Modifier.fillMaxWidth(),label={Text(label)},enabled=!disabled,minLines=minLines,maxLines=if(minLines>1)6 else 1,keyboardOptions=KeyboardOptions(keyboardType=keyboard))}
 private fun canApply(e:Event):Boolean=e.status==EventStatus.OPEN&&e.myApplicationStatus==null&&runCatching{Instant.now()<Instant.parse(e.applicationDeadline)}.getOrDefault(false)
+private fun parseServiceTypes(value: String): List<String> =
+    value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()

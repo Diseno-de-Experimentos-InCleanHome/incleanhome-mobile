@@ -1,6 +1,60 @@
 <resources>
     <string name="app_name">InCleanHome</string>
 
+    <!-- Authentication and onboarding -->
+    <string name="auth_login_title">Bienvenido de nuevo</string>
+    <string name="auth_login_subtitle">Ingresa a tu cuenta para continuar</string>
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_show_password">Mostrar contraseña</string>
+    <string name="auth_hide_password">Ocultar contraseña</string>
+    <string name="auth_sign_in">Iniciar sesión</string>
+    <string name="auth_no_account">¿No tienes una cuenta?</string>
+    <string name="auth_create_account">Crear cuenta</string>
+    <string name="auth_account_type_subtitle">¿Cómo deseas utilizar InCleanHome?</string>
+    <string name="auth_client_type">Soy cliente</string>
+    <string name="auth_client_type_description">Encuentra personal de confianza para tu hogar</string>
+    <string name="auth_worker_type">Soy trabajador/a</string>
+    <string name="auth_worker_type_description">Ofrece tus servicios y encuentra oportunidades</string>
+    <string name="auth_client_registration">Registro de cliente</string>
+    <string name="auth_client_registration_subtitle">Completa tus datos para empezar a encontrar ayuda de confianza.</string>
+    <string name="auth_worker_registration">Registro de trabajador/a</string>
+    <string name="auth_worker_registration_subtitle">Cuéntanos sobre ti y los servicios que deseas ofrecer.</string>
+    <string name="auth_personal_information">Información personal</string>
+    <string name="auth_professional_information">Datos profesionales</string>
+    <string name="auth_services">Servicios</string>
+    <string name="auth_work_zones">Zonas de trabajo</string>
+    <string name="auth_about_me">Sobre mí</string>
+    <string name="auth_name">Nombre completo</string>
+    <string name="auth_phone_optional">Teléfono (opcional)</string>
+    <string name="auth_age">Edad</string>
+    <string name="auth_choose_services">Selecciona uno o más servicios.</string>
+    <string name="auth_services_required">Debes elegir al menos uno.</string>
+    <string name="auth_zones_csv">Zonas separadas por coma (opcional)</string>
+    <string name="auth_zones_help">Escribe nombres claros de distritos o zonas de atención.</string>
+    <string name="auth_hourly_rate">Tarifa por hora</string>
+    <string name="auth_experience_years">Años de experiencia</string>
+    <string name="auth_bio_optional">Biografía (opcional)</string>
+    <string name="auth_accept_terms_version">Acepto los términos y condiciones (%1$s)</string>
+    <string name="auth_create_account_action">Crear cuenta</string>
+    <string name="auth_terms_title">Términos y condiciones</string>
+    <string name="auth_terms_subtitle">Para continuar, necesitamos que aceptes la versión actual de nuestros términos.</string>
+    <string name="auth_terms_summary">Al aceptar, confirmas que conoces las condiciones de uso de InCleanHome y el tratamiento aplicable a tu cuenta.</string>
+    <string name="auth_terms_current_version">Versión vigente: %1$s</string>
+    <string name="auth_accept_continue">Aceptar y continuar</string>
+    <string name="auth_protect_account">Protege tu cuenta</string>
+    <string name="auth_2fa_setup_subtitle">Añade una capa extra de seguridad antes de continuar.</string>
+    <string name="auth_2fa_step_scan">1. Escanea el código QR con Google Authenticator o Microsoft Authenticator.</string>
+    <string name="auth_2fa_step_code">2. Introduce el código de 6 dígitos.</string>
+    <string name="auth_2fa_qr_description">Código QR para configurar la verificación en dos pasos</string>
+    <string name="auth_manual_secret">¿No puedes escanearlo? Usa esta clave:</string>
+    <string name="auth_totp_code">Código de 6 dígitos</string>
+    <string name="auth_six_digits">6 dígitos</string>
+    <string name="auth_enable_2fa">Activar verificación</string>
+    <string name="auth_2fa_verify_title">Verificación en dos pasos</string>
+    <string name="auth_2fa_verify_subtitle">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</string>
+    <string name="auth_verify">Verificar</string>
+
     <!-- Common presentation -->
     <string name="action_back">Volver</string>
     <string name="action_retry">Reintentar</string>
@@ -18,9 +72,13 @@
 
     <!-- Canonical backend values: presentation only -->
     <string name="service_general_cleaning">Limpieza general</string>
+    <string name="service_cooking">Cocina</string>
+    <string name="service_laundry">Lavandería</string>
+    <string name="service_ironing">Planchado</string>
     <string name="service_deep_cleaning">Limpieza profunda</string>
     <string name="service_child_care">Cuidado de niños</string>
-    <string name="service_adult_care">Cuidado de adultos</string>
+    <string name="service_adult_care">Cuidado de adultos mayores</string>
+    <string name="service_gardening">Jardinería</string>
     <string name="gender_female">Femenino</string>
     <string name="gender_male">Masculino</string>
     <string name="gender_other">Otro</string>
@@ -126,6 +184,7 @@
     <string name="title_search_workers">Buscar trabajadores</string>
     <string name="empty_search_results">No encontramos trabajadores con esos filtros.</string>
     <string name="field_service_type">Tipo de servicio</string>
+    <string name="all_services">Todos los servicios</string>
     <string name="field_zone">Zona</string>
     <string name="title_worker_detail">Detalle del trabajador</string>
     <string name="action_contact">Contactar</string>

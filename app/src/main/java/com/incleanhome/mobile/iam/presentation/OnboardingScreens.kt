@@ -1,22 +1,25 @@
 package com.incleanhome.mobile.iam.presentation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,13 +30,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.iam.data.AuthGender
+import com.incleanhome.mobile.ui.components.InCleanHomeCard
+import com.incleanhome.mobile.ui.components.InCleanHomeTextField
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.presentationValue
-import java.math.BigDecimal
+import com.incleanhome.mobile.ui.theme.GreenLight
+import com.incleanhome.mobile.ui.theme.Navy
+import com.incleanhome.mobile.ui.theme.PrimaryGreen
 
 @Composable
 fun AccountTypeScreen(
@@ -42,18 +53,25 @@ fun AccountTypeScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = onClient, modifier = Modifier.fillMaxWidth()) { Text("Soy cliente") }
-        Spacer(Modifier.height(12.dp))
-        Button(onClick = onWorker, modifier = Modifier.fillMaxWidth()) { Text("Soy trabajador/a") }
-        Spacer(Modifier.height(12.dp))
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Volver") }
+    AuthScreen(modifier = modifier, onBack = onBack, verticalArrangement = Arrangement.Center) {
+        AuthTitle(
+            title = stringResource(R.string.auth_create_account),
+            subtitle = stringResource(R.string.auth_account_type_subtitle)
+        )
+        Spacer(Modifier.height(28.dp))
+        AccountTypeCard(
+            icon = Icons.Rounded.Home,
+            title = stringResource(R.string.auth_client_type),
+            description = stringResource(R.string.auth_client_type_description),
+            onClick = onClient
+        )
+        Spacer(Modifier.height(16.dp))
+        AccountTypeCard(
+            icon = Icons.Rounded.Person,
+            title = stringResource(R.string.auth_worker_type),
+            description = stringResource(R.string.auth_worker_type_description),
+            onClick = onWorker
+        )
     }
 }
 
@@ -70,23 +88,62 @@ fun ClientRegistrationScreen(
     var accepted by rememberSaveable { mutableStateOf(false) }
     var validationError by rememberSaveable { mutableStateOf<String?>(null) }
     val state by viewModel.uiState.collectAsState()
-    RegistrationColumn("Registro de cliente", onBack, modifier) {
-        Field(name, { name = it }, "Nombre", state.isLoading)
-        Field(email, { email = it }, "Email", state.isLoading)
-        Field(password, { password = it }, "Contraseña", state.isLoading, password = true)
-        Field(phone, { phone = it }, "Teléfono (opcional)", state.isLoading)
-        TermsCheck(accepted, { accepted = it })
-        validationError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        SubmitButton(state.isLoading) {
-            validationError = validateCommon(name, email, password, accepted)
-            if (validationError == null) {
-                viewModel.registerClient(
-                    name.trim(), email.trim(), password,
-                    phone.trim().takeIf(String::isNotEmpty), TERMS_VERSION
+
+    AuthScreen(modifier = modifier, onBack = onBack) {
+        AuthTitle(
+            title = stringResource(R.string.auth_client_registration),
+            subtitle = stringResource(R.string.auth_client_registration_subtitle)
+        )
+        Spacer(Modifier.height(24.dp))
+        InCleanHomeCard {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                InCleanHomeTextField(name, { name = it }, stringResource(R.string.auth_name), enabled = !state.isLoading)
+                InCleanHomeTextField(
+                    email,
+                    { email = it },
+                    stringResource(R.string.auth_email),
+                    enabled = !state.isLoading,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                )
+                InCleanHomeTextField(
+                    password,
+                    { password = it },
+                    stringResource(R.string.auth_password),
+                    enabled = !state.isLoading,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                InCleanHomeTextField(
+                    phone,
+                    { phone = it },
+                    stringResource(R.string.auth_phone_optional),
+                    enabled = !state.isLoading,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
             }
         }
+        Spacer(Modifier.height(16.dp))
+        TermsCheck(accepted, { accepted = it }, enabled = !state.isLoading)
+        (validationError ?: state.errorMessage)?.let {
+            Spacer(Modifier.height(8.dp))
+            AuthInlineError(it)
+        }
+        Spacer(Modifier.height(20.dp))
+        PrimaryButton(
+            text = stringResource(R.string.auth_create_account_action),
+            loading = state.isLoading,
+            enabled = !state.isLoading,
+            onClick = {
+                validationError = validateCommon(name, email, password, accepted)
+                if (validationError == null) {
+                    viewModel.registerClient(
+                        name.trim(), email.trim(), password,
+                        phone.trim().takeIf(String::isNotEmpty), TERMS_VERSION
+                    )
+                }
+            }
+        )
+        Spacer(Modifier.height(20.dp))
     }
 }
 
@@ -110,52 +167,127 @@ fun WorkerRegistrationScreen(
     var accepted by rememberSaveable { mutableStateOf(false) }
     var validationError by rememberSaveable { mutableStateOf<String?>(null) }
     val state by viewModel.uiState.collectAsState()
-    RegistrationColumn("Registro de trabajador/a", onBack, modifier) {
-        Field(name, { name = it }, "Nombre", state.isLoading)
-        Field(email, { email = it }, "Email", state.isLoading)
-        Field(password, { password = it }, "Contraseña", state.isLoading, password = true)
-        Field(phone, { phone = it }, "Teléfono (opcional)", state.isLoading)
-        Field(age, { age = it.filter(Char::isDigit) }, "Edad", state.isLoading)
-        Text(stringResource(R.string.field_gender), style = MaterialTheme.typography.labelLarge)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AuthGender.VALUES.forEach { value ->
-                FilterChip(
-                    selected = gender == value,
-                    onClick = { gender = value },
-                    label = { Text(presentationValue(value)) },
-                    enabled = !state.isLoading
-                )
+
+    AuthScreen(modifier = modifier, onBack = onBack) {
+        AuthTitle(
+            title = stringResource(R.string.auth_worker_registration),
+            subtitle = stringResource(R.string.auth_worker_registration_subtitle)
+        )
+        Spacer(Modifier.height(20.dp))
+
+        FormSection(stringResource(R.string.auth_personal_information)) {
+            InCleanHomeTextField(name, { name = it }, stringResource(R.string.auth_name), enabled = !state.isLoading)
+            InCleanHomeTextField(
+                email, { email = it }, stringResource(R.string.auth_email), enabled = !state.isLoading,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            )
+            InCleanHomeTextField(
+                password, { password = it }, stringResource(R.string.auth_password), enabled = !state.isLoading,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation()
+            )
+            InCleanHomeTextField(
+                phone, { phone = it }, stringResource(R.string.auth_phone_optional), enabled = !state.isLoading,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+            InCleanHomeTextField(
+                age, { age = it.filter(Char::isDigit) }, stringResource(R.string.auth_age), enabled = !state.isLoading,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+            Text(stringResource(R.string.field_gender), style = MaterialTheme.typography.labelLarge, color = Navy)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AuthGender.VALUES.forEach { value ->
+                    FilterChip(
+                        selected = gender == value,
+                        onClick = { gender = value },
+                        label = { Text(presentationValue(value)) },
+                        enabled = !state.isLoading
+                    )
+                }
             }
         }
-        Field(services, { services = it }, "Servicios separados por coma", state.isLoading)
-        Field(zones, { zones = it }, "Zonas separadas por coma (opcional)", state.isLoading)
-        Field(hourlyRate, { hourlyRate = it }, "Tarifa por hora", state.isLoading)
-        Field(experience, { experience = it.filter(Char::isDigit) }, "Años de experiencia", state.isLoading)
-        Field(bio, { bio = it }, "Biografía (opcional)", state.isLoading, minLines = 3)
-        TermsCheck(accepted, { accepted = it })
-        validationError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        SubmitButton(state.isLoading) {
+
+        FormSection(stringResource(R.string.auth_professional_information)) {
+            InCleanHomeTextField(
+                hourlyRate, { hourlyRate = it }, stringResource(R.string.auth_hourly_rate), enabled = !state.isLoading,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+            InCleanHomeTextField(
+                experience, { experience = it.filter(Char::isDigit) },
+                stringResource(R.string.auth_experience_years), enabled = !state.isLoading,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+
+        FormSection(stringResource(R.string.auth_services)) {
             val serviceList = splitValues(services)
-            val zoneList = splitValues(zones)
-            validationError = when {
-                validateCommon(name, email, password, accepted) != null -> validateCommon(name, email, password, accepted)
-                gender !in AuthGender.VALUES -> "Selecciona un género válido."
-                serviceList.isEmpty() -> "Ingresa al menos un servicio."
-                age.toIntOrNull() == null -> "Ingresa una edad válida."
-                hourlyRate.toBigDecimalOrNull() == null -> "Ingresa una tarifa válida."
-                experience.toIntOrNull() == null -> "Ingresa los años de experiencia."
-                else -> null
-            }
-            if (validationError == null) {
-                viewModel.registerWorker(
-                    name.trim(), email.trim(), password,
-                    phone.trim().takeIf(String::isNotEmpty), age.toInt(), gender,
-                    serviceList, zoneList, hourlyRate.toBigDecimal(), experience.toInt(),
-                    bio.trim().takeIf(String::isNotEmpty), TERMS_VERSION
+            Text(
+                text = stringResource(R.string.auth_choose_services),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            ServiceTypeSelector(
+                selectedValues = serviceList,
+                onSelectionChange = { services = it.joinToString(",") },
+                enabled = !state.isLoading
+            )
+            if (serviceList.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.auth_services_required),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
+
+        FormSection(stringResource(R.string.auth_work_zones)) {
+            InCleanHomeTextField(
+                zones, { zones = it }, stringResource(R.string.auth_zones_csv), enabled = !state.isLoading,
+                supportingText = { Text(stringResource(R.string.auth_zones_help)) }
+            )
+        }
+
+        FormSection(stringResource(R.string.auth_about_me)) {
+            InCleanHomeTextField(
+                bio, { bio = it }, stringResource(R.string.auth_bio_optional), enabled = !state.isLoading,
+                singleLine = false, minLines = 3, maxLines = 5
+            )
+        }
+
+        Spacer(Modifier.height(4.dp))
+        TermsCheck(accepted, { accepted = it }, enabled = !state.isLoading)
+        (validationError ?: state.errorMessage)?.let {
+            Spacer(Modifier.height(8.dp))
+            AuthInlineError(it)
+        }
+        Spacer(Modifier.height(20.dp))
+        PrimaryButton(
+            text = stringResource(R.string.auth_create_account_action),
+            loading = state.isLoading,
+            enabled = !state.isLoading,
+            onClick = {
+                val serviceList = splitValues(services)
+                val zoneList = splitValues(zones)
+                validationError = when {
+                    validateCommon(name, email, password, accepted) != null -> validateCommon(name, email, password, accepted)
+                    gender !in AuthGender.VALUES -> "Selecciona un género válido."
+                    serviceList.isEmpty() -> "Ingresa al menos un servicio."
+                    age.toIntOrNull() == null -> "Ingresa una edad válida."
+                    hourlyRate.toBigDecimalOrNull() == null -> "Ingresa una tarifa válida."
+                    experience.toIntOrNull() == null -> "Ingresa los años de experiencia."
+                    else -> null
+                }
+                if (validationError == null) {
+                    viewModel.registerWorker(
+                        name.trim(), email.trim(), password,
+                        phone.trim().takeIf(String::isNotEmpty), age.toInt(), gender,
+                        serviceList, zoneList, hourlyRate.toBigDecimal(), experience.toInt(),
+                        bio.trim().takeIf(String::isNotEmpty), TERMS_VERSION
+                    )
+                }
+            }
+        )
+        Spacer(Modifier.height(20.dp))
     }
 }
 
@@ -166,82 +298,99 @@ fun TermsAcceptanceScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
-    Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Actualización de términos", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(12.dp))
-        Text("Debes aceptar los términos y condiciones vigentes para continuar.")
-        Spacer(Modifier.height(12.dp))
-        Text("Versión vigente: $TERMS_VERSION")
-        Spacer(Modifier.height(20.dp))
-        Button(
-            onClick = { viewModel.acceptTerms(TERMS_VERSION) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isLoading
-        ) {
-            if (state.isLoading) CircularProgressIndicator(strokeWidth = 2.dp)
-            else Text("Aceptar términos")
+
+    AuthScreen(modifier = modifier, onBack = onBack, verticalArrangement = Arrangement.Center) {
+        AuthTitle(
+            title = stringResource(R.string.auth_terms_title),
+            subtitle = stringResource(R.string.auth_terms_subtitle)
+        )
+        Spacer(Modifier.height(24.dp))
+        InCleanHomeCard {
+            Text(
+                text = stringResource(R.string.auth_terms_summary),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.auth_terms_current_version, TERMS_VERSION),
+                style = MaterialTheme.typography.labelLarge,
+                color = Navy
+            )
         }
         state.errorMessage?.let {
-            Spacer(Modifier.height(12.dp)); Text(it, color = MaterialTheme.colorScheme.error)
+            Spacer(Modifier.height(12.dp))
+            AuthInlineError(it)
         }
-        Spacer(Modifier.height(12.dp))
-        Button(onClick = onBack, enabled = !state.isLoading) { Text("Volver") }
+        Spacer(Modifier.height(24.dp))
+        PrimaryButton(
+            text = stringResource(R.string.auth_accept_continue),
+            onClick = { viewModel.acceptTerms(TERMS_VERSION) },
+            enabled = !state.isLoading,
+            loading = state.isLoading
+        )
     }
 }
 
 @Composable
-private fun RegistrationColumn(
-    title: String, onBack: () -> Unit, modifier: Modifier, content: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp), content = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = onBack) { Text("Volver") }
-                Text(title, modifier = Modifier.padding(start = 12.dp), style = MaterialTheme.typography.headlineSmall)
+private fun AccountTypeCard(icon: ImageVector, title: String, description: String, onClick: () -> Unit) {
+    InCleanHomeCard(onClick = onClick) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(
+                modifier = Modifier.size(52.dp).background(GreenLight, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(28.dp))
             }
-            content()
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, style = MaterialTheme.typography.titleMedium, color = Navy)
+                Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
-    )
-}
-
-@Composable
-private fun Field(value: String, onChange: (String) -> Unit, label: String, disabled: Boolean, minLines: Int = 1, password: Boolean = false) {
-    OutlinedTextField(
-        value = value, onValueChange = onChange, modifier = Modifier.fillMaxWidth(),
-        label = { Text(label) }, enabled = !disabled, minLines = minLines,
-        maxLines = if (minLines > 1) 5 else 1,
-        visualTransformation = if (password) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None
-    )
-}
-
-@Composable
-private fun TermsCheck(checked: Boolean, onChecked: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = checked, onCheckedChange = onChecked)
-        Text("Acepto los términos y condiciones ($TERMS_VERSION)")
     }
 }
 
 @Composable
-private fun SubmitButton(loading: Boolean, onClick: () -> Unit) {
-    Button(onClick = onClick, modifier = Modifier.fillMaxWidth(), enabled = !loading) {
-        if (loading) CircularProgressIndicator(strokeWidth = 2.dp) else Text("Crear cuenta")
+private fun FormSection(title: String, content: @Composable () -> Unit) {
+    AuthSectionTitle(title)
+    Spacer(Modifier.height(8.dp))
+    InCleanHomeCard {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) { content() }
+    }
+    Spacer(Modifier.height(12.dp))
+}
+
+@Composable
+private fun TermsCheck(checked: Boolean, onChecked: (Boolean) -> Unit, enabled: Boolean) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = enabled) { onChecked(!checked) }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(checked = checked, onCheckedChange = onChecked, enabled = enabled)
+        Text(
+            text = stringResource(R.string.auth_accept_terms_version, TERMS_VERSION),
+            modifier = Modifier.padding(start = 8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Navy
+        )
     }
 }
 
 private fun validateCommon(name: String, email: String, password: String, accepted: Boolean): String? = when {
     name.isBlank() -> "El nombre es obligatorio."
-    !email.contains("@") -> "Ingresa un email válido."
+    !email.contains("@") -> "Ingresa un correo electrónico válido."
     password.isBlank() -> "La contraseña es obligatoria."
     !accepted -> "Debes aceptar los términos y condiciones."
     else -> null
 }
 
-private fun splitValues(value: String): List<String> = value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
+private fun splitValues(value: String): List<String> =
+    value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
 
 private const val TERMS_VERSION = "v2"
