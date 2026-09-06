@@ -123,7 +123,8 @@
     <string name="title_booking_requests">Solicitudes</string>
     <string name="title_booking_detail">Detalle de solicitud</string>
     <string name="title_new_booking">Nueva reserva</string>
-    <string name="empty_bookings">Todavía no tienes reservas.</string>
+    <string name="empty_bookings">Aún no tienes reservas\nCuando reserves un servicio, aparecerá aquí.</string>
+    <string name="bookings_subtitle">Consulta y gestiona los servicios que has reservado.</string>
     <string name="empty_booking_requests">Todavía no has recibido solicitudes.</string>
     <string name="booking_reviewed">Servicio calificado</string>
     <string name="booking_rate_service">Calificar servicio</string>
@@ -164,10 +165,13 @@
 
     <!-- Messaging -->
     <string name="title_conversations">Conversaciones</string>
+    <string name="conversations_subtitle">Mantente en contacto con clientes y trabajadores.</string>
     <string name="action_refresh_conversation">Actualizar conversación</string>
-    <string name="empty_conversations">No hay conversaciones por el momento.</string>
+    <string name="empty_conversations">No tienes conversaciones todavía\nCuando contactes a alguien, aparecerán aquí.</string>
     <string name="empty_messages">Todavía no hay mensajes en esta conversación. Envía el primero cuando quieras.</string>
     <string name="label_message">Mensaje</string>
+    <string name="message_placeholder">Escribe un mensaje…</string>
+    <string name="message_character_count">%1$d/%2$d</string>
     <string name="action_send">Enviar</string>
     <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
 

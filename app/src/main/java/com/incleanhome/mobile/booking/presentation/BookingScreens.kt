@@ -1,6 +1,7 @@
 package com.incleanhome.mobile.booking.presentation
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,15 +10,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,10 +45,20 @@ import com.incleanhome.mobile.booking.data.BookingStatus
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.InCleanHomeCard
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatDateRange
+import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.theme.Border
+import com.incleanhome.mobile.ui.theme.GreenLight
+import com.incleanhome.mobile.ui.theme.Navy
+import com.incleanhome.mobile.ui.theme.PrimaryGreen
 
 @Composable
 fun MyBookingsScreen(
@@ -49,16 +67,173 @@ fun MyBookingsScreen(
     onReviewClick: (Int) -> Unit,
     onCancelClick: (Int) -> Unit,
     modifier: Modifier = Modifier
-) = BookingListScreen(
-    title = stringResource(R.string.title_my_bookings),
-    workerView = false,
-    viewModel = viewModel,
-    onBack = onBack,
-    onBookingClick = {},
-    onReviewClick = onReviewClick,
-    onCancelClick = onCancelClick,
-    modifier = modifier
-)
+) {
+    val state by viewModel.uiState.collectAsState()
+    var cancellationTarget by remember { mutableStateOf<Booking?>(null) }
+
+    ScreenBackground(modifier) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            ScreenHeader(stringResource(R.string.title_my_bookings), onBack)
+            Text(
+                text = stringResource(R.string.bookings_subtitle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(16.dp))
+            SecondaryButton(
+                text = stringResource(R.string.action_refresh),
+                onClick = viewModel::refresh,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isLoading
+            )
+            Spacer(Modifier.height(16.dp))
+            when {
+                state.isLoading -> LoadingState(Modifier.weight(1f))
+                state.errorMessage != null -> ErrorRetryState(
+                    state.errorMessage.orEmpty(),
+                    viewModel::refresh,
+                    Modifier.weight(1f)
+                )
+                state.bookings.isEmpty() -> EmptyState(
+                    stringResource(R.string.empty_bookings),
+                    Modifier.weight(1f)
+                )
+                else -> LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(state.bookings, key = Booking::id) { booking ->
+                        ClientBookingCard(
+                            booking = booking,
+                            isUpdating = state.updatingBookingId != null,
+                            onReviewClick = { onReviewClick(booking.id) },
+                            onCancelClick = { cancellationTarget = booking }
+                        )
+                    }
+                    item { Spacer(Modifier.height(4.dp)) }
+                }
+            }
+            state.successMessage?.let {
+                Text(it, color = PrimaryGreen, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+
+    cancellationTarget?.let { booking ->
+        AlertDialog(
+            onDismissRequest = { cancellationTarget = null },
+            title = { Text(stringResource(R.string.booking_cancel)) },
+            text = { Text(stringResource(R.string.booking_cancel_question)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onCancelClick(booking.id)
+                    cancellationTarget = null
+                }) { Text(stringResource(R.string.action_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { cancellationTarget = null }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun ClientBookingCard(
+    booking: Booking,
+    isUpdating: Boolean,
+    onReviewClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
+    InCleanHomeCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = booking.workerName,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleLarge,
+                color = Navy
+            )
+            StatusBadge(booking.status)
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = presentationValue(booking.serviceType),
+            style = MaterialTheme.typography.titleSmall,
+            color = PrimaryGreen
+        )
+        Spacer(Modifier.height(8.dp))
+        BookingInfoRow(
+            icon = Icons.Rounded.CalendarMonth,
+            text = formatDate(booking.date)
+        )
+        BookingInfoRow(
+            icon = Icons.Rounded.Schedule,
+            text = "${formatTime(booking.startTime)} – ${formatTime(booking.endTime)}"
+        )
+        booking.address.takeIf(String::isNotBlank)?.let {
+            BookingInfoRow(icon = Icons.Rounded.LocationOn, text = it)
+        }
+
+        if (booking.status == BookingStatus.COMPLETED) {
+            Spacer(Modifier.height(12.dp))
+            if (booking.hasReview) {
+                Text(
+                    stringResource(R.string.booking_reviewed),
+                    color = PrimaryGreen,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            } else {
+                PrimaryButton(
+                    text = stringResource(R.string.booking_rate_service),
+                    onClick = onReviewClick
+                )
+            }
+        }
+        if (booking.status == BookingStatus.PENDING || booking.status == BookingStatus.ACCEPTED) {
+            Spacer(Modifier.height(12.dp))
+            SecondaryButton(
+                text = stringResource(R.string.booking_cancel),
+                onClick = onCancelClick,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isUpdating
+            )
+        }
+    }
+}
+
+@Composable
+private fun BookingInfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(20.dp))
+        Text(text, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun StatusBadge(status: String) {
+    val isPositive = status == BookingStatus.ACCEPTED || status == BookingStatus.COMPLETED
+    Surface(
+        color = if (isPositive) GreenLight else MaterialTheme.colorScheme.background,
+        contentColor = if (isPositive) PrimaryGreen else Navy,
+        shape = MaterialTheme.shapes.small,
+        border = BorderStroke(1.dp, if (isPositive) PrimaryGreen else Border)
+    ) {
+        Text(
+            text = presentationValue(status),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
 
 @Composable
 fun WorkerRequestsScreen(
