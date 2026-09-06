@@ -3,7 +3,17 @@ package com.incleanhome.mobile.navigation
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,11 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.incleanhome.mobile.booking.presentation.BookingDetailViewModel
@@ -26,6 +38,7 @@ import com.incleanhome.mobile.booking.presentation.CreateBookingViewModel
 import com.incleanhome.mobile.booking.presentation.MyBookingsScreen
 import com.incleanhome.mobile.booking.presentation.WorkerBookingDetailScreen
 import com.incleanhome.mobile.booking.presentation.WorkerRequestsScreen
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
@@ -57,6 +70,8 @@ import com.incleanhome.mobile.worker.presentation.WorkerAvailabilityViewModel
 import com.incleanhome.mobile.worker.presentation.WorkerProfileScreen
 import com.incleanhome.mobile.worker.presentation.WorkerProfileViewModel
 import com.incleanhome.mobile.profile.presentation.*
+import com.incleanhome.mobile.ui.components.BottomNavigationItem
+import com.incleanhome.mobile.ui.components.InCleanHomeNavigationBar
 import kotlinx.coroutines.launch
 
 private object Routes {
@@ -133,6 +148,31 @@ fun AppNavigation(
     val startDestination = remember {
         destinationForSession(sessionState)
     }
+    val authenticatedSession = (sessionState as? SessionState.Authenticated)?.session
+    val homeRoute = if (authenticatedSession?.role.equals(SessionManager.WORKER_ROLE, true)) {
+        Routes.WORKER_HOME
+    } else {
+        Routes.CLIENT_HOME
+    }
+    val mainDestinations = if (homeRoute == Routes.WORKER_HOME) {
+        listOf(
+            BottomNavigationItem(Routes.WORKER_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
+            BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.Default.Assignment),
+            BottomNavigationItem(Routes.WORKER_EVENTS, stringResource(R.string.nav_events), Icons.Default.Event),
+            BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
+            BottomNavigationItem(Routes.WORKER_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
+        )
+    } else {
+        listOf(
+            BottomNavigationItem(Routes.CLIENT_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
+            BottomNavigationItem(Routes.WORKER_SEARCH, stringResource(R.string.nav_search), Icons.Default.Search),
+            BottomNavigationItem(Routes.CLIENT_BOOKINGS, stringResource(R.string.nav_bookings), Icons.Default.DateRange),
+            BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
+            BottomNavigationItem(Routes.CLIENT_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
+        )
+    }
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
 
     LaunchedEffect(loginUiState.nextStep) {
         when (loginUiState.nextStep) {
@@ -166,11 +206,23 @@ fun AppNavigation(
         }
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = modifier
-    ) {
+    Scaffold(
+        modifier = modifier,
+        bottomBar = {
+            if (authenticatedSession != null && mainDestinations.any { it.route == currentRoute }) {
+                InCleanHomeNavigationBar(
+                    items = mainDestinations,
+                    currentRoute = currentRoute,
+                    onNavigate = { route -> navController.navigateTopLevel(route, homeRoute) }
+                )
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding)
+        ) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 loginViewModel = loginViewModel,
@@ -201,6 +253,7 @@ fun AppNavigation(
         }
         composable(Routes.CLIENT_HOME) {
             ClientHomeScreen(
+                userName = authenticatedSession?.name,
                 onSearchWorkers = { navController.navigate(Routes.WORKER_SEARCH) },
                 onBookings = { navController.navigate(Routes.CLIENT_BOOKINGS) },
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
@@ -211,6 +264,7 @@ fun AppNavigation(
         }
         composable(Routes.WORKER_HOME) {
             WorkerHomeScreen(
+                userName = authenticatedSession?.name,
                 onProfile = { navController.navigate(Routes.WORKER_PROFILE) },
                 onAvailability = { navController.navigate(Routes.WORKER_AVAILABILITY) },
                 onRequests = { navController.navigate(Routes.WORKER_REQUESTS) },
@@ -493,6 +547,7 @@ fun AppNavigation(
                 onBack = navController::popBackStack
             )
         }
+        }
     }
 }
 
@@ -520,5 +575,14 @@ private fun NavHostController.navigateAndClearBackStack(route: String) {
             inclusive = true
         }
         launchSingleTop = true
+    }
+}
+
+private fun NavHostController.navigateTopLevel(route: String, homeRoute: String) {
+    if (currentDestination?.route == route) return
+    navigate(route) {
+        popUpTo(homeRoute) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }

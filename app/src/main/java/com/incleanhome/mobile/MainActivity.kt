@@ -23,7 +23,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             InCleanHomeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background
+                ) { innerPadding ->
                     AppNavigation(
                         sessionManager = sessionManager,
                         modifier = Modifier.padding(innerPadding)

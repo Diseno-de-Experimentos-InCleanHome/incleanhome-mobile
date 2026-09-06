@@ -166,4 +166,22 @@
     <string name="home_role">Rol: %1$s</string>
     <string name="home_messages">Mensajes</string>
     <string name="home_logout">Cerrar sesión</string>
+    <string name="home_brand">InCleanHome</string>
+    <string name="home_hello">Hola</string>
+    <string name="home_hello_named">Hola, %1$s</string>
+    <string name="home_client_prompt">¿Qué necesitas hoy?</string>
+    <string name="home_worker_prompt">Gestiona tus servicios</string>
+    <string name="home_quick_actions">Acciones rápidas</string>
+    <string name="home_more_options">Más opciones</string>
+    <string name="home_search_staff">Buscar personal</string>
+    <string name="home_view_requests">Ver solicitudes</string>
+    <string name="home_reviews">Mis reseñas</string>
+    <string name="home_applications">Mis postulaciones</string>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_bookings">Reservas</string>
+    <string name="nav_messages">Mensajes</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="nav_requests">Solicitudes</string>
+    <string name="nav_events">Eventos</string>
 </resources>
