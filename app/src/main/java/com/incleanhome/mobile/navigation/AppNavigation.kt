@@ -30,6 +30,7 @@ import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
 import com.incleanhome.mobile.home.presentation.WorkerHomeScreen
+import com.incleanhome.mobile.events.presentation.*
 import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
@@ -71,6 +72,13 @@ private object Routes {
     const val CHAT = "chat/{userId}?userName={userName}"
     const val CREATE_REVIEW = "create_review/{bookingId}"
     const val WORKER_REVIEWS = "worker_reviews"
+    const val CLIENT_EVENTS = "client_events"
+    const val CREATE_EVENT = "create_event"
+    const val CLIENT_EVENT_DETAIL = "client_event_detail/{eventId}"
+    const val EVENT_APPLICATIONS = "event_applications/{eventId}"
+    const val WORKER_EVENTS = "worker_events"
+    const val WORKER_EVENT_DETAIL = "worker_event_detail/{eventId}"
+    const val WORKER_APPLICATIONS = "worker_applications"
 
     fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
     fun createBooking(workerId: Int): String = "create_booking/$workerId"
@@ -78,6 +86,9 @@ private object Routes {
     fun chat(userId: Int, userName: String): String =
         "chat/$userId?userName=${Uri.encode(userName)}"
     fun createReview(bookingId: Int): String = "create_review/$bookingId"
+    fun clientEventDetail(id:Int) = "client_event_detail/$id"
+    fun eventApplications(id:Int) = "event_applications/$id"
+    fun workerEventDetail(id:Int) = "worker_event_detail/$id"
 }
 
 @Composable
@@ -158,6 +169,7 @@ fun AppNavigation(
                 onSearchWorkers = { navController.navigate(Routes.WORKER_SEARCH) },
                 onBookings = { navController.navigate(Routes.CLIENT_BOOKINGS) },
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
+                onEvents = { navController.navigate(Routes.CLIENT_EVENTS) },
                 onLogout = logout
             )
         }
@@ -168,6 +180,8 @@ fun AppNavigation(
                 onRequests = { navController.navigate(Routes.WORKER_REQUESTS) },
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onReviews = { navController.navigate(Routes.WORKER_REVIEWS) },
+                onEvents = { navController.navigate(Routes.WORKER_EVENTS) },
+                onEventApplications = { navController.navigate(Routes.WORKER_APPLICATIONS) },
                 onLogout = logout
             )
         }
@@ -269,6 +283,79 @@ fun AppNavigation(
             WorkerReviewsScreen(
                 viewModel = reviewsViewModel,
                 onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.CLIENT_EVENTS) { backStackEntry ->
+            val eventsViewModel: EventsViewModel = viewModel(factory = EventsViewModel.Factory(true))
+            val eventCreated by backStackEntry.savedStateHandle
+                .getStateFlow("event_created", false).collectAsState()
+            LaunchedEffect(eventCreated) {
+                if (eventCreated) {
+                    eventsViewModel.refresh()
+                    backStackEntry.savedStateHandle["event_created"] = false
+                }
+            }
+            EventsScreen(
+                viewModel = eventsViewModel,
+                clientView = true,
+                onBack = navController::popBackStack,
+                onCreate = { navController.navigate(Routes.CREATE_EVENT) },
+                onEvent = { navController.navigate(Routes.clientEventDetail(it)) }
+            )
+        }
+        composable(Routes.CREATE_EVENT) {
+            val eventViewModel: CreateEventViewModel = viewModel(factory = CreateEventViewModel.Factory)
+            CreateEventScreen(
+                viewModel = eventViewModel,
+                onBack = navController::popBackStack,
+                onDone = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("event_created", true)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(
+            Routes.CLIENT_EVENT_DETAIL,
+            arguments = listOf(navArgument("eventId") { type = NavType.IntType })
+        ) { entry ->
+            val id = entry.arguments?.getInt("eventId") ?: return@composable
+            val vm: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory(id))
+            EventDetailScreen(vm, false, navController::popBackStack, {
+                navController.navigate(Routes.eventApplications(it))
+            })
+        }
+        composable(
+            Routes.EVENT_APPLICATIONS,
+            arguments = listOf(navArgument("eventId") { type = NavType.IntType })
+        ) { entry ->
+            val id = entry.arguments?.getInt("eventId") ?: return@composable
+            val vm: ApplicationsViewModel = viewModel(factory = ApplicationsViewModel.Factory(id))
+            ApplicationsScreen(vm, navController::popBackStack)
+        }
+        composable(Routes.WORKER_EVENTS) {
+            val vm: EventsViewModel = viewModel(factory = EventsViewModel.Factory(false))
+            EventsScreen(
+                viewModel = vm,
+                clientView = false,
+                onBack = navController::popBackStack,
+                onCreate = {},
+                onEvent = { navController.navigate(Routes.workerEventDetail(it)) }
+            )
+        }
+        composable(
+            Routes.WORKER_EVENT_DETAIL,
+            arguments = listOf(navArgument("eventId") { type = NavType.IntType })
+        ) { entry ->
+            val id = entry.arguments?.getInt("eventId") ?: return@composable
+            val vm: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory(id))
+            EventDetailScreen(vm, true, navController::popBackStack, {})
+        }
+        composable(Routes.WORKER_APPLICATIONS) {
+            val vm: MyApplicationsViewModel = viewModel(factory = MyApplicationsViewModel.Factory)
+            MyApplicationsScreen(
+                viewModel = vm,
+                onBack = navController::popBackStack,
+                onEvent = { navController.navigate(Routes.workerEventDetail(it)) }
             )
         }
         composable(Routes.WORKER_REQUESTS) {
