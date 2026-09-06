@@ -1,5 +1,6 @@
 package com.incleanhome.mobile.navigation
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +35,10 @@ import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorVerifyScreen
+import com.incleanhome.mobile.messaging.presentation.ChatScreen
+import com.incleanhome.mobile.messaging.presentation.ChatViewModel
+import com.incleanhome.mobile.messaging.presentation.ConversationsScreen
+import com.incleanhome.mobile.messaging.presentation.ConversationsViewModel
 import com.incleanhome.mobile.search.presentation.WorkerDetailScreen
 import com.incleanhome.mobile.search.presentation.WorkerDetailViewModel
 import com.incleanhome.mobile.search.presentation.WorkerSearchScreen
@@ -58,10 +63,14 @@ private object Routes {
     const val CLIENT_BOOKINGS = "client_bookings"
     const val WORKER_REQUESTS = "worker_requests"
     const val WORKER_BOOKING_DETAIL = "worker_booking_detail/{bookingId}"
+    const val CONVERSATIONS = "conversations"
+    const val CHAT = "chat/{userId}?userName={userName}"
 
     fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
     fun createBooking(workerId: Int): String = "create_booking/$workerId"
     fun workerBookingDetail(bookingId: Int): String = "worker_booking_detail/$bookingId"
+    fun chat(userId: Int, userName: String): String =
+        "chat/$userId?userName=${Uri.encode(userName)}"
 }
 
 @Composable
@@ -141,6 +150,7 @@ fun AppNavigation(
             ClientHomeScreen(
                 onSearchWorkers = { navController.navigate(Routes.WORKER_SEARCH) },
                 onBookings = { navController.navigate(Routes.CLIENT_BOOKINGS) },
+                onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onLogout = logout
             )
         }
@@ -149,6 +159,7 @@ fun AppNavigation(
                 onProfile = { navController.navigate(Routes.WORKER_PROFILE) },
                 onAvailability = { navController.navigate(Routes.WORKER_AVAILABILITY) },
                 onRequests = { navController.navigate(Routes.WORKER_REQUESTS) },
+                onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onLogout = logout
             )
         }
@@ -177,7 +188,8 @@ fun AppNavigation(
             WorkerDetailScreen(
                 viewModel = workerDetailViewModel,
                 onBack = navController::popBackStack,
-                onBook = { id -> navController.navigate(Routes.createBooking(id)) }
+                onBook = { id -> navController.navigate(Routes.createBooking(id)) },
+                onContact = { id, name -> navController.navigate(Routes.chat(id, name)) }
             )
         }
         composable(
@@ -227,6 +239,44 @@ fun AppNavigation(
             )
             WorkerBookingDetailScreen(
                 viewModel = bookingViewModel,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.CONVERSATIONS) {
+            val conversationsViewModel: ConversationsViewModel = viewModel(
+                factory = ConversationsViewModel.Factory
+            )
+            ConversationsScreen(
+                viewModel = conversationsViewModel,
+                onBack = navController::popBackStack,
+                onConversationClick = { conversation ->
+                    navController.navigate(Routes.chat(conversation.userId, conversation.userName))
+                }
+            )
+        }
+        composable(
+            route = Routes.CHAT,
+            arguments = listOf(
+                navArgument("userId") { type = NavType.IntType },
+                navArgument("userName") {
+                    type = NavType.StringType
+                    defaultValue = "Conversación"
+                }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
+            val currentUserId = (sessionState as? SessionState.Authenticated)
+                ?.session
+                ?.userId
+                ?: return@composable
+            val userName = backStackEntry.arguments?.getString("userName") ?: "Conversación"
+            val chatViewModel: ChatViewModel = viewModel(
+                factory = ChatViewModel.Factory(userId)
+            )
+            ChatScreen(
+                viewModel = chatViewModel,
+                currentUserId = currentUserId,
+                otherUserName = userName,
                 onBack = navController::popBackStack
             )
         }

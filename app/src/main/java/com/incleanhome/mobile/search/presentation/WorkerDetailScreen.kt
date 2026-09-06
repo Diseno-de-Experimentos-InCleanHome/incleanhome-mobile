@@ -30,6 +30,7 @@ fun WorkerDetailScreen(
     viewModel: WorkerDetailViewModel,
     onBack: () -> Unit,
     onBook: (Int) -> Unit,
+    onContact: (Int, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -64,6 +65,13 @@ fun WorkerDetailScreen(
             uiState.worker != null -> uiState.worker?.let { worker ->
                 WorkerProfile(worker = worker)
                 Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { onContact(worker.id, worker.name) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Contactar")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = { onBook(worker.id) },
                     modifier = Modifier.fillMaxWidth(),
