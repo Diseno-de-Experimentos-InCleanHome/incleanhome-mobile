@@ -154,6 +154,11 @@ class AuthRepository(
     }
 
     private fun mapResponse(response: AuthResponse): LoginResult {
+        return interpretAuthResponse(response)
+    }
+}
+
+internal fun interpretAuthResponse(response: AuthResponse): LoginResult {
         val nextStep = when {
             response.requiresTermsAcceptance == true -> LoginNextStep.TERMS
             response.requires2faSetup == true -> LoginNextStep.TWO_FA_SETUP
@@ -179,5 +184,4 @@ class AuthRepository(
         }
     }
 
-    private fun String.asBearerToken(): String = "Bearer $this"
-}
+private fun String.asBearerToken(): String = "Bearer $this"
