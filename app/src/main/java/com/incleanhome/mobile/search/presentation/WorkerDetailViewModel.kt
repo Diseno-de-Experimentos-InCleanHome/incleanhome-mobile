@@ -7,6 +7,9 @@ import com.incleanhome.mobile.search.data.AvailabilitySlot
 import com.incleanhome.mobile.search.data.Worker
 import com.incleanhome.mobile.search.data.WorkerRepository
 import com.incleanhome.mobile.search.data.WorkerResult
+import com.incleanhome.mobile.reviews.data.Review
+import com.incleanhome.mobile.reviews.data.ReviewResult
+import com.incleanhome.mobile.reviews.data.ReviewsRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,12 +23,16 @@ data class WorkerDetailUiState(
     val worker: Worker? = null,
     val isAvailabilityLoading: Boolean = true,
     val availabilityErrorMessage: String? = null,
-    val availability: List<AvailabilitySlot> = emptyList()
+    val availability: List<AvailabilitySlot> = emptyList(),
+    val isReviewsLoading: Boolean = true,
+    val reviewsErrorMessage: String? = null,
+    val reviews: List<Review> = emptyList()
 )
 
 class WorkerDetailViewModel(
     private val workerId: Int,
-    private val repository: WorkerRepository = WorkerRepository()
+    private val repository: WorkerRepository = WorkerRepository(),
+    private val reviewsRepository: ReviewsRepository = ReviewsRepository()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(WorkerDetailUiState())
     val uiState: StateFlow<WorkerDetailUiState> = _uiState.asStateFlow()
@@ -40,13 +47,16 @@ class WorkerDetailViewModel(
                 isWorkerLoading = true,
                 workerErrorMessage = null,
                 isAvailabilityLoading = true,
-                availabilityErrorMessage = null
+                availabilityErrorMessage = null,
+                isReviewsLoading = true,
+                reviewsErrorMessage = null
             )
         }
 
         viewModelScope.launch {
             val workerRequest = async { repository.getWorker(workerId) }
             val availabilityRequest = async { repository.getAvailability(workerId) }
+            val reviewsRequest = async { reviewsRepository.getWorkerReviews(workerId) }
 
             when (val result = workerRequest.await()) {
                 is WorkerResult.Success -> {
@@ -84,6 +94,19 @@ class WorkerDetailViewModel(
                             availabilityErrorMessage = result.message
                         )
                     }
+                }
+            }
+
+            when (val result = reviewsRequest.await()) {
+                is ReviewResult.Success -> _uiState.update {
+                    it.copy(isReviewsLoading = false, reviews = result.data)
+                }
+                is ReviewResult.Error -> _uiState.update {
+                    it.copy(
+                        isReviewsLoading = false,
+                        reviews = emptyList(),
+                        reviewsErrorMessage = result.message
+                    )
                 }
             }
         }

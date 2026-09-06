@@ -20,6 +20,7 @@ fun WorkerHomeScreen(
     onAvailability: () -> Unit,
     onRequests: () -> Unit,
     onMessages: () -> Unit,
+    onReviews: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -48,6 +49,10 @@ fun WorkerHomeScreen(
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onMessages) {
             Text("Mensajes")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(onClick = onReviews) {
+            Text("Mis reseñas")
         }
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onLogout) {

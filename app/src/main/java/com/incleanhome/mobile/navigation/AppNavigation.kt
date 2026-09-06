@@ -39,6 +39,10 @@ import com.incleanhome.mobile.messaging.presentation.ChatScreen
 import com.incleanhome.mobile.messaging.presentation.ChatViewModel
 import com.incleanhome.mobile.messaging.presentation.ConversationsScreen
 import com.incleanhome.mobile.messaging.presentation.ConversationsViewModel
+import com.incleanhome.mobile.reviews.presentation.CreateReviewScreen
+import com.incleanhome.mobile.reviews.presentation.CreateReviewViewModel
+import com.incleanhome.mobile.reviews.presentation.WorkerReviewsScreen
+import com.incleanhome.mobile.reviews.presentation.WorkerReviewsViewModel
 import com.incleanhome.mobile.search.presentation.WorkerDetailScreen
 import com.incleanhome.mobile.search.presentation.WorkerDetailViewModel
 import com.incleanhome.mobile.search.presentation.WorkerSearchScreen
@@ -65,12 +69,15 @@ private object Routes {
     const val WORKER_BOOKING_DETAIL = "worker_booking_detail/{bookingId}"
     const val CONVERSATIONS = "conversations"
     const val CHAT = "chat/{userId}?userName={userName}"
+    const val CREATE_REVIEW = "create_review/{bookingId}"
+    const val WORKER_REVIEWS = "worker_reviews"
 
     fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
     fun createBooking(workerId: Int): String = "create_booking/$workerId"
     fun workerBookingDetail(bookingId: Int): String = "worker_booking_detail/$bookingId"
     fun chat(userId: Int, userName: String): String =
         "chat/$userId?userName=${Uri.encode(userName)}"
+    fun createReview(bookingId: Int): String = "create_review/$bookingId"
 }
 
 @Composable
@@ -160,6 +167,7 @@ fun AppNavigation(
                 onAvailability = { navController.navigate(Routes.WORKER_AVAILABILITY) },
                 onRequests = { navController.navigate(Routes.WORKER_REQUESTS) },
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
+                onReviews = { navController.navigate(Routes.WORKER_REVIEWS) },
                 onLogout = logout
             )
         }
@@ -210,12 +218,56 @@ fun AppNavigation(
                 }
             )
         }
-        composable(Routes.CLIENT_BOOKINGS) {
+        composable(Routes.CLIENT_BOOKINGS) { backStackEntry ->
             val bookingsViewModel: BookingListViewModel = viewModel(
                 factory = BookingListViewModel.Factory
             )
+            val reviewCreated by backStackEntry.savedStateHandle
+                .getStateFlow("review_created", false)
+                .collectAsState()
+            LaunchedEffect(reviewCreated) {
+                if (reviewCreated) {
+                    bookingsViewModel.refresh()
+                    backStackEntry.savedStateHandle["review_created"] = false
+                }
+            }
             MyBookingsScreen(
                 viewModel = bookingsViewModel,
+                onBack = navController::popBackStack,
+                onReviewClick = { bookingId ->
+                    navController.navigate(Routes.createReview(bookingId))
+                }
+            )
+        }
+        composable(
+            route = Routes.CREATE_REVIEW,
+            arguments = listOf(navArgument("bookingId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val bookingId = backStackEntry.arguments?.getInt("bookingId") ?: return@composable
+            val reviewViewModel: CreateReviewViewModel = viewModel(
+                factory = CreateReviewViewModel.Factory(bookingId)
+            )
+            CreateReviewScreen(
+                viewModel = reviewViewModel,
+                onBack = navController::popBackStack,
+                onDone = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("review_created", true)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Routes.WORKER_REVIEWS) {
+            val workerId = (sessionState as? SessionState.Authenticated)
+                ?.session
+                ?.userId
+                ?: return@composable
+            val reviewsViewModel: WorkerReviewsViewModel = viewModel(
+                factory = WorkerReviewsViewModel.Factory(workerId)
+            )
+            WorkerReviewsScreen(
+                viewModel = reviewsViewModel,
                 onBack = navController::popBackStack
             )
         }

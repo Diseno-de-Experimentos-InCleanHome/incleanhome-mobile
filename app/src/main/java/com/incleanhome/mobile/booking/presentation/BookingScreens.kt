@@ -29,6 +29,7 @@ import com.incleanhome.mobile.booking.data.BookingStatus
 fun MyBookingsScreen(
     viewModel: BookingListViewModel,
     onBack: () -> Unit,
+    onReviewClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) = BookingListScreen(
     title = "Mis reservas",
@@ -36,6 +37,7 @@ fun MyBookingsScreen(
     viewModel = viewModel,
     onBack = onBack,
     onBookingClick = {},
+    onReviewClick = onReviewClick,
     modifier = modifier
 )
 
@@ -51,6 +53,7 @@ fun WorkerRequestsScreen(
     viewModel = viewModel,
     onBack = onBack,
     onBookingClick = onBookingClick,
+    onReviewClick = {},
     modifier = modifier
 )
 
@@ -61,6 +64,7 @@ private fun BookingListScreen(
     viewModel: BookingListViewModel,
     onBack: () -> Unit,
     onBookingClick: (Int) -> Unit,
+    onReviewClick: (Int) -> Unit,
     modifier: Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -83,11 +87,25 @@ private fun BookingListScreen(
             )
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.bookings, key = { it.id }) { booking ->
-                    BookingCard(
-                        booking = booking,
-                        counterpart = if (workerView) booking.clientName else booking.workerName,
-                        onClick = if (workerView) ({ onBookingClick(booking.id) }) else null
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        BookingCard(
+                            booking = booking,
+                            counterpart = if (workerView) booking.clientName else booking.workerName,
+                            onClick = if (workerView) ({ onBookingClick(booking.id) }) else null
+                        )
+                        if (!workerView && booking.status == BookingStatus.COMPLETED) {
+                            if (booking.hasReview) {
+                                Text("Servicio calificado", color = MaterialTheme.colorScheme.primary)
+                            } else {
+                                Button(
+                                    onClick = { onReviewClick(booking.id) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Calificar servicio")
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

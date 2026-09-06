@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.search.data.AvailabilitySlot
 import com.incleanhome.mobile.search.data.Worker
+import com.incleanhome.mobile.reviews.presentation.ReviewsColumn
 
 @Composable
 fun WorkerDetailScreen(
@@ -101,6 +102,18 @@ fun WorkerDetailScreen(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(20.dp))
+        Text("Reseñas", style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.height(12.dp))
+        ReviewsColumn(
+            reviews = uiState.reviews,
+            isLoading = uiState.isReviewsLoading,
+            errorMessage = uiState.reviewsErrorMessage,
+            onRetry = viewModel::loadWorker
+        )
     }
 }
 
