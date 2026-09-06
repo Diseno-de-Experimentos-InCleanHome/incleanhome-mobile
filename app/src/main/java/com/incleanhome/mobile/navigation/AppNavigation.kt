@@ -18,6 +18,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.incleanhome.mobile.booking.presentation.BookingDetailViewModel
+import com.incleanhome.mobile.booking.presentation.BookingListViewModel
+import com.incleanhome.mobile.booking.presentation.CreateBookingScreen
+import com.incleanhome.mobile.booking.presentation.CreateBookingViewModel
+import com.incleanhome.mobile.booking.presentation.MyBookingsScreen
+import com.incleanhome.mobile.booking.presentation.WorkerBookingDetailScreen
+import com.incleanhome.mobile.booking.presentation.WorkerRequestsScreen
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
@@ -47,8 +54,14 @@ private object Routes {
     const val WORKER_DETAIL = "worker_detail/{workerId}"
     const val WORKER_PROFILE = "worker_profile"
     const val WORKER_AVAILABILITY = "worker_availability"
+    const val CREATE_BOOKING = "create_booking/{workerId}"
+    const val CLIENT_BOOKINGS = "client_bookings"
+    const val WORKER_REQUESTS = "worker_requests"
+    const val WORKER_BOOKING_DETAIL = "worker_booking_detail/{bookingId}"
 
     fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
+    fun createBooking(workerId: Int): String = "create_booking/$workerId"
+    fun workerBookingDetail(bookingId: Int): String = "worker_booking_detail/$bookingId"
 }
 
 @Composable
@@ -127,6 +140,7 @@ fun AppNavigation(
         composable(Routes.CLIENT_HOME) {
             ClientHomeScreen(
                 onSearchWorkers = { navController.navigate(Routes.WORKER_SEARCH) },
+                onBookings = { navController.navigate(Routes.CLIENT_BOOKINGS) },
                 onLogout = logout
             )
         }
@@ -134,6 +148,7 @@ fun AppNavigation(
             WorkerHomeScreen(
                 onProfile = { navController.navigate(Routes.WORKER_PROFILE) },
                 onAvailability = { navController.navigate(Routes.WORKER_AVAILABILITY) },
+                onRequests = { navController.navigate(Routes.WORKER_REQUESTS) },
                 onLogout = logout
             )
         }
@@ -161,6 +176,57 @@ fun AppNavigation(
             )
             WorkerDetailScreen(
                 viewModel = workerDetailViewModel,
+                onBack = navController::popBackStack,
+                onBook = { id -> navController.navigate(Routes.createBooking(id)) }
+            )
+        }
+        composable(
+            route = Routes.CREATE_BOOKING,
+            arguments = listOf(navArgument("workerId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val workerId = backStackEntry.arguments?.getInt("workerId") ?: return@composable
+            val bookingViewModel: CreateBookingViewModel = viewModel(
+                factory = CreateBookingViewModel.Factory(workerId)
+            )
+            CreateBookingScreen(
+                viewModel = bookingViewModel,
+                onBack = navController::popBackStack,
+                onViewBookings = {
+                    navController.navigate(Routes.CLIENT_BOOKINGS) {
+                        popUpTo(Routes.WORKER_SEARCH) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Routes.CLIENT_BOOKINGS) {
+            val bookingsViewModel: BookingListViewModel = viewModel(
+                factory = BookingListViewModel.Factory
+            )
+            MyBookingsScreen(
+                viewModel = bookingsViewModel,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.WORKER_REQUESTS) {
+            val bookingsViewModel: BookingListViewModel = viewModel(
+                factory = BookingListViewModel.Factory
+            )
+            WorkerRequestsScreen(
+                viewModel = bookingsViewModel,
+                onBack = navController::popBackStack,
+                onBookingClick = { id -> navController.navigate(Routes.workerBookingDetail(id)) }
+            )
+        }
+        composable(
+            route = Routes.WORKER_BOOKING_DETAIL,
+            arguments = listOf(navArgument("bookingId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val bookingId = backStackEntry.arguments?.getInt("bookingId") ?: return@composable
+            val bookingViewModel: BookingDetailViewModel = viewModel(
+                factory = BookingDetailViewModel.Factory(bookingId)
+            )
+            WorkerBookingDetailScreen(
+                viewModel = bookingViewModel,
                 onBack = navController::popBackStack
             )
         }

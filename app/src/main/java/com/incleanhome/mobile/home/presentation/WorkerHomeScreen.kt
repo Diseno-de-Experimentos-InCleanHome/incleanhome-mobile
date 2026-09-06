@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 fun WorkerHomeScreen(
     onProfile: () -> Unit,
     onAvailability: () -> Unit,
+    onRequests: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -38,6 +39,10 @@ fun WorkerHomeScreen(
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onAvailability) {
             Text("Mi disponibilidad")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(onClick = onRequests) {
+            Text("Solicitudes")
         }
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onLogout) {

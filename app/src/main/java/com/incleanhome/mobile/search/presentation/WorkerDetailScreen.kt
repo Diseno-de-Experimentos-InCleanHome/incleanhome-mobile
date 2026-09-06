@@ -29,6 +29,7 @@ import com.incleanhome.mobile.search.data.Worker
 fun WorkerDetailScreen(
     viewModel: WorkerDetailViewModel,
     onBack: () -> Unit,
+    onBook: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,6 +63,14 @@ fun WorkerDetailScreen(
             )
             uiState.worker != null -> uiState.worker?.let { worker ->
                 WorkerProfile(worker = worker)
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { onBook(worker.id) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = worker.serviceTypes.isNotEmpty()
+                ) {
+                    Text("Reservar")
+                }
             }
         }
 
