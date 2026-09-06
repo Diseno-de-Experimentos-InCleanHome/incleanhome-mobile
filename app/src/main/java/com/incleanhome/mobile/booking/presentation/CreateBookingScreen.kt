@@ -22,8 +22,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatDateRange
+import com.incleanhome.mobile.ui.format.presentationValue
 
 @Composable
 fun CreateBookingScreen(
@@ -38,59 +46,47 @@ fun CreateBookingScreen(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = onBack) { Text("Volver") }
-            Text(
-                "Nueva reserva",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        ScreenHeader(stringResource(R.string.title_new_booking), onBack)
 
         if (state.isLoadingWorker) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                CircularProgressIndicator()
-            }
+            LoadingState()
             return@Column
         }
 
         state.createdBooking?.let { booking ->
-            Text("Reserva creada correctamente", style = MaterialTheme.typography.headlineSmall)
-            Text("${booking.workerName} · ${booking.serviceType}")
-            Text("${booking.date}, ${booking.startTime} - ${booking.endTime}")
-            Text("Estado: ${booking.status}")
-            Button(onClick = onViewBookings, modifier = Modifier.fillMaxWidth()) {
-                Text("Ver Mis reservas")
-            }
+            Text(stringResource(R.string.booking_created), style = MaterialTheme.typography.headlineSmall)
+            Text("${booking.workerName} · ${presentationValue(booking.serviceType)}")
+            Text(formatDateRange(booking.date, booking.startTime, booking.endTime))
+            Text(stringResource(R.string.label_status, presentationValue(booking.status)))
+            PrimaryButton(stringResource(R.string.booking_view_mine), onViewBookings)
             return@Column
         }
 
         val worker = state.worker
         if (worker == null) {
-            Text(state.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error)
-            Button(onClick = viewModel::loadWorker) { Text("Reintentar") }
+            ErrorRetryState(state.errorMessage.orEmpty(), viewModel::loadWorker)
             return@Column
         }
 
-        Text("Trabajador: ${worker.name}", style = MaterialTheme.typography.titleLarge)
-        Text("Selecciona un servicio ofrecido por este trabajador:")
+        Text(stringResource(R.string.booking_worker, worker.name), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.booking_choose_service))
         worker.serviceTypes.forEach { service ->
             FilterChip(
                 selected = state.selectedService == service,
                 onClick = { viewModel.selectService(service) },
-                label = { Text(service) },
+                label = { Text(presentationValue(service)) },
                 enabled = !state.isSubmitting
             )
         }
         if (worker.serviceTypes.isEmpty()) {
-            Text("Este trabajador no tiene servicios registrados.")
+            Text(stringResource(R.string.booking_no_worker_services))
         }
 
         OutlinedTextField(
             value = state.date,
             onValueChange = viewModel::updateDate,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Fecha (yyyy-MM-dd)") },
+            label = { Text(stringResource(R.string.field_date_iso)) },
             singleLine = true,
             enabled = !state.isSubmitting
         )
@@ -98,7 +94,7 @@ fun CreateBookingScreen(
             value = state.startTime,
             onValueChange = viewModel::updateStartTime,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Hora de inicio (HH:mm)") },
+            label = { Text(stringResource(R.string.field_start_time)) },
             singleLine = true,
             enabled = !state.isSubmitting,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -107,7 +103,7 @@ fun CreateBookingScreen(
             value = state.endTime,
             onValueChange = viewModel::updateEndTime,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Hora de fin (HH:mm)") },
+            label = { Text(stringResource(R.string.field_end_time)) },
             singleLine = true,
             enabled = !state.isSubmitting,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -116,14 +112,14 @@ fun CreateBookingScreen(
             value = state.address,
             onValueChange = viewModel::updateAddress,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Dirección") },
+            label = { Text(stringResource(R.string.field_address)) },
             enabled = !state.isSubmitting
         )
         OutlinedTextField(
             value = state.notes,
             onValueChange = viewModel::updateNotes,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Notas (opcional)") },
+            label = { Text(stringResource(R.string.field_notes_optional)) },
             enabled = !state.isSubmitting,
             minLines = 2
         )
@@ -131,14 +127,12 @@ fun CreateBookingScreen(
         state.errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error)
         }
-        Button(
+        PrimaryButton(
+            text = stringResource(R.string.booking_confirm),
             onClick = viewModel::submit,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isSubmitting && worker.serviceTypes.isNotEmpty()
-        ) {
-            if (state.isSubmitting) CircularProgressIndicator(strokeWidth = 2.dp)
-            else Text("Confirmar reserva")
-        }
+            enabled = worker.serviceTypes.isNotEmpty(),
+            loading = state.isSubmitting
+        )
         Spacer(Modifier.height(8.dp))
     }
 }

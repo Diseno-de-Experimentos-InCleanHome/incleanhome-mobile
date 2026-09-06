@@ -26,9 +26,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.booking.data.Booking
 import com.incleanhome.mobile.booking.data.BookingStatus
+import com.incleanhome.mobile.ui.components.EmptyState
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.formatDateRange
+import com.incleanhome.mobile.ui.format.presentationValue
 
 @Composable
 fun MyBookingsScreen(
@@ -38,7 +50,7 @@ fun MyBookingsScreen(
     onCancelClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) = BookingListScreen(
-    title = "Mis reservas",
+    title = stringResource(R.string.title_my_bookings),
     workerView = false,
     viewModel = viewModel,
     onBack = onBack,
@@ -55,7 +67,7 @@ fun WorkerRequestsScreen(
     onBookingClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) = BookingListScreen(
-    title = "Solicitudes",
+    title = stringResource(R.string.title_booking_requests),
     workerView = true,
     viewModel = viewModel,
     onBack = onBack,
@@ -79,21 +91,16 @@ private fun BookingListScreen(
     val state by viewModel.uiState.collectAsState()
     var cancellationTarget by remember { mutableStateOf<Booking?>(null) }
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        Header(title, onBack)
+        ScreenHeader(title, onBack)
         Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
-            Text("Actualizar")
+            Text(stringResource(R.string.action_refresh))
         }
         Spacer(Modifier.height(12.dp))
         when {
-            state.isLoading -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                CircularProgressIndicator()
-            }
-            state.errorMessage != null -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(state.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error)
-                Button(onClick = viewModel::refresh) { Text("Reintentar") }
-            }
-            state.bookings.isEmpty() -> Text(
-                if (workerView) "No tienes solicitudes recibidas." else "Aún no tienes reservas."
+            state.isLoading -> LoadingState()
+            state.errorMessage != null -> ErrorRetryState(state.errorMessage.orEmpty(), viewModel::refresh)
+            state.bookings.isEmpty() -> EmptyState(
+                stringResource(if (workerView) R.string.empty_booking_requests else R.string.empty_bookings)
             )
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.bookings, key = { it.id }) { booking ->
@@ -105,18 +112,18 @@ private fun BookingListScreen(
                         )
                         if (!workerView && booking.status == BookingStatus.COMPLETED) {
                             if (booking.hasReview) {
-                                Text("Servicio calificado", color = MaterialTheme.colorScheme.primary)
+                                Text(stringResource(R.string.booking_reviewed), color = MaterialTheme.colorScheme.primary)
                             } else {
                                 Button(
                                     onClick = { onReviewClick(booking.id) },
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Calificar servicio")
+                                    Text(stringResource(R.string.booking_rate_service))
                                 }
                             }
                         }
                         if (!workerView && (booking.status == BookingStatus.PENDING || booking.status == BookingStatus.ACCEPTED)) {
-                            Button(onClick = { cancellationTarget = booking }, enabled = state.updatingBookingId == null, modifier = Modifier.fillMaxWidth()) { Text("Cancelar reserva") }
+                            Button(onClick = { cancellationTarget = booking }, enabled = state.updatingBookingId == null, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.booking_cancel)) }
                         }
                     }
                 }
@@ -124,7 +131,7 @@ private fun BookingListScreen(
         }
         state.successMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
     }
-    cancellationTarget?.let { booking -> AlertDialog(onDismissRequest={cancellationTarget=null}, title={Text("Cancelar reserva")}, text={Text("¿Deseas cancelar esta reserva?")}, confirmButton={TextButton({onCancelClick(booking.id);cancellationTarget=null}){Text("Confirmar")}}, dismissButton={TextButton({cancellationTarget=null}){Text("Volver")}}) }
+    cancellationTarget?.let { booking -> AlertDialog(onDismissRequest={cancellationTarget=null}, title={Text(stringResource(R.string.booking_cancel))}, text={Text(stringResource(R.string.booking_cancel_question))}, confirmButton={TextButton({onCancelClick(booking.id);cancellationTarget=null}){Text(stringResource(R.string.action_confirm))}}, dismissButton={TextButton({cancellationTarget=null}){Text(stringResource(R.string.action_back))}}) }
 }
 
 @Composable
@@ -138,19 +145,18 @@ fun WorkerBookingDetailScreen(
         modifier = modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Header("Detalle de solicitud", onBack)
+        ScreenHeader(stringResource(R.string.title_booking_detail), onBack)
         when {
-            state.isLoading -> CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+            state.isLoading -> LoadingState()
             state.booking == null -> {
-                Text(state.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error)
-                Button(onClick = viewModel::refresh) { Text("Reintentar") }
+                ErrorRetryState(state.errorMessage.orEmpty(), viewModel::refresh)
             }
             else -> state.booking?.let { booking ->
                 BookingCard(booking, booking.clientName, null)
-                Text("Dirección: ${booking.address}")
-                if (booking.notes.isNotBlank()) Text("Notas: ${booking.notes}")
-                Text("Duración: ${booking.hours.toPlainString()} horas")
-                Text("Monto referencial: ${booking.totalAmount.toPlainString()}")
+                Text(stringResource(R.string.label_address, booking.address))
+                if (booking.notes.isNotBlank()) Text(stringResource(R.string.label_notes, booking.notes))
+                Text(stringResource(R.string.label_duration_hours, booking.hours.toPlainString()))
+                Text(stringResource(R.string.label_reference_amount, formatCurrency(booking.totalAmount)))
 
                 if (booking.status == BookingStatus.PENDING) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -158,12 +164,12 @@ fun WorkerBookingDetailScreen(
                             onClick = { viewModel.updateStatus(BookingStatus.ACCEPTED) },
                             enabled = !state.isUpdating,
                             modifier = Modifier.weight(1f)
-                        ) { Text("Aceptar") }
+                        ) { Text(stringResource(R.string.action_accept)) }
                         Button(
                             onClick = { viewModel.updateStatus(BookingStatus.REJECTED) },
                             enabled = !state.isUpdating,
                             modifier = Modifier.weight(1f)
-                        ) { Text("Rechazar") }
+                        ) { Text(stringResource(R.string.action_reject)) }
                     }
                 }
                 if (booking.status == BookingStatus.ACCEPTED) {
@@ -171,7 +177,7 @@ fun WorkerBookingDetailScreen(
                         onClick = { viewModel.updateStatus(BookingStatus.COMPLETED) },
                         enabled = !state.isUpdating,
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text("Marcar como completado") }
+                    ) { Text(stringResource(R.string.booking_mark_completed)) }
                 }
                 if (state.isUpdating) CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                 state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -182,35 +188,20 @@ fun WorkerBookingDetailScreen(
 }
 
 @Composable
-private fun Header(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(onClick = onBack) { Text("Volver") }
-        Text(
-            title,
-            modifier = Modifier.padding(start = 16.dp),
-            style = MaterialTheme.typography.headlineSmall
-        )
-    }
-}
-
-@Composable
 private fun BookingCard(
     booking: Booking,
     counterpart: String,
     onClick: (() -> Unit)?
 ) {
     val cardModifier = Modifier.fillMaxWidth().let {
-        if (onClick == null) it else it.clickable(onClick = onClick)
+        if (onClick == null) it else it.semantics { role = Role.Button }.clickable(onClick = onClick)
     }
     Card(modifier = cardModifier) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(counterpart, style = MaterialTheme.typography.titleMedium)
-            Text("Servicio: ${booking.serviceType}")
-            Text("${booking.date}, ${booking.startTime} - ${booking.endTime}")
-            Text("Estado: ${booking.status}")
+            Text(stringResource(R.string.label_service, presentationValue(booking.serviceType)))
+            Text(formatDateRange(booking.date, booking.startTime, booking.endTime))
+            Text(stringResource(R.string.label_status, presentationValue(booking.status)))
         }
     }
 }

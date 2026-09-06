@@ -25,9 +25,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.Worker
+import com.incleanhome.mobile.ui.components.EmptyState
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.presentationValues
 
 @Composable
 fun WorkerSearchScreen(
@@ -44,25 +55,13 @@ fun WorkerSearchScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = onBack) {
-                Text("Volver")
-            }
-            Text(
-                text = "Buscar trabajadores",
-                modifier = Modifier.padding(start = 16.dp),
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        ScreenHeader(stringResource(R.string.title_search_workers), onBack)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = uiState.serviceType,
             onValueChange = viewModel::onServiceTypeChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Tipo de servicio") },
+            label = { Text(stringResource(R.string.field_service_type)) },
             singleLine = true,
             enabled = !uiState.isLoading,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
@@ -72,7 +71,7 @@ fun WorkerSearchScreen(
             value = uiState.zone,
             onValueChange = viewModel::onZoneChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Zona") },
+            label = { Text(stringResource(R.string.field_zone)) },
             singleLine = true,
             enabled = !uiState.isLoading,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -92,21 +91,13 @@ fun WorkerSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading
         ) {
-            Text("Buscar")
+            Text(stringResource(R.string.action_search))
         }
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
             uiState.isLoading -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingState(Modifier.weight(1f))
             }
 
             uiState.errorMessage != null -> {
@@ -117,14 +108,7 @@ fun WorkerSearchScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = uiState.errorMessage.orEmpty(),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = viewModel::search) {
-                        Text("Reintentar")
-                    }
+                    ErrorRetryState(uiState.errorMessage.orEmpty(), viewModel::search)
                 }
             }
 
@@ -136,7 +120,7 @@ fun WorkerSearchScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("No se encontraron trabajadores.")
+                    EmptyState(stringResource(R.string.empty_search_results))
                 }
             }
 
@@ -165,15 +149,16 @@ private fun WorkerResultCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .semantics { role = Role.Button }
             .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(worker.name, style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Servicios: ${worker.serviceTypes.joinToString()}")
-            Text("Zonas: ${worker.zones.joinToString()}")
-            Text("Tarifa por hora: ${worker.hourlyRate.toPlainString()}")
-            Text("Calificación: ${worker.averageRating.toPlainString()}")
+            Text(stringResource(R.string.label_services, presentationValues(worker.serviceTypes)))
+            Text(stringResource(R.string.label_zones, worker.zones.joinToString()))
+            Text(stringResource(R.string.label_hourly_rate_named, formatCurrency(worker.hourlyRate)))
+            Text(stringResource(R.string.label_rating, worker.averageRating.toPlainString()))
         }
     }
 }

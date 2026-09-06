@@ -23,8 +23,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
+import com.incleanhome.mobile.ui.components.EmptyState
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.ScreenHeader
 
 @Composable
 fun WorkerAvailabilityScreen(
@@ -40,51 +46,24 @@ fun WorkerAvailabilityScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = onBack) {
-                Text("Volver")
-            }
-            Text(
-                text = "Mi disponibilidad",
-                modifier = Modifier.padding(start = 16.dp),
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        ScreenHeader(stringResource(R.string.title_my_availability), onBack)
         Spacer(modifier = Modifier.height(20.dp))
 
         when {
-            uiState.isLoading -> Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            uiState.isLoading -> LoadingState()
 
-            uiState.errorMessage != null && uiState.slots.isEmpty() -> Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = uiState.errorMessage.orEmpty(),
-                    color = MaterialTheme.colorScheme.error
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(onClick = viewModel::loadAvailability) {
-                    Text("Reintentar")
-                }
-            }
+            uiState.errorMessage != null && uiState.slots.isEmpty() ->
+                ErrorRetryState(uiState.errorMessage.orEmpty(), viewModel::loadAvailability)
 
             else -> {
                 Text(
-                    text = "Días: 0 domingo, 1 lunes, 2 martes, 3 miércoles, 4 jueves, 5 viernes, 6 sábado. Horarios en formato HH:mm.",
+                    text = stringResource(R.string.availability_help),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (uiState.slots.isEmpty()) {
-                    Text("No tienes disponibilidad registrada.")
+                    EmptyState(stringResource(R.string.empty_my_availability))
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
@@ -108,7 +87,7 @@ fun WorkerAvailabilityScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isSaving
                 ) {
-                    Text("Agregar horario")
+                    Text(stringResource(R.string.action_add_schedule))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -119,7 +98,7 @@ fun WorkerAvailabilityScreen(
                     if (uiState.isSaving) {
                         CircularProgressIndicator(strokeWidth = 2.dp)
                     } else {
-                        Text("Guardar disponibilidad")
+                        Text(stringResource(R.string.action_save_availability))
                     }
                 }
 
@@ -155,7 +134,7 @@ private fun AvailabilityEditor(
                 value = slot.dayOfWeek,
                 onValueChange = onDayChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Día de la semana (0-6)") },
+                label = { Text(stringResource(R.string.field_day_of_week)) },
                 singleLine = true,
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -164,7 +143,7 @@ private fun AvailabilityEditor(
                 value = slot.startTime,
                 onValueChange = onStartTimeChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Hora de inicio (HH:mm)") },
+                label = { Text(stringResource(R.string.field_start_time)) },
                 singleLine = true,
                 enabled = enabled
             )
@@ -172,7 +151,7 @@ private fun AvailabilityEditor(
                 value = slot.endTime,
                 onValueChange = onEndTimeChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Hora de fin (HH:mm)") },
+                label = { Text(stringResource(R.string.field_end_time)) },
                 singleLine = true,
                 enabled = enabled
             )
@@ -181,7 +160,7 @@ private fun AvailabilityEditor(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(if (slot.isAvailable) "Disponible" else "No disponible")
+                Text(stringResource(if (slot.isAvailable) R.string.availability_available else R.string.availability_unavailable))
                 Switch(
                     checked = slot.isAvailable,
                     onCheckedChange = onAvailableChange,
@@ -189,7 +168,7 @@ private fun AvailabilityEditor(
                 )
             }
             Button(onClick = onRemove, enabled = enabled) {
-                Text("Eliminar horario")
+                Text(stringResource(R.string.action_remove_schedule))
             }
         }
     }

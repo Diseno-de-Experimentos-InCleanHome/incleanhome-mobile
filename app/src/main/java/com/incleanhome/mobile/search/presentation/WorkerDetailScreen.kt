@@ -21,10 +21,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.AvailabilitySlot
 import com.incleanhome.mobile.search.data.Worker
 import com.incleanhome.mobile.reviews.presentation.ReviewsColumn
+import com.incleanhome.mobile.ui.components.EmptyState
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.formatTime
+import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.presentationValues
 
 @Composable
 fun WorkerDetailScreen(
@@ -42,19 +52,7 @@ fun WorkerDetailScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = onBack) {
-                Text("Volver")
-            }
-            Text(
-                text = "Detalle del trabajador",
-                modifier = Modifier.padding(start = 16.dp),
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        ScreenHeader(stringResource(R.string.title_worker_detail), onBack)
         Spacer(modifier = Modifier.height(20.dp))
 
         when {
@@ -70,7 +68,7 @@ fun WorkerDetailScreen(
                     onClick = { onContact(worker.id, worker.name) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Contactar")
+                    Text(stringResource(R.string.action_contact))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -78,7 +76,7 @@ fun WorkerDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = worker.serviceTypes.isNotEmpty()
                 ) {
-                    Text("Reservar")
+                    Text(stringResource(R.string.action_book))
                 }
             }
         }
@@ -86,7 +84,7 @@ fun WorkerDetailScreen(
         Spacer(modifier = Modifier.height(24.dp))
         HorizontalDivider()
         Spacer(modifier = Modifier.height(20.dp))
-        Text("Disponibilidad", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.title_availability), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
         when {
@@ -95,7 +93,7 @@ fun WorkerDetailScreen(
                 message = uiState.availabilityErrorMessage.orEmpty(),
                 onRetry = viewModel::loadWorker
             )
-            uiState.availability.isEmpty() -> Text("Este trabajador no tiene disponibilidad registrada.")
+            uiState.availability.isEmpty() -> EmptyState(stringResource(R.string.empty_worker_availability))
             else -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 uiState.availability.forEach { slot ->
                     AvailabilityCard(slot)
@@ -106,7 +104,7 @@ fun WorkerDetailScreen(
         Spacer(modifier = Modifier.height(24.dp))
         HorizontalDivider()
         Spacer(modifier = Modifier.height(20.dp))
-        Text("Reseñas", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.title_my_reviews), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
         ReviewsColumn(
             reviews = uiState.reviews,
@@ -121,16 +119,16 @@ fun WorkerDetailScreen(
 private fun WorkerProfile(worker: Worker) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(worker.name, style = MaterialTheme.typography.headlineMedium)
-        worker.phone?.takeIf(String::isNotBlank)?.let { Text("Teléfono: $it") }
-        Text("Edad: ${worker.age}")
-        Text("Género: ${worker.gender}")
-        Text("Servicios: ${worker.serviceTypes.joinToString()}")
-        Text("Zonas: ${worker.zones.joinToString()}")
-        Text("Tarifa por hora: ${worker.hourlyRate.toPlainString()}")
-        Text("Experiencia: ${worker.experienceYears} años")
-        Text("Biografía: ${worker.bio}")
-        Text("Calificación: ${worker.averageRating.toPlainString()}")
-        Text("Servicios realizados: ${worker.totalServices}")
+        worker.phone?.takeIf(String::isNotBlank)?.let { Text(stringResource(R.string.label_phone, it)) }
+        Text(stringResource(R.string.label_age, worker.age))
+        Text(stringResource(R.string.label_gender, presentationValue(worker.gender)))
+        Text(stringResource(R.string.label_services, presentationValues(worker.serviceTypes)))
+        Text(stringResource(R.string.label_zones, worker.zones.joinToString()))
+        Text(stringResource(R.string.label_hourly_rate_named, formatCurrency(worker.hourlyRate)))
+        Text(stringResource(R.string.label_experience, worker.experienceYears))
+        Text(stringResource(R.string.label_bio, worker.bio))
+        Text(stringResource(R.string.label_rating, worker.averageRating.toPlainString()))
+        Text(stringResource(R.string.label_services_completed, worker.totalServices))
     }
 }
 
@@ -139,8 +137,8 @@ private fun AvailabilityCard(slot: AvailabilitySlot) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(dayName(slot.dayOfWeek), style = MaterialTheme.typography.titleMedium)
-            Text("Horario: ${slot.startTime} - ${slot.endTime}")
-            Text(if (slot.isAvailable) "Disponible" else "No disponible")
+            Text(stringResource(R.string.label_schedule, "${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}"))
+            Text(stringResource(if (slot.isAvailable) R.string.availability_available else R.string.availability_unavailable))
         }
     }
 }
@@ -151,18 +149,14 @@ private fun CenteredLoading() {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-        CircularProgressIndicator()
+        LoadingState()
     }
 }
 
 @Composable
 private fun ErrorState(message: String, onRetry: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(message, color = MaterialTheme.colorScheme.error)
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onRetry) {
-            Text("Reintentar")
-        }
+        ErrorRetryState(message, onRetry)
     }
 }
 

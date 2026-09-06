@@ -26,11 +26,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.messaging.data.Conversation
 import com.incleanhome.mobile.messaging.data.Message
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
+import com.incleanhome.mobile.ui.components.EmptyState
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatDateTime
 
 @Composable
 fun ConversationsScreen(
@@ -41,29 +51,19 @@ fun ConversationsScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        MessagingHeader("Conversaciones", onBack)
+        ScreenHeader(stringResource(R.string.title_conversations), onBack)
         Spacer(Modifier.height(12.dp))
         Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
-            Text("Actualizar")
+            Text(stringResource(R.string.action_refresh))
         }
         Spacer(Modifier.height(12.dp))
 
         when {
-            state.isLoading -> Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) { CircularProgressIndicator() }
+            state.isLoading -> LoadingState()
 
-            state.errorMessage != null -> Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(state.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error)
-                Spacer(Modifier.height(8.dp))
-                Button(onClick = viewModel::refresh) { Text("Reintentar") }
-            }
+            state.errorMessage != null -> ErrorRetryState(state.errorMessage.orEmpty(), viewModel::refresh)
 
-            state.conversations.isEmpty() -> Text("Aún no tienes conversaciones.")
+            state.conversations.isEmpty() -> EmptyState(stringResource(R.string.empty_conversations))
 
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.conversations, key = Conversation::userId) { conversation ->
@@ -95,10 +95,10 @@ fun ChatScreen(
     }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        MessagingHeader(otherUserName, onBack)
+        ScreenHeader(otherUserName, onBack)
         Spacer(Modifier.height(8.dp))
         Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
-            Text("Actualizar conversación")
+            Text(stringResource(R.string.action_refresh_conversation))
         }
         Spacer(Modifier.height(8.dp))
 
@@ -107,23 +107,19 @@ fun ChatScreen(
                 Modifier.fillMaxWidth().weight(1f),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
-            ) { CircularProgressIndicator() }
+            ) { LoadingState() }
 
             state.errorMessage != null && state.messages.isEmpty() -> Column(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(state.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error)
-                Button(onClick = viewModel::refresh) { Text("Reintentar") }
+                ErrorRetryState(state.errorMessage.orEmpty(), viewModel::refresh)
             }
 
             else -> {
                 if (state.messages.isEmpty()) {
-                    Text(
-                        "No hay mensajes en esta conversación.",
-                        modifier = Modifier.weight(1f)
-                    )
+                    EmptyState(stringResource(R.string.empty_messages), modifier = Modifier.weight(1f))
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth().weight(1f),
@@ -149,25 +145,23 @@ fun ChatScreen(
             value = state.draft,
             onValueChange = viewModel::updateDraft,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Mensaje") },
+            label = { Text(stringResource(R.string.label_message)) },
             supportingText = { Text("${state.draft.length}/${ChatViewModel.MAX_CONTENT_LENGTH}") },
             enabled = !state.isSending,
             maxLines = 4
         )
-        Button(
+        PrimaryButton(
+            text = stringResource(R.string.action_send),
             onClick = viewModel::send,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isSending && state.draft.isNotBlank()
-        ) {
-            if (state.isSending) CircularProgressIndicator(strokeWidth = 2.dp)
-            else Text("Enviar")
-        }
+            enabled = state.draft.isNotBlank(),
+            loading = state.isSending
+        )
     }
 }
 
 @Composable
 private fun ConversationCard(conversation: Conversation, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    Card(modifier = Modifier.fillMaxWidth().semantics { role = Role.Button }.clickable(onClick = onClick)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -176,14 +170,14 @@ private fun ConversationCard(conversation: Conversation, onClick: () -> Unit) {
                 Text(conversation.userName, style = MaterialTheme.typography.titleMedium)
                 if (conversation.unreadCount > 0) {
                     Text(
-                        "${conversation.unreadCount} sin leer",
+                        pluralStringResource(R.plurals.unread_messages, conversation.unreadCount, conversation.unreadCount),
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
             Text(conversation.lastMessage, maxLines = 2)
             conversation.lastMessageAt?.let {
-                Text(formatTimestamp(it), style = MaterialTheme.typography.bodySmall)
+                Text(formatDateTime(it), style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -207,30 +201,9 @@ private fun MessageBubble(message: Message, isMine: Boolean) {
             Column(Modifier.padding(10.dp)) {
                 Text(message.content)
                 message.createdAt?.let {
-                    Text(formatTimestamp(it), style = MaterialTheme.typography.bodySmall)
+                    Text(formatDateTime(it), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
     }
 }
-
-@Composable
-private fun MessagingHeader(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(onClick = onBack) { Text("Volver") }
-        Text(
-            title,
-            modifier = Modifier.padding(start = 16.dp),
-            style = MaterialTheme.typography.headlineSmall
-        )
-    }
-}
-
-private fun formatTimestamp(value: String): String = runCatching {
-    OffsetDateTime.parse(value).format(DISPLAY_DATE_TIME)
-}.getOrDefault(value)
-
-private val DISPLAY_DATE_TIME: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")

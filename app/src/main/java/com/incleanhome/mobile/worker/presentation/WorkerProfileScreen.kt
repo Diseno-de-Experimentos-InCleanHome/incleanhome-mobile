@@ -19,8 +19,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.worker.data.WorkerProfile
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.presentationValues
 
 @Composable
 fun WorkerProfileScreen(
@@ -37,46 +45,18 @@ fun WorkerProfileScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = onBack) {
-                Text("Volver")
-            }
-            Text(
-                text = "Mi perfil",
-                modifier = Modifier.padding(start = 16.dp),
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        ScreenHeader(stringResource(R.string.title_my_profile), onBack)
         Spacer(modifier = Modifier.height(24.dp))
 
         when {
-            uiState.isLoading -> Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            uiState.isLoading -> LoadingState()
 
-            uiState.errorMessage != null -> Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = uiState.errorMessage.orEmpty(),
-                    color = MaterialTheme.colorScheme.error
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(onClick = viewModel::loadProfile) {
-                    Text("Reintentar")
-                }
-            }
+            uiState.errorMessage != null -> ErrorRetryState(uiState.errorMessage.orEmpty(), viewModel::loadProfile)
 
             uiState.profile != null -> uiState.profile?.let { profile ->
                 WorkerProfileContent(profile)
                 Spacer(Modifier.height(12.dp))
-                Button(onClick = onEdit) { Text("Editar perfil") }
+                Button(onClick = onEdit) { Text(stringResource(R.string.action_edit_profile)) }
             }
         }
     }
@@ -86,15 +66,15 @@ fun WorkerProfileScreen(
 private fun WorkerProfileContent(profile: WorkerProfile) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(profile.name, style = MaterialTheme.typography.headlineMedium)
-        profile.phone?.takeIf(String::isNotBlank)?.let { Text("Teléfono: $it") }
-        Text("Edad: ${profile.age}")
-        Text("Género: ${profile.gender}")
-        Text("Servicios: ${profile.serviceTypes.joinToString()}")
-        Text("Zonas: ${profile.zones.joinToString()}")
-        Text("Tarifa por hora: ${profile.hourlyRate.toPlainString()}")
-        Text("Experiencia: ${profile.experienceYears} años")
-        Text("Biografía: ${profile.bio}")
-        Text("Calificación: ${profile.averageRating.toPlainString()}")
-        Text("Servicios realizados: ${profile.totalServices}")
+        profile.phone?.takeIf(String::isNotBlank)?.let { Text(stringResource(R.string.label_phone, it)) }
+        Text(stringResource(R.string.label_age, profile.age))
+        Text(stringResource(R.string.label_gender, presentationValue(profile.gender)))
+        Text(stringResource(R.string.label_services, presentationValues(profile.serviceTypes)))
+        Text(stringResource(R.string.label_zones, profile.zones.joinToString()))
+        Text(stringResource(R.string.label_hourly_rate_named, formatCurrency(profile.hourlyRate)))
+        Text(stringResource(R.string.label_experience, profile.experienceYears))
+        Text(stringResource(R.string.label_bio, profile.bio))
+        Text(stringResource(R.string.label_rating, profile.averageRating.toPlainString()))
+        Text(stringResource(R.string.label_services_completed, profile.totalServices))
     }
 }

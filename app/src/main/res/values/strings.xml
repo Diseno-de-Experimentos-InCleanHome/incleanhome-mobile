@@ -1,3 +1,169 @@
 <resources>
     <string name="app_name">InCleanHome</string>
+
+    <!-- Common presentation -->
+    <string name="action_back">Volver</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_refresh">Actualizar</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_accept">Aceptar</string>
+    <string name="action_reject">Rechazar</string>
+    <string name="loading">Cargando…</string>
+    <string name="error_with_message">Error: %1$s</string>
+    <string name="success_with_message">Confirmación: %1$s</string>
+    <string name="unknown_value">Sin especificar</string>
+
+    <!-- Canonical backend values: presentation only -->
+    <string name="service_general_cleaning">Limpieza general</string>
+    <string name="service_deep_cleaning">Limpieza profunda</string>
+    <string name="service_child_care">Cuidado de niños</string>
+    <string name="service_adult_care">Cuidado de adultos</string>
+    <string name="gender_female">Femenino</string>
+    <string name="gender_male">Masculino</string>
+    <string name="gender_other">Otro</string>
+    <string name="role_client">Cliente</string>
+    <string name="role_worker">Trabajador/a</string>
+    <string name="status_pending">Pendiente</string>
+    <string name="status_accepted">Aceptada</string>
+    <string name="status_rejected">Rechazada</string>
+    <string name="status_cancelled">Cancelada</string>
+    <string name="status_completed">Completada</string>
+    <string name="status_open">Abierto</string>
+    <string name="status_staffed">Personal completo</string>
+    <string name="status_in_progress">En progreso</string>
+    <string name="status_withdrawn">Retirada</string>
+    <string name="availability_available">Disponible</string>
+    <string name="availability_unavailable">No disponible</string>
+
+    <!-- Shared labels -->
+    <string name="label_service">Servicio: %1$s</string>
+    <string name="label_services">Servicios: %1$s</string>
+    <string name="label_status">Estado: %1$s</string>
+    <string name="label_gender">Género: %1$s</string>
+    <string name="label_zone">Zona: %1$s</string>
+    <string name="label_zones">Zonas: %1$s</string>
+    <string name="label_address">Dirección: %1$s</string>
+    <string name="label_notes">Notas: %1$s</string>
+    <string name="label_duration_hours">Duración: %1$s horas</string>
+    <string name="label_hourly_rate">%1$s por hora</string>
+    <string name="label_hourly_rate_named">Tarifa por hora: %1$s</string>
+    <string name="label_reference_amount">Monto referencial: %1$s</string>
+    <string name="label_schedule">Horario: %1$s</string>
+    <string name="label_date">Fecha: %1$s</string>
+    <string name="label_rating">Calificación: %1$s</string>
+    <string name="label_phone">Teléfono: %1$s</string>
+    <string name="label_age">Edad: %1$d</string>
+    <string name="label_experience">Experiencia: %1$d años</string>
+    <string name="label_bio">Biografía: %1$s</string>
+    <string name="label_services_completed">Servicios realizados: %1$d</string>
+
+    <!-- Bookings -->
+    <string name="title_my_bookings">Mis reservas</string>
+    <string name="title_booking_requests">Solicitudes</string>
+    <string name="title_booking_detail">Detalle de solicitud</string>
+    <string name="title_new_booking">Nueva reserva</string>
+    <string name="empty_bookings">Todavía no tienes reservas.</string>
+    <string name="empty_booking_requests">Todavía no has recibido solicitudes.</string>
+    <string name="booking_reviewed">Servicio calificado</string>
+    <string name="booking_rate_service">Calificar servicio</string>
+    <string name="booking_cancel">Cancelar reserva</string>
+    <string name="booking_cancel_question">¿Deseas cancelar esta reserva?</string>
+    <string name="booking_mark_completed">Marcar como completado</string>
+    <string name="booking_created">Reserva creada correctamente</string>
+    <string name="booking_view_mine">Ver Mis reservas</string>
+    <string name="booking_worker">Trabajador: %1$s</string>
+    <string name="booking_choose_service">Selecciona un servicio ofrecido por este trabajador:</string>
+    <string name="booking_no_worker_services">Este trabajador no tiene servicios registrados.</string>
+    <string name="booking_confirm">Confirmar reserva</string>
+
+    <!-- Events and applications -->
+    <string name="title_my_events">Mis eventos</string>
+    <string name="title_available_events">Eventos disponibles</string>
+    <string name="title_create_event">Crear evento</string>
+    <string name="title_event_detail">Detalle del evento</string>
+    <string name="title_applications">Postulaciones</string>
+    <string name="title_my_applications">Mis postulaciones</string>
+    <string name="empty_my_events">Todavía no has creado eventos.</string>
+    <string name="empty_available_events">No hay eventos disponibles por el momento.</string>
+    <string name="empty_applications">Este evento todavía no tiene postulaciones.</string>
+    <string name="empty_my_applications">Todavía no tienes postulaciones.</string>
+    <string name="event_created">Evento creado correctamente</string>
+    <string name="event_publish">Publicar evento</string>
+    <string name="event_apply">Postular</string>
+    <string name="event_no_applications_allowed">Este evento no admite nuevas postulaciones.</string>
+    <string name="event_view_applications">Ver postulaciones</string>
+    <string name="event_cancel">Cancelar evento</string>
+    <string name="event_application_status">Estado de tu postulación: %1$s</string>
+    <string name="event_withdraw_application">Retirar postulación</string>
+    <string name="event_published_by">Publicado por: %1$s</string>
+    <string name="event_workers">Personal: %1$d/%2$d</string>
+    <string name="event_workers_accepted">Personal aceptado: %1$d/%2$d</string>
+    <string name="event_deadline">Postulaciones hasta: %1$s</string>
+    <string name="event_message">Mensaje: %1$s</string>
+
+    <!-- Messaging -->
+    <string name="title_conversations">Conversaciones</string>
+    <string name="action_refresh_conversation">Actualizar conversación</string>
+    <string name="empty_conversations">No hay conversaciones por el momento.</string>
+    <string name="empty_messages">Todavía no hay mensajes en esta conversación. Envía el primero cuando quieras.</string>
+    <string name="label_message">Mensaje</string>
+    <string name="action_send">Enviar</string>
+    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
+
+    <!-- Reviews -->
+    <string name="title_rate_service">Calificar servicio</string>
+    <string name="title_my_reviews">Mis reseñas</string>
+    <string name="review_sent">Reseña enviada correctamente</string>
+    <string name="review_choose_rating">Selecciona una calificación de 1 a 5:</string>
+    <string name="review_comment_optional">Comentario (opcional)</string>
+    <string name="review_send">Enviar reseña</string>
+    <string name="empty_reviews">Todavía no hay reseñas para mostrar.</string>
+
+    <!-- Search, profiles, availability and statistics -->
+    <string name="title_search_workers">Buscar trabajadores</string>
+    <string name="empty_search_results">No encontramos trabajadores con esos filtros.</string>
+    <string name="field_service_type">Tipo de servicio</string>
+    <string name="field_zone">Zona</string>
+    <string name="title_worker_detail">Detalle del trabajador</string>
+    <string name="action_contact">Contactar</string>
+    <string name="action_book">Reservar</string>
+    <string name="title_availability">Disponibilidad</string>
+    <string name="title_my_availability">Mi disponibilidad</string>
+    <string name="empty_worker_availability">Este trabajador todavía no registró disponibilidad.</string>
+    <string name="empty_my_availability">Todavía no tienes horarios de disponibilidad. Agrega uno para comenzar.</string>
+    <string name="availability_help">Indica el día (0 domingo a 6 sábado) y usa el formato HH:mm para los horarios.</string>
+    <string name="field_day_of_week">Día de la semana (0–6)</string>
+    <string name="field_start_time">Hora de inicio (HH:mm)</string>
+    <string name="field_end_time">Hora de fin (HH:mm)</string>
+    <string name="action_add_schedule">Agregar horario</string>
+    <string name="action_save_availability">Guardar disponibilidad</string>
+    <string name="action_remove_schedule">Eliminar horario</string>
+    <string name="title_statistics">Estadísticas</string>
+    <string name="title_my_profile">Mi perfil</string>
+    <string name="title_edit_profile">Editar perfil</string>
+    <string name="action_edit_profile">Editar perfil</string>
+    <string name="stats_completed_services">Servicios completados: %1$d</string>
+    <string name="stats_average_rating">Calificación promedio: %1$s</string>
+    <string name="stats_services_by_month">Servicios por mes</string>
+    <string name="empty_monthly_stats">Todavía no hay datos mensuales.</string>
+
+    <!-- Form fields -->
+    <string name="field_date_iso">Fecha (yyyy-MM-dd)</string>
+    <string name="field_address">Dirección</string>
+    <string name="field_notes_optional">Notas (opcional)</string>
+    <string name="field_title">Título</string>
+    <string name="field_description_optional">Descripción (opcional)</string>
+    <string name="field_services_csv">Tipos de servicio separados por coma</string>
+    <string name="field_workers_count">Cantidad de trabajadores</string>
+    <string name="field_hourly_rate_offered">Tarifa por hora ofrecida</string>
+    <string name="field_deadline_iso">Límite de postulación (ISO-8601 UTC)</string>
+    <string name="field_application_message_optional">Mensaje de postulación (opcional)</string>
+    <string name="field_gender">Género</string>
+    <string name="home_welcome">Bienvenido</string>
+    <string name="home_role">Rol: %1$s</string>
+    <string name="home_messages">Mensajes</string>
+    <string name="home_logout">Cerrar sesión</string>
 </resources>

@@ -27,9 +27,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.iam.data.AuthGender
+import com.incleanhome.mobile.ui.format.presentationValue
 import java.math.BigDecimal
 
 @Composable
@@ -113,13 +116,13 @@ fun WorkerRegistrationScreen(
         Field(password, { password = it }, "Contraseña", state.isLoading, password = true)
         Field(phone, { phone = it }, "Teléfono (opcional)", state.isLoading)
         Field(age, { age = it.filter(Char::isDigit) }, "Edad", state.isLoading)
-        Text("Género", style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(R.string.field_gender), style = MaterialTheme.typography.labelLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AuthGender.VALUES.forEach { value ->
                 FilterChip(
                     selected = gender == value,
                     onClick = { gender = value },
-                    label = { Text(value) },
+                    label = { Text(presentationValue(value)) },
                     enabled = !state.isLoading
                 )
             }

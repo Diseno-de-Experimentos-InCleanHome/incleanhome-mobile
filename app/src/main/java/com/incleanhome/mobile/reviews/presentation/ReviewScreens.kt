@@ -22,10 +22,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.incleanhome.mobile.R
 import com.incleanhome.mobile.reviews.data.Review
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
+import com.incleanhome.mobile.ui.components.EmptyState
+import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.format.formatDateTime
+import com.incleanhome.mobile.ui.format.presentationValue
 
 @Composable
 fun CreateReviewScreen(
@@ -39,27 +46,22 @@ fun CreateReviewScreen(
         modifier = modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        ReviewHeader("Calificar servicio", onBack)
+        ScreenHeader(stringResource(R.string.title_rate_service), onBack)
 
         when {
-            state.isLoadingBooking -> CircularProgressIndicator(
-                Modifier.align(Alignment.CenterHorizontally)
-            )
+            state.isLoadingBooking -> LoadingState()
             state.createdReview != null -> {
-                Text("Reseña enviada correctamente", style = MaterialTheme.typography.headlineSmall)
-                Text("Calificación: ${state.createdReview?.rating}/5")
-                Button(onClick = onDone, modifier = Modifier.fillMaxWidth()) {
-                    Text("Volver a Mis reservas")
-                }
+                Text(stringResource(R.string.review_sent), style = MaterialTheme.typography.headlineSmall)
+                Text(stringResource(R.string.label_rating, "${state.createdReview?.rating}/5"))
+                PrimaryButton(stringResource(R.string.booking_view_mine), onDone)
             }
             state.booking == null -> {
-                Text(state.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error)
-                Button(onClick = viewModel::loadBooking) { Text("Reintentar") }
+                ErrorRetryState(state.errorMessage.orEmpty(), viewModel::loadBooking)
             }
             else -> state.booking?.let { booking ->
-                Text("Trabajador: ${booking.workerName}", style = MaterialTheme.typography.titleLarge)
-                Text("Servicio: ${booking.serviceType}")
-                Text("Selecciona una calificación de 1 a 5:")
+                Text(stringResource(R.string.booking_worker, booking.workerName), style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.label_service, presentationValue(booking.serviceType)))
+                Text(stringResource(R.string.review_choose_rating))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -77,7 +79,7 @@ fun CreateReviewScreen(
                     value = state.comment,
                     onValueChange = viewModel::updateComment,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Comentario (opcional)") },
+                    label = { Text(stringResource(R.string.review_comment_optional)) },
                     supportingText = {
                         Text("${state.comment.length}/${CreateReviewViewModel.MAX_COMMENT_LENGTH}")
                     },
@@ -88,14 +90,12 @@ fun CreateReviewScreen(
                 state.errorMessage?.let {
                     Text(it, color = MaterialTheme.colorScheme.error)
                 }
-                Button(
+                PrimaryButton(
+                    text = stringResource(R.string.review_send),
                     onClick = viewModel::submit,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isSubmitting && state.rating in 1..5
-                ) {
-                    if (state.isSubmitting) CircularProgressIndicator(strokeWidth = 2.dp)
-                    else Text("Enviar reseña")
-                }
+                    enabled = state.rating in 1..5,
+                    loading = state.isSubmitting
+                )
             }
         }
     }
@@ -109,10 +109,10 @@ fun WorkerReviewsScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        ReviewHeader("Mis reseñas", onBack)
+        ScreenHeader(stringResource(R.string.title_my_reviews), onBack)
         Spacer(Modifier.height(12.dp))
         Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
-            Text("Actualizar")
+            Text(stringResource(R.string.action_refresh))
         }
         Spacer(Modifier.height(12.dp))
         ReviewsList(
@@ -134,18 +134,9 @@ fun ReviewsList(
     modifier: Modifier = Modifier
 ) {
     when {
-        isLoading -> Row(
-            modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) { CircularProgressIndicator() }
-        errorMessage != null -> Column(
-            modifier = modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(errorMessage, color = MaterialTheme.colorScheme.error)
-            Button(onClick = onRetry) { Text("Reintentar") }
-        }
-        reviews.isEmpty() -> Text("Este trabajador aún no tiene reseñas.", modifier = modifier)
+        isLoading -> LoadingState(modifier)
+        errorMessage != null -> ErrorRetryState(errorMessage, onRetry, modifier)
+        reviews.isEmpty() -> EmptyState(stringResource(R.string.empty_reviews), modifier)
         else -> LazyColumn(
             modifier = modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -163,15 +154,9 @@ fun ReviewsColumn(
     onRetry: () -> Unit
 ) {
     when {
-        isLoading -> Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) { CircularProgressIndicator() }
-        errorMessage != null -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(errorMessage, color = MaterialTheme.colorScheme.error)
-            Button(onClick = onRetry) { Text("Reintentar") }
-        }
-        reviews.isEmpty() -> Text("Este trabajador aún no tiene reseñas.")
+        isLoading -> LoadingState()
+        errorMessage != null -> ErrorRetryState(errorMessage, onRetry)
+        reviews.isEmpty() -> EmptyState(stringResource(R.string.empty_reviews))
         else -> Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             reviews.forEach { review -> ReviewCard(review) }
         }
@@ -186,26 +171,8 @@ fun ReviewCard(review: Review) {
             Text(review.clientName, style = MaterialTheme.typography.titleMedium)
             if (review.comment.isNotBlank()) Text(review.comment)
             review.createdAt?.let {
-                Text(formatReviewDate(it), style = MaterialTheme.typography.bodySmall)
+                Text(formatDateTime(it), style = MaterialTheme.typography.bodySmall)
             }
         }
     }
 }
-
-@Composable
-private fun ReviewHeader(title: String, onBack: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = onBack) { Text("Volver") }
-        Text(
-            title,
-            modifier = Modifier.padding(start = 16.dp),
-            style = MaterialTheme.typography.headlineSmall
-        )
-    }
-}
-
-private fun formatReviewDate(value: String): String = runCatching {
-    OffsetDateTime.parse(value).format(REVIEW_DATE_FORMAT)
-}.getOrDefault(value)
-
-private val REVIEW_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
