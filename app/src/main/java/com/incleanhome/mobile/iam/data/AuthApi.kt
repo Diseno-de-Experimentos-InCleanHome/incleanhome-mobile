@@ -8,6 +8,18 @@ interface AuthApi {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): AuthResponse
 
+    @POST("auth/register/client")
+    suspend fun registerClient(@Body request: RegisterClientRequest): AuthResponse
+
+    @POST("auth/register/worker")
+    suspend fun registerWorker(@Body request: RegisterWorkerRequest): AuthResponse
+
+    @POST("auth/accept-terms")
+    suspend fun acceptTerms(
+        @Header("Authorization") authorization: String,
+        @Body request: AcceptTermsRequest
+    ): AuthResponse
+
     @POST("auth/2fa/setup")
     suspend fun setupTwoFactor(
         @Header("Authorization") authorization: String

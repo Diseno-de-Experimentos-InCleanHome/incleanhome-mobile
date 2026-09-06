@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.UserSession
 import com.incleanhome.mobile.iam.data.AuthRepository
+import com.incleanhome.mobile.iam.data.RegisterClientRequest
+import com.incleanhome.mobile.iam.data.RegisterWorkerRequest
 import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.data.LoginResult
 import com.incleanhome.mobile.iam.data.TwoFactorSetupResult
@@ -111,6 +113,80 @@ class LoginViewModel(
                     _uiState.update {
                         it.copy(isLoading = false, errorMessage = result.message)
                     }
+                }
+            }
+        }
+    }
+
+    fun registerClient(
+        name: String, email: String, password: String, phone: String?, termsVersion: String
+    ) {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, nextStep = null) }
+        viewModelScope.launch {
+            when (val result = repository.registerClient(
+                RegisterClientRequest(name, email, password, phone, termsVersion)
+            )) {
+                is LoginResult.Challenge -> {
+                    challengeToken = result.challengeToken
+                    _uiState.update { it.copy(isLoading = false, nextStep = result.nextStep) }
+                }
+                is LoginResult.Authenticated -> {
+                    val error = persistAuthenticatedSession(result)
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error) }
+                }
+                is LoginResult.Error -> _uiState.update {
+                    it.copy(isLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun registerWorker(
+        name: String, email: String, password: String, phone: String?, age: Int,
+        gender: String, serviceTypes: List<String>, zones: List<String>,
+        hourlyRate: java.math.BigDecimal, experienceYears: Int, bio: String?, termsVersion: String
+    ) {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, nextStep = null) }
+        viewModelScope.launch {
+            when (val result = repository.registerWorker(
+                RegisterWorkerRequest(
+                    name, email, password, phone, age, gender, serviceTypes, zones,
+                    hourlyRate, experienceYears, bio, termsVersion
+                )
+            )) {
+                is LoginResult.Challenge -> {
+                    challengeToken = result.challengeToken
+                    _uiState.update { it.copy(isLoading = false, nextStep = result.nextStep) }
+                }
+                is LoginResult.Authenticated -> {
+                    val error = persistAuthenticatedSession(result)
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error) }
+                }
+                is LoginResult.Error -> _uiState.update {
+                    it.copy(isLoading = false, errorMessage = result.message)
+                }
+            }
+        }
+    }
+
+    fun acceptTerms(version: String) {
+        val token = challengeToken
+        if (_uiState.value.isLoading || token.isNullOrBlank()) return
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, nextStep = null) }
+        viewModelScope.launch {
+            when (val result = repository.acceptTerms(token, version)) {
+                is LoginResult.Challenge -> {
+                    challengeToken = result.challengeToken
+                    _uiState.update { it.copy(isLoading = false, nextStep = result.nextStep) }
+                }
+                is LoginResult.Authenticated -> {
+                    val error = persistAuthenticatedSession(result)
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error) }
+                }
+                is LoginResult.Error -> _uiState.update {
+                    it.copy(isLoading = false, errorMessage = result.message)
                 }
             }
         }

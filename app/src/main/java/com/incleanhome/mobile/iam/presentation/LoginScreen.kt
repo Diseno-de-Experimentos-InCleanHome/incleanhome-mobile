@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
+    onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by loginViewModel.uiState.collectAsState()
@@ -98,6 +99,15 @@ fun LoginScreen(
             } else {
                 Text("Iniciar sesión")
             }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = onCreateAccount,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading
+        ) {
+            Text("Crear cuenta")
         }
 
         uiState.errorMessage?.let { message ->

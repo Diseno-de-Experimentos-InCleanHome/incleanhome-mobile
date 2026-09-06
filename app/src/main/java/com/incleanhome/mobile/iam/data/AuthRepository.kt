@@ -33,6 +33,17 @@ sealed interface TwoFactorSetupResult {
 class AuthRepository(
     private val api: AuthApi = RetrofitClient.retrofit.create(AuthApi::class.java)
 ) {
+    suspend fun registerClient(request: RegisterClientRequest): LoginResult =
+        authenticateCall { api.registerClient(request) }
+
+    suspend fun registerWorker(request: RegisterWorkerRequest): LoginResult =
+        authenticateCall { api.registerWorker(request) }
+
+    suspend fun acceptTerms(challengeToken: String, version: String): LoginResult =
+        authenticateCall {
+            api.acceptTerms(challengeToken.asBearerToken(), AcceptTermsRequest(version))
+        }
+
     suspend fun login(email: String, password: String): LoginResult {
         return try {
             mapResponse(api.login(LoginRequest(email = email, password = password)))
@@ -44,6 +55,27 @@ class AuthRepository(
                 else -> "No se pudo iniciar sesión. Inténtalo nuevamente."
             }
             LoginResult.Error(message)
+        } catch (exception: IOException) {
+            LoginResult.Error("No se pudo conectar con el servidor.")
+        } catch (exception: Exception) {
+            LoginResult.Error("Ocurrió un error inesperado.")
+        }
+    }
+
+    private suspend fun authenticateCall(call: suspend () -> AuthResponse): LoginResult {
+        return try {
+            mapResponse(call())
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: HttpException) {
+            val bodyMessage = runCatching {
+                val body = exception.response()?.errorBody()?.string().orEmpty()
+                com.google.gson.JsonParser.parseString(body).asJsonObject.get("error")?.asString
+            }.getOrNull()
+            LoginResult.Error(bodyMessage ?: when (exception.code()) {
+                400, 401 -> "Los datos no son válidos o el desafío expiró."
+                else -> "No se pudo completar la autenticación."
+            })
         } catch (exception: IOException) {
             LoginResult.Error("No se pudo conectar con el servidor.")
         } catch (exception: Exception) {

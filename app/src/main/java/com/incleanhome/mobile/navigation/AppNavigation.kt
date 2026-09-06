@@ -34,6 +34,10 @@ import com.incleanhome.mobile.events.presentation.*
 import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
+import com.incleanhome.mobile.iam.presentation.AccountTypeScreen
+import com.incleanhome.mobile.iam.presentation.ClientRegistrationScreen
+import com.incleanhome.mobile.iam.presentation.WorkerRegistrationScreen
+import com.incleanhome.mobile.iam.presentation.TermsAcceptanceScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorVerifyScreen
 import com.incleanhome.mobile.messaging.presentation.ChatScreen
@@ -58,6 +62,10 @@ private object Routes {
     const val LOGIN = "login"
     const val TWO_FACTOR_SETUP = "two_factor_setup"
     const val TWO_FACTOR_VERIFY = "two_factor_verify"
+    const val TERMS = "terms"
+    const val ACCOUNT_TYPE = "account_type"
+    const val REGISTER_CLIENT = "register_client"
+    const val REGISTER_WORKER = "register_worker"
     const val CLIENT_HOME = "client_home"
     const val WORKER_HOME = "worker_home"
     const val WORKER_SEARCH = "worker_search"
@@ -132,7 +140,11 @@ fun AppNavigation(
                 launchSingleTop = true
             }
 
-            LoginNextStep.TERMS, null -> Unit
+            LoginNextStep.TERMS -> navController.navigate(Routes.TERMS) {
+                launchSingleTop = true
+            }
+
+            null -> Unit
         }
     }
 
@@ -156,7 +168,26 @@ fun AppNavigation(
         modifier = modifier
     ) {
         composable(Routes.LOGIN) {
-            LoginScreen(loginViewModel = loginViewModel)
+            LoginScreen(
+                loginViewModel = loginViewModel,
+                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) }
+            )
+        }
+        composable(Routes.TERMS) {
+            TermsAcceptanceScreen(loginViewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Routes.ACCOUNT_TYPE) {
+            AccountTypeScreen(
+                onClient = { navController.navigate(Routes.REGISTER_CLIENT) },
+                onWorker = { navController.navigate(Routes.REGISTER_WORKER) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Routes.REGISTER_CLIENT) {
+            ClientRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Routes.REGISTER_WORKER) {
+            WorkerRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
         }
         composable(Routes.TWO_FACTOR_SETUP) {
             TwoFactorSetupScreen(loginViewModel = loginViewModel)

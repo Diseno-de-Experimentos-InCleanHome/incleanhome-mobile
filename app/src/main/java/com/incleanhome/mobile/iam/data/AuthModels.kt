@@ -5,6 +5,38 @@ data class LoginRequest(
     val password: String
 )
 
+data class RegisterClientRequest(
+    val name: String,
+    val email: String,
+    val password: String,
+    val phone: String?,
+    val acceptedTermsVersion: String
+)
+
+data class RegisterWorkerRequest(
+    val name: String,
+    val email: String,
+    val password: String,
+    val phone: String?,
+    val age: Int,
+    val gender: String,
+    val serviceTypes: List<String>,
+    val zones: List<String>,
+    val hourlyRate: java.math.BigDecimal,
+    val experienceYears: Int,
+    val bio: String?,
+    val acceptedTermsVersion: String
+)
+
+data class AcceptTermsRequest(val version: String)
+
+object AuthGender {
+    const val FEMALE = "female"
+    const val MALE = "male"
+    const val OTHER = "other"
+    val VALUES = listOf(FEMALE, MALE, OTHER)
+}
+
 data class AuthResponse(
     val requiresTermsAcceptance: Boolean? = null,
     val requires2fa: Boolean? = null,
