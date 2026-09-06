@@ -64,7 +64,8 @@ fun EventDetailScreen(viewModel:EventDetailViewModel,workerView:Boolean,onBack:(
                 }else{
                     Button(onClick={onApplications(e.id)},modifier=Modifier.fillMaxWidth()){Text("Ver postulaciones")}
                     if(e.status==EventStatus.OPEN||e.status==EventStatus.STAFFED)Button(onClick=viewModel::cancel,modifier=Modifier.fillMaxWidth(),enabled=!s.applying){Text("Cancelar evento")}
-                    if(e.status==EventStatus.STAFFED&&!LocalDate.parse(e.date).isAfter(LocalDate.now(ZoneOffset.UTC)))Button(onClick=viewModel::complete,modifier=Modifier.fillMaxWidth(),enabled=!s.applying){Text("Marcar completado")}
+                    val eventDate = runCatching { LocalDate.parse(e.date) }.getOrNull()
+                    if(e.status==EventStatus.STAFFED && eventDate != null && !eventDate.isAfter(LocalDate.now(ZoneOffset.UTC)))Button(onClick=viewModel::complete,modifier=Modifier.fillMaxWidth(),enabled=!s.applying){Text("Marcar completado")}
                 }
                 if(s.applying)CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally));s.error?.let{Text(it,color=MaterialTheme.colorScheme.error)};s.success?.let{Text(it,color=MaterialTheme.colorScheme.primary)}
             }

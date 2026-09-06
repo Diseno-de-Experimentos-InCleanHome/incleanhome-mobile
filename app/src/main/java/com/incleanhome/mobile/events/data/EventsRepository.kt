@@ -2,6 +2,7 @@ package com.incleanhome.mobile.events.data
 
 import com.google.gson.JsonParser
 import com.incleanhome.mobile.core.network.RetrofitClient
+import com.incleanhome.mobile.core.network.userMessage
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
@@ -30,7 +31,7 @@ class EventsRepository(private val api: EventsApi = RetrofitClient.retrofit.crea
         EventResult.Success(block())
     } catch (e: CancellationException) { throw e
     } catch (e: HttpException) {
-        EventResult.Error(serverMessage(e) ?: when (e.code()) {
+        EventResult.Error(userMessage(e, "la operación del evento") ?: when (e.code()) {
             401 -> "La sesión no es válida."
             403 -> "No tienes permiso para realizar esta acción."
             404 -> "No se encontró el evento."

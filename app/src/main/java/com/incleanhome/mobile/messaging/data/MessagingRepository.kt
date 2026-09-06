@@ -2,6 +2,7 @@ package com.incleanhome.mobile.messaging.data
 
 import com.google.gson.JsonParser
 import com.incleanhome.mobile.core.network.RetrofitClient
+import com.incleanhome.mobile.core.network.userMessage
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
@@ -29,7 +30,7 @@ class MessagingRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            MessagingResult.Error(serverMessage(exception) ?: when (exception.code()) {
+            MessagingResult.Error(userMessage(exception, "la operación de mensajería") ?: when (exception.code()) {
                 401 -> "La sesión no es válida. Vuelve a iniciar sesión."
                 403 -> "No tienes permiso para consultar esta conversación."
                 404 -> "No se encontró la conversación."

@@ -67,7 +67,7 @@ class CreateEventViewModel(private val repo: EventsRepository = EventsRepository
         }
         if(error!=null){_state.update{it.copy(error=error)};return}
         val hours=BigDecimal.valueOf(Duration.between(start,end).toMinutes()).divide(BigDecimal.valueOf(60),2,RoundingMode.HALF_UP)
-        val request=CreateEventRequest(s.title.trim(),s.description.trim().takeIf(String::isNotEmpty),serviceList,s.zone.trim(),s.address.trim(),s.date,s.start,s.end,hours,workers!!,rate!!,s.deadline)
+        val request=CreateEventRequest(s.title.trim(),s.description.trim().takeIf(String::isNotEmpty),serviceList,s.zone.trim(),s.address.trim(),s.date,s.start,s.end,hours,workers ?: return,rate ?: return,s.deadline)
         _state.update{it.copy(submitting=true,error=null)}; viewModelScope.launch { when(val r=repo.create(request)){
             is EventResult.Success->_state.update{it.copy(submitting=false,created=r.data)}
             is EventResult.Error->_state.update{it.copy(submitting=false,error=r.message)}

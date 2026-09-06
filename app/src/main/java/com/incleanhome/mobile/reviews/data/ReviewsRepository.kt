@@ -2,6 +2,7 @@ package com.incleanhome.mobile.reviews.data
 
 import com.google.gson.JsonParser
 import com.incleanhome.mobile.core.network.RetrofitClient
+import com.incleanhome.mobile.core.network.userMessage
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
@@ -26,7 +27,7 @@ class ReviewsRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            ReviewResult.Error(serverMessage(exception) ?: when (exception.code()) {
+            ReviewResult.Error(userMessage(exception, "la operación de reseña") ?: when (exception.code()) {
                 401 -> "La sesión no es válida. Vuelve a iniciar sesión."
                 403 -> "No tienes permiso para publicar esta reseña."
                 404 -> "No se encontró la información solicitada."

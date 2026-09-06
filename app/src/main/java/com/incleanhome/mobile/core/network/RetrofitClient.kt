@@ -1,5 +1,6 @@
 package com.incleanhome.mobile.core.network
 
+import com.incleanhome.mobile.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -20,7 +21,7 @@ object RetrofitClient {
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
-        .addInterceptor(loggingInterceptor)
+        .apply { if (BuildConfig.DEBUG) addInterceptor(loggingInterceptor) }
         .build()
 
     fun setTokenProvider(provider: () -> String?) {

@@ -1,6 +1,7 @@
 package com.incleanhome.mobile.booking.data
 
 import com.google.gson.JsonParser
+import com.incleanhome.mobile.core.network.userMessage
 import com.incleanhome.mobile.core.network.RetrofitClient
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
@@ -28,7 +29,7 @@ class BookingRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            BookingResult.Error(serverMessage(exception) ?: when (exception.code()) {
+            BookingResult.Error(userMessage(exception, "la operación de reserva") /* backend details are not exposed */ ?: when (exception.code()) {
                 401 -> "La sesión no es válida. Vuelve a iniciar sesión."
                 403 -> "No tienes permiso para realizar esta acción."
                 404 -> "No se encontró la reserva."

@@ -461,6 +461,16 @@ fun AppNavigation(
             val workerProfileViewModel: WorkerProfileViewModel = viewModel(
                 factory = WorkerProfileViewModel.Factory
             )
+            val updated by navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.getStateFlow("worker_profile_updated", false)
+                ?.collectAsState(initial = false) ?: remember { androidx.compose.runtime.mutableStateOf(false) }
+            LaunchedEffect(updated) {
+                if (updated) {
+                    workerProfileViewModel.loadProfile()
+                    navController.currentBackStackEntry?.savedStateHandle?.set("worker_profile_updated", false)
+                }
+            }
             WorkerProfileScreen(
                 viewModel = workerProfileViewModel,
                 onBack = navController::popBackStack,
@@ -468,7 +478,7 @@ fun AppNavigation(
             )
         }
         composable(Routes.CLIENT_PROFILE) { val vm: ClientProfileViewModel = viewModel(factory=ClientProfileViewModel.Factory); ClientProfileScreen(vm, navController::popBackStack) }
-        composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, navController::popBackStack) }
+        composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, { navController.previousBackStackEntry?.savedStateHandle?.set("worker_profile_updated", true); navController.popBackStack() }) }
         composable(Routes.WORKER_STATS) { val vm: WorkerStatsViewModel = viewModel(factory=WorkerStatsViewModel.Factory); WorkerStatsScreen(vm, navController::popBackStack) }
         composable(Routes.WORKER_AVAILABILITY) {
             val workerId = (sessionState as? SessionState.Authenticated)
