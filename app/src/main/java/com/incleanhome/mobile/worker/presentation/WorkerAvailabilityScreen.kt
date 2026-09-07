@@ -1,4 +1,4 @@
-package com.incleanhome.mobile.worker.presentation
+﻿package com.incleanhome.mobile.worker.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -172,3 +172,4 @@ private fun AvailabilityEditor(
         }
     }
 }
+

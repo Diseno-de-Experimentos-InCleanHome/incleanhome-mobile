@@ -1,4 +1,4 @@
-package com.incleanhome.mobile.ui.format
+﻿package com.incleanhome.mobile.ui.format
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
@@ -17,11 +17,11 @@ import java.time.format.DateTimeParseException
 import java.time.format.FormatStyle
 import java.util.Locale
 
-private val spanishPeru = Locale.forLanguageTag("es-PE")
-private val fullDateFormatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' uuuu", spanishPeru)
-private val monthFormatter = DateTimeFormatter.ofPattern("MMMM uuuu", spanishPeru)
-private val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", spanishPeru)
-private val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(spanishPeru)
+private fun locale() = Locale.getDefault()
+private fun fullDateFormatter() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale())
+private fun monthFormatter() = DateTimeFormatter.ofPattern("MMMM uuuu", locale())
+private fun timeFormatter() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale())
+private fun dateTimeFormatter() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(locale())
 
 private val presentationValues = mapOf(
     "limpieza_general" to R.string.service_general_cleaning,
@@ -68,35 +68,31 @@ fun presentationValue(value: String): String {
     val resource = presentationValueResource(normalized)
     return resource?.let { stringResource(it) } ?: normalized
 }
-
 @Composable
 fun presentationValues(values: Iterable<String>, separator: String = ", "): String {
     val labels = mutableListOf<String>()
     for (value in values) labels += presentationValue(value)
     return labels.joinToString(separator)
 }
-
 fun formatDate(value: String): String = parseOrOriginal(value) {
-    normalizeSpanishMonth(LocalDate.parse(it).format(fullDateFormatter))
+    LocalDate.parse(it).format(fullDateFormatter())
 }
 
 fun formatMonth(value: String): String = parseOrOriginal(value) {
-    normalizeSpanishMonth(YearMonth.parse(it).format(monthFormatter))
-        .replaceFirstChar { char -> char.titlecase(spanishPeru) }
+    YearMonth.parse(it).format(monthFormatter()).replaceFirstChar { char -> char.titlecase(locale()) }
 }
 
 fun formatTime(value: String): String = parseOrOriginal(value) {
-    LocalTime.parse(it).format(timeFormatter).lowercase(spanishPeru)
-        .replace("a. m.", "a. m.").replace("p. m.", "p. m.")
+    LocalTime.parse(it).format(timeFormatter())
 }
 
 fun formatDateRange(date: String, startTime: String, endTime: String): String =
     "${formatDate(date)}, ${formatTime(startTime)} – ${formatTime(endTime)}"
 
 fun formatDateTime(value: String): String = runCatching {
-    OffsetDateTime.parse(value).format(dateTimeFormatter)
+    OffsetDateTime.parse(value).format(dateTimeFormatter())
 }.recoverCatching {
-    Instant.parse(value).atZone(ZoneId.systemDefault()).format(dateTimeFormatter)
+    Instant.parse(value).atZone(ZoneId.systemDefault()).format(dateTimeFormatter())
 }.getOrDefault(value)
 
 fun formatCurrency(amount: BigDecimal): String = "S/ ${amount.setScale(2, RoundingMode.HALF_UP).toPlainString()}"
@@ -106,18 +102,9 @@ fun formatRating(rating: BigDecimal): String = rating.setScale(1, RoundingMode.H
 fun humanizeIdentifier(value: String): String = value
     .trim()
     .replace('_', ' ')
-    .replaceFirstChar { it.titlecase(spanishPeru) }
+    .replaceFirstChar { it.titlecase(locale()) }
 
-fun formatDayOfWeek(dayOfWeek: Int): String = when (dayOfWeek) {
-    0 -> "Domingo"
-    1 -> "Lunes"
-    2 -> "Martes"
-    3 -> "Miércoles"
-    4 -> "Jueves"
-    5 -> "Viernes"
-    6 -> "Sábado"
-    else -> "Día no disponible"
-}
+fun formatDayOfWeek(dayOfWeek: Int): String = if (dayOfWeek in 0..6) { LocalDate.of(2023, 1, 1).plusDays(dayOfWeek.toLong()).format(DateTimeFormatter.ofPattern("EEEE", locale())).replaceFirstChar { it.titlecase(locale()) } } else "Unavailable day"
 
 private inline fun parseOrOriginal(value: String, formatter: (String) -> String): String = try {
     formatter(value)
@@ -125,4 +112,3 @@ private inline fun parseOrOriginal(value: String, formatter: (String) -> String)
     value
 }
 
-private fun normalizeSpanishMonth(value: String): String = value.replace("setiembre", "septiembre")

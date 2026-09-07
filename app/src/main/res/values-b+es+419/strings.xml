@@ -1,0 +1,299 @@
+﻿<resources>
+    <string name="settings_title">Configuración</string><string name="settings_appearance">Apariencia</string><string name="settings_language">Idioma</string><string name="settings_information">Información</string><string name="settings_account">Cuenta</string><string name="settings_terms">Términos y condiciones</string><string name="settings_system">Sistema</string><string name="settings_light">Claro</string><string name="settings_dark">Oscuro</string><string name="settings_spanish">Español</string><string name="settings_english">Inglés</string>
+    <string name="profile_name">Nombre</string>
+    <string name="profile_phone">Teléfono</string>
+    <string name="profile_updated">Perfil actualizado.</string>
+    <string name="profile_zones_csv">Zonas (separadas por coma)</string>
+    <string name="profile_bio">Biografía</string>
+    <string name="profile_experience_years">Experiencia (años)</string>
+    <string name="profile_hourly_rate">Tarifa por hora</string>
+
+    <!-- Authentication and onboarding -->
+    <string name="auth_login_title">Bienvenido de nuevo</string>
+    <string name="auth_login_subtitle">Ingresa a tu cuenta para continuar</string>
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_show_password">Mostrar contraseña</string>
+    <string name="auth_hide_password">Ocultar contraseña</string>
+    <string name="auth_sign_in">Iniciar sesión</string>
+    <string name="auth_no_account">¿No tienes una cuenta?</string>
+    <string name="auth_create_account">Crear cuenta</string>
+    <string name="auth_account_type_subtitle">¿Cómo deseas utilizar InCleanHome?</string>
+    <string name="auth_client_type">Soy cliente</string>
+    <string name="auth_client_type_description">Encuentra personal de confianza para tu hogar</string>
+    <string name="auth_worker_type">Soy trabajador/a</string>
+    <string name="auth_worker_type_description">Ofrece tus servicios y encuentra oportunidades</string>
+    <string name="auth_client_registration">Registro de cliente</string>
+    <string name="auth_client_registration_subtitle">Completa tus datos para empezar a encontrar ayuda de confianza.</string>
+    <string name="auth_worker_registration">Registro de trabajador/a</string>
+    <string name="auth_worker_registration_subtitle">Cuéntanos sobre ti y los servicios que deseas ofrecer.</string>
+    <string name="auth_personal_information">Información personal</string>
+    <string name="auth_professional_information">Datos profesionales</string>
+    <string name="auth_services">Servicios</string>
+    <string name="auth_work_zones">Zonas de trabajo</string>
+    <string name="auth_about_me">Sobre mí</string>
+    <string name="auth_name">Nombre completo</string>
+    <string name="auth_phone_optional">Teléfono (opcional)</string>
+    <string name="auth_age">Edad</string>
+    <string name="auth_choose_services">Selecciona uno o más servicios.</string>
+    <string name="auth_services_required">Debes elegir al menos uno.</string>
+    <string name="auth_zones_csv">Zonas separadas por coma (opcional)</string>
+    <string name="auth_zones_help">Escribe nombres claros de distritos o zonas de atención.</string>
+    <string name="auth_hourly_rate">Tarifa por hora</string>
+    <string name="auth_experience_years">Años de experiencia</string>
+    <string name="auth_bio_optional">Biografía (opcional)</string>
+    <string name="auth_accept_terms_version">Acepto los términos y condiciones (%1$s)</string>
+    <string name="auth_create_account_action">Crear cuenta</string>
+    <string name="auth_terms_title">Términos y condiciones</string>
+    <string name="auth_terms_subtitle">Para continuar, necesitamos que aceptes la versión actual de nuestros términos.</string>
+    <string name="auth_terms_summary">Al aceptar, confirmas que conoces las condiciones de uso de InCleanHome y el tratamiento aplicable a tu cuenta.</string>
+    <string name="auth_terms_current_version">Versión vigente: %1$s</string>
+    <string name="auth_accept_continue">Aceptar y continuar</string>
+    <string name="auth_protect_account">Protege tu cuenta</string>
+    <string name="auth_2fa_setup_subtitle">Añade una capa extra de seguridad antes de continuar.</string>
+    <string name="auth_2fa_step_scan">1. Escanea el código QR con Google Authenticator o Microsoft Authenticator.</string>
+    <string name="auth_2fa_step_code">2. Introduce el código de 6 dígitos.</string>
+    <string name="auth_2fa_qr_description">Código QR para configurar la verificación en dos pasos</string>
+    <string name="auth_manual_secret">¿No puedes escanearlo? Usa esta clave:</string>
+    <string name="auth_totp_code">Código de 6 dígitos</string>
+    <string name="auth_six_digits">6 dígitos</string>
+    <string name="auth_enable_2fa">Activar verificación</string>
+    <string name="auth_2fa_verify_title">Verificación en dos pasos</string>
+    <string name="auth_2fa_verify_subtitle">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</string>
+    <string name="auth_verify">Verificar</string>
+
+    <!-- Common presentation -->
+    <string name="action_back">Volver</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_refresh">Actualizar</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelarar</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_accept">Aceptar</string>
+    <string name="action_reject">Rechazar</string>
+    <string name="loading">Cargando…</string>
+    <string name="error_with_message">Error: %1$s</string>
+    <string name="success_with_message">Confirmación: %1$s</string>
+    <string name="unknown_value">Sin especificar</string>
+
+    <!-- Canonical backend values: presentation only -->
+    <string name="service_general_cleaning">Limpieza general</string>
+    <string name="service_cooking">Cocina</string>
+    <string name="service_laundry">Lavandería</string>
+    <string name="service_ironing">Planchado</string>
+    <string name="service_deep_cleaning">Limpieza profunda</string>
+    <string name="service_child_care">Cuidado de niños</string>
+    <string name="service_adult_care">Cuidado de adultos mayores</string>
+    <string name="service_gardening">Jardinería</string>
+    <string name="gender_female">Femenino</string>
+    <string name="gender_male">Masculino</string>
+    <string name="gender_other">Otro</string>
+    <string name="role_client">Cliente</string>
+    <string name="role_worker">Trabajador/a</string>
+    <string name="status_pending">Pendiente</string>
+    <string name="status_accepted">Aceptada</string>
+    <string name="status_rejected">Rechazada</string>
+    <string name="status_cancelled">Cancelada</string>
+    <string name="status_completed">Completada</string>
+    <string name="status_open">Abierto</string>
+    <string name="status_staffed">Personal completo</string>
+    <string name="status_in_progress">En progreso</string>
+    <string name="status_withdrawn">Retirada</string>
+    <string name="availability_available">Disponible</string>
+    <string name="availability_unavailable">No disponible</string>
+
+    <!-- Shared labels -->
+    <string name="label_service">Servicio: %1$s</string>
+    <string name="label_services">Servicios: %1$s</string>
+    <string name="label_services_title">Servicios</string>
+    <string name="label_status">Estado: %1$s</string>
+    <string name="label_gender">Género: %1$s</string>
+    <string name="label_zone">Zona: %1$s</string>
+    <string name="label_zones">Zonas: %1$s</string>
+    <string name="label_address">Dirección: %1$s</string>
+    <string name="label_notes">Notas: %1$s</string>
+    <string name="label_duration_hours">Duración: %1$s horas</string>
+    <string name="label_hourly_rate">%1$s por hora</string>
+    <string name="label_hourly_rate_named">Tarifa por hora: %1$s</string>
+    <string name="label_reference_amount">Monto referencial: %1$s</string>
+    <string name="label_schedule">Horario: %1$s</string>
+    <string name="label_date">Fecha: %1$s</string>
+    <string name="label_rating">Calificación: %1$s</string>
+    <string name="label_phone">Teléfono: %1$s</string>
+    <string name="label_age">Edad: %1$d</string>
+    <string name="label_experience">Experiencia: %1$d años</string>
+    <string name="label_bio">Biografía: %1$s</string>
+    <string name="label_bio_title">Biografía</string>
+    <string name="label_services_completed">Servicios realizados: %1$d</string>
+
+    <!-- Bookings -->
+    <string name="title_my_bookings">Mis reservas</string>
+    <string name="title_booking_requests">Solicitudes</string>
+    <string name="title_booking_detail">Detalle de solicitud</string>
+    <string name="title_new_booking">Nueva reserva</string>
+    <string name="empty_bookings">Aún no tienes reservas\nCuando reserves un servicio, aparecerá aquí.</string>
+    <string name="bookings_subtitle">Consulta y gestiona los servicios que has reservado.</string>
+    <string name="empty_booking_requests">Todavía no has recibido solicitudes.</string>
+    <string name="booking_reviewed">Servicio calificado</string>
+    <string name="booking_rate_service">Calificar servicio</string>
+    <string name="booking_cancel">Cancelarar reserva</string>
+    <string name="booking_cancel_question">¿Deseas cancelar esta reserva?</string>
+    <string name="booking_mark_completed">Marcar como completado</string>
+    <string name="booking_created">Reserva creada correctamente</string>
+    <string name="booking_view_mine">Ver Mis reservas</string>
+    <string name="booking_worker">Trabajador: %1$s</string>
+    <string name="booking_choose_service">Selecciona un servicio ofrecido por este trabajador:</string>
+    <string name="booking_no_worker_services">Este trabajador no tiene servicios registrados.</string>
+    <string name="booking_confirm">Confirmar reserva</string>
+
+    <!-- Eventos and applications -->
+    <string name="title_my_events">Mis eventos</string>
+    <string name="title_available_events">Eventos disponibles</string>
+    <string name="title_create_event">Crear evento</string>
+    <string name="title_event_detail">Detalle del evento</string>
+    <string name="title_applications">Postulaciones</string>
+    <string name="title_my_applications">Mis postulaciones</string>
+    <string name="empty_my_events">Todavía no has creado eventos.</string>
+    <string name="empty_available_events">No hay eventos disponibles por el momento.</string>
+    <string name="empty_applications">Este evento todavía no tiene postulaciones.</string>
+    <string name="empty_my_applications">Todavía no tienes postulaciones.</string>
+    <string name="event_created">Evento creado correctamente</string>
+    <string name="event_publish">Publicar evento</string>
+    <string name="event_apply">Postular</string>
+    <string name="event_no_applications_allowed">Este evento no admite nuevas postulaciones.</string>
+    <string name="event_view_applications">Ver postulaciones</string>
+    <string name="event_cancel">Cancelarar evento</string>
+    <string name="event_application_status">Estado de tu postulación: %1$s</string>
+    <string name="event_withdraw_application">Retirar postulación</string>
+    <string name="event_published_by">Publicado por: %1$s</string>
+    <string name="event_workers">Personal: %1$d/%2$d</string>
+    <string name="event_workers_accepted">Personal aceptado: %1$d/%2$d</string>
+    <string name="event_deadline">Postulaciones hasta: %1$s</string>
+    <string name="event_message">Mensaje: %1$s</string>
+
+    <!-- Messaging -->
+    <string name="title_conversations">Conversaciones</string>
+    <string name="conversations_subtitle">Mantente en contacto con clientes y trabajadores.</string>
+    <string name="action_refresh_conversation">Actualizar conversación</string>
+    <string name="empty_conversations">No tienes conversaciones todavía\nCuando contactes a alguien, aparecerán aquí.</string>
+    <string name="empty_messages">Todavía no hay mensajes en esta conversación. Envía el primero cuando quieras.</string>
+    <string name="label_message">Mensaje</string>
+    <string name="message_placeholder">Escribe un mensaje…</string>
+    <string name="message_character_count">%1$d/%2$d</string>
+    <string name="action_send">Enviar</string>
+    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
+
+    <!-- Reviews -->
+    <string name="title_rate_service">Calificar servicio</string>
+    <string name="title_my_reviews">Mis reseñas</string>
+    <string name="review_sent">Reseña enviada correctamente</string>
+    <string name="review_choose_rating">Selecciona una calificación de 1 a 5:</string>
+    <string name="review_comment_optional">Comentario (opcional)</string>
+    <string name="review_send">Enviar reseña</string>
+    <string name="empty_reviews">Todavía no hay reseñas para mostrar.</string>
+
+    <!-- Search, profiles, availability and statistics -->
+    <string name="title_search_workers">Buscar trabajadores</string>
+    <string name="search_marketplace_title">Buscar personal</string>
+    <string name="search_marketplace_subtitle">Encuentra a la persona ideal para tu hogar</string>
+    <string name="search_filters">Filtros de búsqueda</string>
+    <string name="search_results">Resultados</string>
+    <string name="search_view_profile">Ver perfil</string>
+    <string name="search_more_items"> · +%1$d</string>
+    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="other">%1$d servicios</item></plurals>
+    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="other">%1$d servicios realizados</item></plurals>
+    <string name="worker_profile_title">Perfil</string>
+    <string name="worker_about">Sobre mí</string>
+    <string name="worker_work_zones">Zonas de trabajo</string>
+    <string name="worker_information">Información profesional</string>
+    <string name="worker_availability">Disponibilidad</string>
+    <string name="worker_reviews">Reseñas</string>
+    <string name="worker_book_service">Reservar servicio</string>
+    <string name="worker_rate_value">%1$s por hora</string>
+    <string name="worker_experience_value">%1$d años de experiencia</string>
+    <string name="worker_age_value">%1$d años</string>
+    <string name="availability_time_range">%1$s – %2$s</string>
+    <string name="booking_worker_section">Trabajador</string>
+    <string name="booking_service_section">Servicio</string>
+    <string name="booking_schedule_section">Fecha y horario</string>
+    <string name="booking_address_section">Dirección</string>
+    <string name="booking_summary">Resumen de reserva</string>
+    <string name="booking_summary_service">Servicio</string>
+    <string name="booking_summary_schedule">Fecha y horario</string>
+    <string name="booking_summary_rate">Tarifa disponible</string>
+    <string name="empty_search_results">No encontramos trabajadores con esos filtros.</string>
+    <string name="field_service_type">Tipo de servicio</string>
+    <string name="all_services">Todos los servicios</string>
+    <string name="field_zone">Zona</string>
+    <string name="title_worker_detail">Detalle del trabajador</string>
+    <string name="action_contact">Contactar</string>
+    <string name="action_book">Reservar</string>
+    <string name="title_availability">Disponibilidad</string>
+    <string name="title_my_availability">Mi disponibilidad</string>
+    <string name="empty_worker_availability">Este trabajador todavía no registró disponibilidad.</string>
+    <string name="empty_my_availability">Todavía no tienes horarios de disponibilidad. Agrega uno para comenzar.</string>
+    <string name="availability_help">Indica el día (0 domingo a 6 sábado) y usa el formato HH:mm para los horarios.</string>
+    <string name="field_day_of_week">Día de la semana (0–6)</string>
+    <string name="field_start_time">Hora de inicio (HH:mm)</string>
+    <string name="field_end_time">Hora de fin (HH:mm)</string>
+    <string name="action_add_schedule">Agregar horario</string>
+    <string name="action_save_availability">Guardar disponibilidad</string>
+    <string name="action_remove_schedule">Eliminar horario</string>
+    <string name="title_statistics">Estadísticas</string>
+    <string name="title_my_profile">Mi perfil</string>
+    <string name="title_edit_profile">Editar perfil</string>
+    <string name="action_edit_profile">Editar perfil</string>
+    <string name="stats_completed_services">Servicios completados: %1$d</string>
+    <string name="stats_average_rating">Calificación promedio: %1$s</string>
+    <string name="stats_completed_services_title">Servicios completados</string>
+    <string name="stats_average_rating_title">Calificación promedio</string>
+    <string name="stats_services_by_month">Servicios por mes</string>
+    <string name="empty_monthly_stats">Todavía no hay datos mensuales.</string>
+
+    <plurals name="services_count">
+        <item quantity="one">%1$d servicio</item>
+        <item quantity="other">%1$d servicios</item>
+    </plurals>
+
+    <!-- Form fields -->
+    <string name="field_date_iso">Fecha (yyyy-MM-dd)</string>
+    <string name="field_address">Dirección</string>
+    <string name="field_notes_optional">Notas (opcional)</string>
+    <string name="field_title">Título</string>
+    <string name="field_description_optional">Descripción (opcional)</string>
+    <string name="field_services_csv">Tipos de servicio separados por coma</string>
+    <string name="field_workers_count">Cantidad de trabajadores</string>
+    <string name="field_hourly_rate_offered">Tarifa por hora ofrecida</string>
+    <string name="field_deadline_iso">Límite de postulación (ISO-8601 UTC)</string>
+    <string name="field_application_message_optional">Mensaje de postulación (opcional)</string>
+    <string name="field_gender">Género</string>
+    <string name="home_welcome">Bienvenido</string>
+    <string name="home_role">Rol: %1$s</string>
+    <string name="home_messages">Mensajes</string>
+    <string name="home_logout">Cerrar sesión</string>
+    <string name="home_brand">InCleanHome</string>
+    <string name="home_hello">Hola</string>
+    <string name="home_hello_named">Hola, %1$s</string>
+    <string name="home_client_prompt">¿Qué necesitas hoy?</string>
+    <string name="home_worker_prompt">Gestiona tus servicios</string>
+    <string name="home_quick_actions">Acciones rápidas</string>
+    <string name="home_more_options">Más opciones</string>
+    <string name="home_search_staff">Buscar personal</string>
+    <string name="home_view_requests">Ver solicitudes</string>
+    <string name="home_reviews">Mis reseñas</string>
+    <string name="home_applications">Mis postulaciones</string>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_bookings">Reservas</string>
+    <string name="nav_messages">Mensajes</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="nav_requests">Solicitudes</string>
+    <string name="nav_events">Eventos</string>
+</resources>
+
+
+
+
+
+

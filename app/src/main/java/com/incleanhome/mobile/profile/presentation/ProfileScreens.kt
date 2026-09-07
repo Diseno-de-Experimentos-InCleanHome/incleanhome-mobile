@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.ui.components.EmptyState
@@ -41,16 +42,16 @@ fun ClientProfileScreen(vm: ClientProfileViewModel, onBack: () -> Unit) {
                         Text("Cuenta", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                         Spacer(Modifier.height(12.dp))
                         if (!editing) {
-                            Text("Nombre", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.profile_name), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(p.name, style = MaterialTheme.typography.titleLarge)
                             Spacer(Modifier.height(10.dp))
-                            Text("Teléfono", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.profile_phone), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(p.phone ?: "-", style = MaterialTheme.typography.bodyLarge)
                             Spacer(Modifier.height(16.dp))
                             PrimaryButton("Editar perfil", { name = p.name; phone = p.phone.orEmpty(); editing = true })
                         } else {
-                            InCleanHomeTextField(name, { name = it }, "Nombre", enabled = !s.saving)
-                            InCleanHomeTextField(phone, { phone = it }, "Teléfono", enabled = !s.saving)
+                            InCleanHomeTextField(name, { name = it }, stringResource(R.string.profile_name), enabled = !s.saving)
+                            InCleanHomeTextField(phone, { phone = it }, stringResource(R.string.profile_phone), enabled = !s.saving)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 PrimaryButton("Guardar", { vm.save(name, phone); editing = false }, Modifier.weight(1f), enabled = !s.saving, loading = s.saving)
                                 SecondaryButton("Cancelar", { editing = false }, Modifier.weight(1f), enabled = !s.saving)
@@ -85,26 +86,30 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
             s.loading -> LoadingState()
             s.error != null && p == null -> ErrorRetryState(s.error!!, vm::load)
             p != null -> {
+                val nameLabel = stringResource(R.string.profile_name)
+                val phoneLabel = stringResource(R.string.profile_phone)
+                val ageLabel = stringResource(R.string.label_age).substringBefore(":")
+                val experienceLabel = stringResource(R.string.profile_experience_years)
                 listOf(
-                    "Nombre" to name,
-                    "Teléfono" to phone,
-                    "Edad" to age,
-                    "Experiencia (años)" to exp,
-                    "Tarifa por hora" to rate
+                    nameLabel to name,
+                    phoneLabel to phone,
+                    ageLabel to age,
+                    experienceLabel to exp,
+                    stringResource(R.string.profile_hourly_rate) to rate
                 ).forEach { (label, value) ->
                     InCleanHomeTextField(
                         value = value,
                         onValueChange = { newValue ->
                             when (label) {
-                                "Nombre" -> name = newValue
-                                "Teléfono" -> phone = newValue
-                                "Edad" -> age = newValue
-                                "Experiencia (años)" -> exp = newValue
+                                nameLabel -> name = newValue
+                                phoneLabel -> phone = newValue
+                                ageLabel -> age = newValue
+                                experienceLabel -> exp = newValue
                                 else -> rate = newValue
                             }
                         },
                         label = label,
-                        singleLine = label != "Biografía",
+                        singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !s.saving
                     )
@@ -118,7 +123,7 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                 InCleanHomeTextField(
                     value = zones,
                     onValueChange = { zones = it },
-                    label = "Zonas (separadas por coma)",
+                    label = stringResource(R.string.profile_zones_csv),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !s.saving
@@ -126,7 +131,7 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                 OutlinedTextField(
                     value = bio,
                     onValueChange = { bio = it },
-                    label = { Text("Biografía") },
+                    label = { Text(stringResource(R.string.profile_bio)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !s.saving
                 )
@@ -142,4 +147,4 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
 
 private fun parseServiceTypes(value: String): List<String> =
     value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
-@Composable fun WorkerStatsScreen(vm:WorkerStatsViewModel,onBack:()->Unit){val s by vm.state.collectAsState();ScreenBackground{Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){Head(stringResource(R.string.title_statistics),onBack);when{s.loading->LoadingState();s.error!=null->ErrorRetryState(s.error!!,vm::load);s.stats!=null->{val x=s.stats!!;InCleanHomeCard{Text(stringResource(R.string.stats_completed_services_title));Text(x.completedServices.toString(),style=MaterialTheme.typography.headlineMedium)};InCleanHomeCard{Text(stringResource(R.string.stats_average_rating_title));Text("★ ${x.averageRating.toPlainString()}",style=MaterialTheme.typography.headlineSmall)};Text(stringResource(R.string.stats_services_by_month),style=MaterialTheme.typography.titleMedium);if(x.monthlyServiceCounts.isEmpty())EmptyState(stringResource(R.string.empty_monthly_stats)) else x.monthlyServiceCounts.forEach{InCleanHomeCard{Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(formatMonth(it.month));Text("${it.count} servicios")}}}}}}}}
+@Composable fun WorkerStatsScreen(vm:WorkerStatsViewModel,onBack:()->Unit){val s by vm.state.collectAsState();ScreenBackground{Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){Head(stringResource(R.string.title_statistics),onBack);when{s.loading->LoadingState();s.error!=null->ErrorRetryState(s.error!!,vm::load);s.stats!=null->{val x=s.stats!!;InCleanHomeCard{Text(stringResource(R.string.stats_completed_services_title));Text(x.completedServices.toString(),style=MaterialTheme.typography.headlineMedium)};InCleanHomeCard{Text(stringResource(R.string.stats_average_rating_title));Text("★ ${x.averageRating.toPlainString()}",style=MaterialTheme.typography.headlineSmall)};Text(stringResource(R.string.stats_services_by_month),style=MaterialTheme.typography.titleMedium);if(x.monthlyServiceCounts.isEmpty())EmptyState(stringResource(R.string.empty_monthly_stats)) else x.monthlyServiceCounts.forEach{InCleanHomeCard{Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(formatMonth(it.month));Text(pluralStringResource(R.plurals.services_count,it.count,it.count))}}}}}}}}
