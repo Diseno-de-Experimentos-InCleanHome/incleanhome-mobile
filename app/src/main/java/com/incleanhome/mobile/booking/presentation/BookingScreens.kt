@@ -50,6 +50,7 @@ import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
+import com.incleanhome.mobile.ui.components.RefreshButton
 import com.incleanhome.mobile.ui.format.formatCurrency
 import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatDateRange
@@ -73,19 +74,13 @@ fun MyBookingsScreen(
 
     ScreenBackground(modifier) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            ScreenHeader(stringResource(R.string.title_my_bookings), onBack)
+            ScreenHeader(stringResource(R.string.title_my_bookings), onBack, trailingContent = { RefreshButton(onClick = viewModel::refresh, enabled = !state.isLoading, showLabel = false) })
             Text(
                 text = stringResource(R.string.bookings_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(16.dp))
-            SecondaryButton(
-                text = stringResource(R.string.action_refresh),
-                onClick = viewModel::refresh,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading
-            )
             Spacer(Modifier.height(16.dp))
             when {
                 state.isLoading -> LoadingState(Modifier.weight(1f))
@@ -266,10 +261,7 @@ private fun BookingListScreen(
     val state by viewModel.uiState.collectAsState()
     var cancellationTarget by remember { mutableStateOf<Booking?>(null) }
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        ScreenHeader(title, onBack)
-        Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.action_refresh))
-        }
+        ScreenHeader(title, onBack, trailingContent = { RefreshButton(viewModel::refresh, showLabel = false) })
         Spacer(Modifier.height(12.dp))
         when {
             state.isLoading -> LoadingState()

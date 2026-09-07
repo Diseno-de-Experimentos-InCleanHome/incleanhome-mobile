@@ -28,6 +28,7 @@ import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.SecondaryButton
+import com.incleanhome.mobile.ui.components.RefreshButton
 import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatCurrency
 import com.incleanhome.mobile.ui.format.formatDate
@@ -44,13 +45,11 @@ fun EventsScreen(viewModel:EventsViewModel,clientView:Boolean,onBack:()->Unit,on
     val s by viewModel.state.collectAsState()
     ScreenBackground(modifier) {
         Column(Modifier.fillMaxSize().padding(16.dp)) {
-            ScreenHeader(stringResource(if(clientView) R.string.title_my_events else R.string.title_available_events), onBack)
+            ScreenHeader(stringResource(if(clientView) R.string.title_my_events else R.string.title_available_events), onBack, trailingContent = { RefreshButton(viewModel::refresh, showLabel = false) })
             if (clientView) {
                 Spacer(Modifier.height(8.dp))
                 PrimaryButton(stringResource(R.string.title_create_event), onCreate)
             }
-            Spacer(Modifier.height(8.dp))
-            SecondaryButton(stringResource(R.string.action_refresh), viewModel::refresh, Modifier.fillMaxWidth())
             Spacer(Modifier.height(12.dp))
             LoadableList(s.loading, s.error, s.events.isEmpty(), stringResource(if(clientView) R.string.empty_my_events else R.string.empty_available_events), viewModel::refresh) {
                 LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -86,8 +85,7 @@ fun CreateEventScreen(viewModel:CreateEventViewModel,onBack:()->Unit,onDone:()->
 @Composable
 fun EventDetailScreen(viewModel:EventDetailViewModel,workerView:Boolean,onBack:()->Unit,onApplications:(Int)->Unit,modifier:Modifier=Modifier){
     val s by viewModel.state.collectAsState();Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
-        ScreenHeader(stringResource(R.string.title_event_detail),onBack)
-        Button(onClick=viewModel::refresh,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.action_refresh))}
+        ScreenHeader(stringResource(R.string.title_event_detail),onBack, trailingContent = { RefreshButton(viewModel::refresh, showLabel = false) })
         when{ s.loading->LoadingState();s.event==null->{ErrorRetryState(s.error.orEmpty(),viewModel::refresh)}
             else->s.event?.let{e->
                 EventDetails(e)
@@ -111,7 +109,7 @@ fun EventDetailScreen(viewModel:EventDetailViewModel,workerView:Boolean,onBack:(
 
 @Composable
 fun ApplicationsScreen(viewModel:ApplicationsViewModel,onBack:()->Unit,modifier:Modifier=Modifier){
-    val s by viewModel.state.collectAsState();Column(modifier.fillMaxSize().padding(16.dp)){ScreenHeader(stringResource(R.string.title_applications),onBack);Spacer(Modifier.height(8.dp));Button(onClick=viewModel::refresh,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.action_refresh))};Spacer(Modifier.height(12.dp))
+    val s by viewModel.state.collectAsState();Column(modifier.fillMaxSize().padding(16.dp)){ScreenHeader(stringResource(R.string.title_applications),onBack, trailingContent = { RefreshButton(viewModel::refresh, showLabel = false) });Spacer(Modifier.height(12.dp))
         LoadableList(s.loading,s.error,s.applications.isEmpty(),stringResource(R.string.empty_applications),viewModel::refresh){LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp)){items(s.applications,key=EventApplication::id){a->ApplicationCard(a){
             if(a.status==ApplicationStatus.PENDING)Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){Button(onClick={viewModel.accept(a.id)},enabled=s.updating==null,modifier=Modifier.weight(1f)){Text(stringResource(R.string.action_accept))};Button(onClick={viewModel.reject(a.id)},enabled=s.updating==null,modifier=Modifier.weight(1f)){Text(stringResource(R.string.action_reject))}}
         }}}}
@@ -120,7 +118,7 @@ fun ApplicationsScreen(viewModel:ApplicationsViewModel,onBack:()->Unit,modifier:
 
 @Composable
 fun MyApplicationsScreen(viewModel:MyApplicationsViewModel,onBack:()->Unit,onEvent:(Int)->Unit,modifier:Modifier=Modifier){
-    val s by viewModel.state.collectAsState();Column(modifier.fillMaxSize().padding(16.dp)){ScreenHeader(stringResource(R.string.title_my_applications),onBack);Spacer(Modifier.height(8.dp));Button(onClick=viewModel::refresh,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.action_refresh))};Spacer(Modifier.height(12.dp))
+    val s by viewModel.state.collectAsState();Column(modifier.fillMaxSize().padding(16.dp)){ScreenHeader(stringResource(R.string.title_my_applications),onBack, trailingContent = { RefreshButton(viewModel::refresh, showLabel = false) });Spacer(Modifier.height(12.dp))
         LoadableList(s.loading,s.error,s.applications.isEmpty(),stringResource(R.string.empty_my_applications),viewModel::refresh){LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp)){items(s.applications,key=EventApplication::id){a->ApplicationCard(a,onClick={onEvent(a.eventId)}){
             if(a.status==ApplicationStatus.PENDING)Button(onClick={viewModel.withdraw(a)},enabled=s.updating==null,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.event_withdraw_application))}
         }}}}

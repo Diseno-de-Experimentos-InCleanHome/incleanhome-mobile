@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -26,9 +27,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -45,9 +52,11 @@ import com.incleanhome.mobile.ui.theme.DisabledContainer
 import com.incleanhome.mobile.ui.theme.DisabledContent
 import com.incleanhome.mobile.ui.theme.InCleanHomeDimens
 import com.incleanhome.mobile.ui.theme.Navy
+import com.incleanhome.mobile.ui.theme.GreenLight
+import com.incleanhome.mobile.ui.theme.PrimaryGreen
 
 @Composable
-fun ScreenHeader(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun ScreenHeader(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, trailingContent: (@Composable () -> Unit)? = null) {
     Row(
         modifier.fillMaxWidth().heightIn(min = InCleanHomeDimens.HeaderMinHeight),
         verticalAlignment = Alignment.CenterVertically
@@ -59,6 +68,7 @@ fun ScreenHeader(title: String, onBack: () -> Unit, modifier: Modifier = Modifie
             color = Navy,
             style = MaterialTheme.typography.headlineSmall
         )
+        if (trailingContent != null) { Spacer(Modifier.weight(1f)); trailingContent() }
     }
 }
 
@@ -146,15 +156,37 @@ fun SecondaryButton(
         modifier = modifier.sizeIn(minHeight = InCleanHomeDimens.TouchTarget),
         enabled = enabled,
         shape = RoundedCornerShape(InCleanHomeDimens.ButtonRadius),
-        border = BorderStroke(InCleanHomeDimens.BorderWidth, if (enabled) Navy else Border),
+        border = BorderStroke(InCleanHomeDimens.BorderWidth, if (enabled) PrimaryGreen else Border),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = Navy,
-            disabledContainerColor = MaterialTheme.colorScheme.surface,
+            containerColor = GreenLight,
+            contentColor = PrimaryGreen,
+            disabledContainerColor = DisabledContainer,
             disabledContentColor = DisabledContent
         )
     ) {
         Text(text, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+fun RefreshButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    text: String = stringResource(R.string.action_refresh),
+    showLabel: Boolean = true
+) {
+    FilledIconButton(
+        onClick = onClick,
+        modifier = modifier.size(48.dp),
+        enabled = enabled,
+        shape = RoundedCornerShape(12.dp),
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = PrimaryGreen,
+            contentColor = Color.White
+        )
+    ) {
+        Icon(Icons.Rounded.Refresh, contentDescription = text, modifier = Modifier.size(24.dp))
     }
 }
 

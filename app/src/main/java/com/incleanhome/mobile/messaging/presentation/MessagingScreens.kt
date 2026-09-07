@@ -49,6 +49,7 @@ import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
+import com.incleanhome.mobile.ui.components.RefreshButton
 import com.incleanhome.mobile.ui.format.formatDateTime
 import com.incleanhome.mobile.ui.theme.Border
 import com.incleanhome.mobile.ui.theme.Navy
@@ -66,19 +67,13 @@ fun ConversationsScreen(
     val state by viewModel.uiState.collectAsState()
     ScreenBackground(modifier) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            ScreenHeader(stringResource(R.string.title_conversations), onBack)
+            ScreenHeader(stringResource(R.string.title_conversations), onBack, trailingContent = { RefreshButton(onClick = viewModel::refresh, enabled = !state.isLoading, showLabel = false) })
             Text(
                 text = stringResource(R.string.conversations_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(16.dp))
-            SecondaryButton(
-                text = stringResource(R.string.action_refresh),
-                onClick = viewModel::refresh,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading
-            )
             Spacer(Modifier.height(16.dp))
 
             when {
@@ -127,14 +122,7 @@ fun ChatScreen(
 
     ScreenBackground(modifier) {
         Column(modifier = Modifier.fillMaxSize().imePadding().padding(16.dp)) {
-            ScreenHeader(otherUserName, onBack)
-            Spacer(Modifier.height(8.dp))
-            SecondaryButton(
-                text = stringResource(R.string.action_refresh_conversation),
-                onClick = viewModel::refresh,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading
-            )
+            ScreenHeader(otherUserName, onBack, trailingContent = { RefreshButton(onClick = viewModel::refresh, enabled = !state.isLoading, text = stringResource(R.string.action_refresh_conversation), showLabel = false) })
             Spacer(Modifier.height(8.dp))
 
             when {

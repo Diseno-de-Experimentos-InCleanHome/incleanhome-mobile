@@ -34,6 +34,7 @@ import com.incleanhome.mobile.ui.components.LoadingState
 import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
+import com.incleanhome.mobile.ui.components.RefreshButton
 import com.incleanhome.mobile.ui.format.formatDateTime
 import com.incleanhome.mobile.ui.format.presentationValue
 
@@ -114,9 +115,7 @@ fun WorkerReviewsScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        ScreenHeader(stringResource(R.string.title_my_reviews), onBack)
-        Spacer(Modifier.height(12.dp))
-        SecondaryButton(stringResource(R.string.action_refresh), viewModel::refresh, Modifier.fillMaxWidth(), enabled = !state.isLoading)
+        ScreenHeader(stringResource(R.string.title_my_reviews), onBack, trailingContent = { RefreshButton(viewModel::refresh, enabled = !state.isLoading, showLabel = false) })
         Spacer(Modifier.height(12.dp))
         ReviewsList(
             reviews = state.reviews,
