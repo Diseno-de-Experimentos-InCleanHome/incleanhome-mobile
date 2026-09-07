@@ -6,8 +6,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Replace these aliases with bundled Nunito and Inter font families when the
-// licensed font files are added to res/font. The complete scale can stay intact.
 val InCleanHomeTitleFontFamily = FontFamily.Default
 val InCleanHomeContentFontFamily = FontFamily.Default
 

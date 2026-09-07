@@ -29,7 +29,7 @@ class BookingRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            BookingResult.Error(userMessage(exception, "la operación de reserva") /* backend details are not exposed */ ?: when (exception.code()) {
+            BookingResult.Error(userMessage(exception, "la operación de reserva") ?: when (exception.code()) {
                 401 -> "La sesión no es válida. Vuelve a iniciar sesión."
                 403 -> "No tienes permiso para realizar esta acción."
                 404 -> "No se encontró la reserva."

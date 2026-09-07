@@ -2,7 +2,6 @@ package com.incleanhome.mobile.core.network
 
 import retrofit2.HttpException
 
-/** User-facing, non-sensitive HTTP errors. Backend business validation is still represented by 400. */
 fun userMessage(exception: HttpException, resource: String = "la operación"): String = when (exception.code()) {
     400 -> "Los datos enviados no son válidos."
     401 -> "La sesión no es válida. Vuelve a iniciar sesión."
