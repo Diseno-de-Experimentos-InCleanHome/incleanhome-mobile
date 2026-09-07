@@ -21,8 +21,13 @@ import com.incleanhome.mobile.R
 import com.incleanhome.mobile.events.data.*
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.InCleanHomeCard
+import com.incleanhome.mobile.ui.components.InCleanHomeTextField
 import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.ScreenBackground
+import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatCurrency
 import com.incleanhome.mobile.ui.format.formatDate
@@ -36,12 +41,22 @@ import java.time.ZoneOffset
 
 @Composable
 fun EventsScreen(viewModel:EventsViewModel,clientView:Boolean,onBack:()->Unit,onCreate:()->Unit,onEvent:(Int)->Unit,modifier:Modifier=Modifier){
-    val s by viewModel.state.collectAsState(); Column(modifier.fillMaxSize().padding(16.dp)){
-        ScreenHeader(stringResource(if(clientView) R.string.title_my_events else R.string.title_available_events),onBack)
-        if(clientView){Spacer(Modifier.height(8.dp));Button(onClick=onCreate,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.title_create_event))}}
-        Spacer(Modifier.height(8.dp));Button(onClick=viewModel::refresh,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.action_refresh))};Spacer(Modifier.height(12.dp))
-        LoadableList(s.loading,s.error,s.events.isEmpty(),stringResource(if(clientView) R.string.empty_my_events else R.string.empty_available_events),viewModel::refresh){
-            LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp)){items(s.events,key=Event::id){e->EventCard(e){onEvent(e.id)}}}
+    val s by viewModel.state.collectAsState()
+    ScreenBackground(modifier) {
+        Column(Modifier.fillMaxSize().padding(16.dp)) {
+            ScreenHeader(stringResource(if(clientView) R.string.title_my_events else R.string.title_available_events), onBack)
+            if (clientView) {
+                Spacer(Modifier.height(8.dp))
+                PrimaryButton(stringResource(R.string.title_create_event), onCreate)
+            }
+            Spacer(Modifier.height(8.dp))
+            SecondaryButton(stringResource(R.string.action_refresh), viewModel::refresh, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(12.dp))
+            LoadableList(s.loading, s.error, s.events.isEmpty(), stringResource(if(clientView) R.string.empty_my_events else R.string.empty_available_events), viewModel::refresh) {
+                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(s.events, key = Event::id) { event -> EventCard(event) { onEvent(event.id) } }
+                }
+            }
         }
     }
 }
@@ -112,11 +127,11 @@ fun MyApplicationsScreen(viewModel:MyApplicationsViewModel,onBack:()->Unit,onEve
     }
 }
 
-@Composable private fun EventCard(e:Event,onClick:()->Unit){Card(Modifier.fillMaxWidth().semantics{role=Role.Button}.clickable(onClick=onClick)){Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(4.dp)){Text(e.title,style=MaterialTheme.typography.titleLarge);Text(formatDateRange(e.date,e.startTime,e.endTime));Text(stringResource(R.string.label_zone,e.zone));Text(stringResource(R.string.event_workers,e.acceptedCount,e.workersNeeded));Text(stringResource(R.string.label_status,presentationValue(e.status)))}}}
+@Composable private fun EventCard(e:Event,onClick:()->Unit){InCleanHomeCard(onClick=onClick){Column(verticalArrangement=Arrangement.spacedBy(6.dp)){Text(e.title,style=MaterialTheme.typography.titleLarge,color=MaterialTheme.colorScheme.secondary);Text(stringResource(R.string.label_services,presentationValues(e.serviceTypes)));Text(formatDateRange(e.date,e.startTime,e.endTime));Text(stringResource(R.string.label_zone,e.zone));Text(stringResource(R.string.event_workers,e.acceptedCount,e.workersNeeded));Text(stringResource(R.string.label_status,presentationValue(e.status)),style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)}}}
 @Composable private fun EventDetails(e:Event){Text(e.title,style=MaterialTheme.typography.headlineSmall);Text(stringResource(R.string.event_published_by,e.clientName));if(e.description.isNotBlank())Text(e.description);Text(stringResource(R.string.label_services,presentationValues(e.serviceTypes)));Text(stringResource(R.string.label_zone,e.zone));Text(stringResource(R.string.label_address,e.address));Text(stringResource(R.string.label_date,formatDateRange(e.date,e.startTime,e.endTime)));Text(stringResource(R.string.label_duration_hours,e.hours.toPlainString()));Text(stringResource(R.string.event_workers_accepted,e.acceptedCount,e.workersNeeded));Text(stringResource(R.string.label_hourly_rate_named,formatCurrency(e.hourlyRateOffered)));Text(stringResource(R.string.event_deadline,formatDateTime(e.applicationDeadline)));Text(stringResource(R.string.label_status,presentationValue(e.status)))}
-@Composable private fun ApplicationCard(a:EventApplication,onClick:(()->Unit)?=null,content: @Composable ()->Unit){val m=Modifier.fillMaxWidth().let{if(onClick==null)it else it.semantics{role=Role.Button}.clickable(onClick=onClick)};Card(m){Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(5.dp)){Text(a.workerName,style=MaterialTheme.typography.titleMedium);Text(a.eventTitle);Text("${formatDate(a.eventDate)} · ${a.eventZone}");a.message?.takeIf(String::isNotBlank)?.let{Text(stringResource(R.string.event_message,it))};Text(stringResource(R.string.label_status,presentationValue(a.status)));content()}}}
+@Composable private fun ApplicationCard(a:EventApplication,onClick:(()->Unit)?=null,content: @Composable ()->Unit){InCleanHomeCard(onClick=onClick){Column(verticalArrangement=Arrangement.spacedBy(5.dp)){Text(a.workerName,style=MaterialTheme.typography.titleMedium,color=MaterialTheme.colorScheme.secondary);Text(a.eventTitle);Text("${formatDate(a.eventDate)} · ${a.eventZone}");a.message?.takeIf(String::isNotBlank)?.let{Text(stringResource(R.string.event_message,it))};Text(stringResource(R.string.label_status,presentationValue(a.status)));content()}}}
 @Composable private fun LoadableList(loading:Boolean,error:String?,empty:Boolean,emptyText:String,retry:()->Unit,content: @Composable ()->Unit){when{loading->LoadingState();error!=null->ErrorRetryState(error,retry);empty->EmptyState(emptyText);else->content()}}
-@Composable private fun Field(value:String,onChange:(String)->Unit,label:String,disabled:Boolean,minLines:Int=1,keyboard:KeyboardType=KeyboardType.Text){OutlinedTextField(value,onChange,Modifier.fillMaxWidth(),label={Text(label)},enabled=!disabled,minLines=minLines,maxLines=if(minLines>1)6 else 1,keyboardOptions=KeyboardOptions(keyboardType=keyboard))}
+@Composable private fun Field(value:String,onChange:(String)->Unit,label:String,disabled:Boolean,minLines:Int=1,keyboard:KeyboardType=KeyboardType.Text){InCleanHomeTextField(value,onChange,label,Modifier.fillMaxWidth(),enabled=!disabled,singleLine=minLines==1,minLines=minLines,maxLines=if(minLines>1)6 else 1,keyboardOptions=KeyboardOptions(keyboardType=keyboard))}
 private fun canApply(e:Event):Boolean=e.status==EventStatus.OPEN&&e.myApplicationStatus==null&&runCatching{Instant.now()<Instant.parse(e.applicationDeadline)}.getOrDefault(false)
 private fun parseServiceTypes(value: String): List<String> =
     value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()

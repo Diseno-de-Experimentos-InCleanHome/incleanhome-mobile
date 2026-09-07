@@ -28,9 +28,12 @@ import com.incleanhome.mobile.R
 import com.incleanhome.mobile.reviews.data.Review
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.InCleanHomeCard
+import com.incleanhome.mobile.ui.components.InCleanHomeTextField
 import com.incleanhome.mobile.ui.components.LoadingState
 import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.format.formatDateTime
 import com.incleanhome.mobile.ui.format.presentationValue
 
@@ -59,8 +62,10 @@ fun CreateReviewScreen(
                 ErrorRetryState(state.errorMessage.orEmpty(), viewModel::loadBooking)
             }
             else -> state.booking?.let { booking ->
-                Text(stringResource(R.string.booking_worker, booking.workerName), style = MaterialTheme.typography.titleLarge)
-                Text(stringResource(R.string.label_service, presentationValue(booking.serviceType)))
+                InCleanHomeCard {
+                    Text(booking.workerName, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.secondary)
+                    Text(stringResource(R.string.label_service, presentationValue(booking.serviceType)))
+                }
                 Text(stringResource(R.string.review_choose_rating))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -75,11 +80,11 @@ fun CreateReviewScreen(
                         )
                     }
                 }
-                OutlinedTextField(
+                InCleanHomeTextField(
                     value = state.comment,
                     onValueChange = viewModel::updateComment,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.review_comment_optional)) },
+                    label = stringResource(R.string.review_comment_optional),
                     supportingText = {
                         Text("${state.comment.length}/${CreateReviewViewModel.MAX_COMMENT_LENGTH}")
                     },
@@ -111,9 +116,7 @@ fun WorkerReviewsScreen(
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         ScreenHeader(stringResource(R.string.title_my_reviews), onBack)
         Spacer(Modifier.height(12.dp))
-        Button(onClick = viewModel::refresh, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.action_refresh))
-        }
+        SecondaryButton(stringResource(R.string.action_refresh), viewModel::refresh, Modifier.fillMaxWidth(), enabled = !state.isLoading)
         Spacer(Modifier.height(12.dp))
         ReviewsList(
             reviews = state.reviews,
@@ -165,7 +168,7 @@ fun ReviewsColumn(
 
 @Composable
 fun ReviewCard(review: Review) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    InCleanHomeCard {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("${review.rating}/5", style = MaterialTheme.typography.titleLarge)
             Text(review.clientName, style = MaterialTheme.typography.titleMedium)

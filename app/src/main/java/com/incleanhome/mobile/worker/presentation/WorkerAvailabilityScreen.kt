@@ -31,6 +31,13 @@ import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.LoadingState
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.ScreenBackground
+import com.incleanhome.mobile.ui.components.InCleanHomeCard
+import com.incleanhome.mobile.ui.components.InCleanHomeTextField
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.SecondaryButton
+import com.incleanhome.mobile.ui.format.formatDayOfWeek
+import com.incleanhome.mobile.ui.format.formatTime
 
 @Composable
 fun WorkerAvailabilityScreen(
@@ -40,7 +47,7 @@ fun WorkerAvailabilityScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Column(
+    ScreenBackground(modifier) { Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
@@ -82,25 +89,18 @@ fun WorkerAvailabilityScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
+                SecondaryButton(
+                    text = stringResource(R.string.action_add_schedule),
                     onClick = viewModel::addSlot,
-                    modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isSaving
-                ) {
-                    Text(stringResource(R.string.action_add_schedule))
-                }
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
+                PrimaryButton(
+                    text = stringResource(R.string.action_save_availability),
                     onClick = viewModel::saveAvailability,
-                    modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isSaving
-                ) {
-                    if (uiState.isSaving) {
-                        CircularProgressIndicator(strokeWidth = 2.dp)
-                    } else {
-                        Text(stringResource(R.string.action_save_availability))
-                    }
-                }
+                    , loading = uiState.isSaving
+                )
 
                 uiState.errorMessage?.let { message ->
                     Spacer(modifier = Modifier.height(12.dp))
@@ -112,7 +112,7 @@ fun WorkerAvailabilityScreen(
                 }
             }
         }
-    }
+    } }
 }
 
 @Composable
@@ -125,33 +125,33 @@ private fun AvailabilityEditor(
     onRemove: () -> Unit,
     enabled: Boolean
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    InCleanHomeCard {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            OutlinedTextField(
+            InCleanHomeTextField(
                 value = slot.dayOfWeek,
                 onValueChange = onDayChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.field_day_of_week)) },
+                label = stringResource(R.string.field_day_of_week),
                 singleLine = true,
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            OutlinedTextField(
+            InCleanHomeTextField(
                 value = slot.startTime,
                 onValueChange = onStartTimeChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.field_start_time)) },
+                label = stringResource(R.string.field_start_time),
                 singleLine = true,
                 enabled = enabled
             )
-            OutlinedTextField(
+            InCleanHomeTextField(
                 value = slot.endTime,
                 onValueChange = onEndTimeChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.field_end_time)) },
+                label = stringResource(R.string.field_end_time),
                 singleLine = true,
                 enabled = enabled
             )
@@ -160,16 +160,15 @@ private fun AvailabilityEditor(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(stringResource(if (slot.isAvailable) R.string.availability_available else R.string.availability_unavailable))
+                Text("${formatDayOfWeek(slot.dayOfWeek.toIntOrNull() ?: 0)} · ${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}")
+                Text(stringResource(if (slot.isAvailable) R.string.availability_available else R.string.availability_unavailable), color = MaterialTheme.colorScheme.primary)
                 Switch(
                     checked = slot.isAvailable,
                     onCheckedChange = onAvailableChange,
                     enabled = enabled
                 )
             }
-            Button(onClick = onRemove, enabled = enabled) {
-                Text(stringResource(R.string.action_remove_schedule))
-            }
+            SecondaryButton(text = stringResource(R.string.action_remove_schedule), onClick = onRemove, enabled = enabled)
         }
     }
 }

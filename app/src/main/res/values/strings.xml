@@ -99,6 +99,7 @@
     <!-- Shared labels -->
     <string name="label_service">Servicio: %1$s</string>
     <string name="label_services">Servicios: %1$s</string>
+    <string name="label_services_title">Servicios</string>
     <string name="label_status">Estado: %1$s</string>
     <string name="label_gender">Género: %1$s</string>
     <string name="label_zone">Zona: %1$s</string>
@@ -116,6 +117,7 @@
     <string name="label_age">Edad: %1$d</string>
     <string name="label_experience">Experiencia: %1$d años</string>
     <string name="label_bio">Biografía: %1$s</string>
+    <string name="label_bio_title">Biografía</string>
     <string name="label_services_completed">Servicios realizados: %1$d</string>
 
     <!-- Bookings -->
@@ -237,6 +239,8 @@
     <string name="action_edit_profile">Editar perfil</string>
     <string name="stats_completed_services">Servicios completados: %1$d</string>
     <string name="stats_average_rating">Calificación promedio: %1$s</string>
+    <string name="stats_completed_services_title">Servicios completados</string>
+    <string name="stats_average_rating_title">Calificación promedio</string>
     <string name="stats_services_by_month">Servicios por mes</string>
     <string name="empty_monthly_stats">Todavía no hay datos mensuales.</string>
 

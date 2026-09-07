@@ -10,15 +10,59 @@ import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
+import com.incleanhome.mobile.ui.components.InCleanHomeCard
+import com.incleanhome.mobile.ui.components.InCleanHomeTextField
 import com.incleanhome.mobile.ui.components.LoadingState
+import com.incleanhome.mobile.ui.components.PrimaryButton
+import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
+import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatMonth
 import com.incleanhome.mobile.ui.format.presentationValue
 import com.incleanhome.mobile.worker.data.WorkerProfile
 
 @Composable private fun Head(title:String,back:()->Unit){ScreenHeader(title,back)}
-@Composable fun ClientProfileScreen(vm:ClientProfileViewModel,onBack:()->Unit){val s by vm.state.collectAsState();var editing by remember{mutableStateOf(false)};var name by remember{mutableStateOf("")};var phone by remember{mutableStateOf("")};Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){Head("Mi perfil",onBack);when{ s.loading->CircularProgressIndicator();s.error!=null->{Text(s.error!!,color=MaterialTheme.colorScheme.error);Button(vm::load){Text("Reintentar")}};s.profile!=null->{val p=s.profile!!;if(!editing){Text("Nombre: ${p.name}");Text("Teléfono: ${p.phone?:"-"}");Button({name=p.name;phone=p.phone.orEmpty();editing=true}){Text("Editar perfil")}}else{OutlinedTextField(name,{name=it},label={Text("Nombre")},singleLine=true);OutlinedTextField(phone,{phone=it},label={Text("Teléfono")},singleLine=true);Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){Button({vm.save(name,phone) ;editing=false},enabled=!s.saving){Text("Guardar")};TextButton({editing=false}){Text("Cancelar")}}};if(s.saving)CircularProgressIndicator();s.success?.let{Text(it,color=MaterialTheme.colorScheme.primary)}}}}}
+@Composable
+fun ClientProfileScreen(vm: ClientProfileViewModel, onBack: () -> Unit) {
+    val s by vm.state.collectAsState()
+    var editing by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    ScreenBackground {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Head("Mi perfil", onBack)
+            when {
+                s.loading -> LoadingState()
+                s.error != null -> ErrorRetryState(s.error!!, vm::load)
+                s.profile != null -> {
+                    val p = s.profile!!
+                    InCleanHomeCard {
+                        Text("Cuenta", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                        Spacer(Modifier.height(12.dp))
+                        if (!editing) {
+                            Text("Nombre", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(p.name, style = MaterialTheme.typography.titleLarge)
+                            Spacer(Modifier.height(10.dp))
+                            Text("Teléfono", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(p.phone ?: "-", style = MaterialTheme.typography.bodyLarge)
+                            Spacer(Modifier.height(16.dp))
+                            PrimaryButton("Editar perfil", { name = p.name; phone = p.phone.orEmpty(); editing = true })
+                        } else {
+                            InCleanHomeTextField(name, { name = it }, "Nombre", enabled = !s.saving)
+                            InCleanHomeTextField(phone, { phone = it }, "Teléfono", enabled = !s.saving)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                PrimaryButton("Guardar", { vm.save(name, phone); editing = false }, Modifier.weight(1f), enabled = !s.saving, loading = s.saving)
+                                SecondaryButton("Cancelar", { editing = false }, Modifier.weight(1f), enabled = !s.saving)
+                            }
+                        }
+                    }
+                    s.success?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+                }
+            }
+        }
+    }
+}
 @Composable
 fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) {
     val s by vm.state.collectAsState()
@@ -48,7 +92,7 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                     "Experiencia (años)" to exp,
                     "Tarifa por hora" to rate
                 ).forEach { (label, value) ->
-                    OutlinedTextField(
+                    InCleanHomeTextField(
                         value = value,
                         onValueChange = { newValue ->
                             when (label) {
@@ -59,7 +103,7 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                                 else -> rate = newValue
                             }
                         },
-                        label = { Text(label) },
+                        label = label,
                         singleLine = label != "Biografía",
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !s.saving
@@ -71,10 +115,10 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                     onSelectionChange = { services = it.joinToString(",") },
                     enabled = !s.saving
                 )
-                OutlinedTextField(
+                InCleanHomeTextField(
                     value = zones,
                     onValueChange = { zones = it },
-                    label = { Text("Zonas (separadas por coma)") },
+                    label = "Zonas (separadas por coma)",
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !s.saving
@@ -87,13 +131,7 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                     enabled = !s.saving
                 )
                 Text(stringResource(R.string.label_gender, presentationValue(p.gender)))
-                Button(
-                    onClick = { vm.save(name, phone, age, exp, rate, services, zones, bio) },
-                    enabled = !s.saving,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.action_save))
-                }
+                PrimaryButton(stringResource(R.string.action_save), { vm.save(name, phone, age, exp, rate, services, zones, bio) }, enabled = !s.saving, loading = s.saving)
                 if (s.saving) LoadingState()
                 s.success?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
                 s.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -104,4 +142,4 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
 
 private fun parseServiceTypes(value: String): List<String> =
     value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
-@Composable fun WorkerStatsScreen(vm:WorkerStatsViewModel,onBack:()->Unit){val s by vm.state.collectAsState();Column(Modifier.fillMaxSize().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){Head(stringResource(R.string.title_statistics),onBack);when{s.loading->LoadingState();s.error!=null->ErrorRetryState(s.error!!,vm::load);s.stats!=null->{val x=s.stats!!;Text(stringResource(R.string.stats_completed_services,x.completedServices));Text(stringResource(R.string.stats_average_rating,x.averageRating.toPlainString()));Text(stringResource(R.string.stats_services_by_month),style=MaterialTheme.typography.titleMedium);if(x.monthlyServiceCounts.isEmpty())EmptyState(stringResource(R.string.empty_monthly_stats)) else x.monthlyServiceCounts.forEach{Text("${formatMonth(it.month)}: ${it.count}")}}}}}
+@Composable fun WorkerStatsScreen(vm:WorkerStatsViewModel,onBack:()->Unit){val s by vm.state.collectAsState();ScreenBackground{Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){Head(stringResource(R.string.title_statistics),onBack);when{s.loading->LoadingState();s.error!=null->ErrorRetryState(s.error!!,vm::load);s.stats!=null->{val x=s.stats!!;InCleanHomeCard{Text(stringResource(R.string.stats_completed_services_title));Text(x.completedServices.toString(),style=MaterialTheme.typography.headlineMedium)};InCleanHomeCard{Text(stringResource(R.string.stats_average_rating_title));Text("★ ${x.averageRating.toPlainString()}",style=MaterialTheme.typography.headlineSmall)};Text(stringResource(R.string.stats_services_by_month),style=MaterialTheme.typography.titleMedium);if(x.monthlyServiceCounts.isEmpty())EmptyState(stringResource(R.string.empty_monthly_stats)) else x.monthlyServiceCounts.forEach{InCleanHomeCard{Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(formatMonth(it.month));Text("${it.count} servicios")}}}}}}}}
