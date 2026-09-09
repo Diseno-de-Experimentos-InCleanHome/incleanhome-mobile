@@ -39,6 +39,11 @@ import com.incleanhome.mobile.booking.presentation.MyBookingsScreen
 import com.incleanhome.mobile.booking.presentation.WorkerBookingDetailScreen
 import com.incleanhome.mobile.booking.presentation.WorkerRequestsScreen
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.claims.presentation.ClaimTrackScreen
+import com.incleanhome.mobile.claims.presentation.ClaimTrackViewModel
+import com.incleanhome.mobile.claims.presentation.ClaimsBookScreen
+import com.incleanhome.mobile.claims.presentation.CreateClaimScreen
+import com.incleanhome.mobile.claims.presentation.CreateClaimViewModel
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
@@ -83,6 +88,9 @@ private object Routes {
     const val TERMS = "terms"
     const val MEMBERSHIP_STATUS = "membership_status"
     const val ADMIN_ACCESS = "admin_access"
+    const val CLAIMS_BOOK = "claims_book"
+    const val CLAIM_CREATE = "claim_create"
+    const val CLAIM_TRACK = "claim_track?code={code}"
     const val ACCOUNT_TYPE = "account_type"
     const val REGISTER_CLIENT = "register_client"
     const val REGISTER_WORKER = "register_worker"
@@ -120,6 +128,7 @@ private object Routes {
     fun clientEventDetail(id:Int) = "client_event_detail/$id"
     fun eventApplications(id:Int) = "event_applications/$id"
     fun workerEventDetail(id:Int) = "worker_event_detail/$id"
+    fun claimTrack(code: String = "") = "claim_track?code=${Uri.encode(code)}"
 }
 
 @Composable
@@ -237,8 +246,37 @@ fun AppNavigation(
         composable(Routes.LOGIN) {
             LoginScreen(
                 loginViewModel = loginViewModel,
-                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) }
+                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) }
             )
+        }
+        composable(Routes.CLAIMS_BOOK) {
+            ClaimsBookScreen(
+                onCreate = { navController.navigate(Routes.CLAIM_CREATE) },
+                onTrack = { navController.navigate(Routes.claimTrack()) },
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.CLAIM_CREATE) {
+            val claimsViewModel: CreateClaimViewModel = viewModel(factory = CreateClaimViewModel.Factory)
+            CreateClaimScreen(
+                viewModel = claimsViewModel,
+                onTrackCode = { navController.navigate(Routes.claimTrack(it)) },
+                onBack = navController::popBackStack
+            )
+        }
+        composable(
+            route = Routes.CLAIM_TRACK,
+            arguments = listOf(navArgument("code") {
+                type = NavType.StringType
+                defaultValue = ""
+            })
+        ) { backStackEntry ->
+            val code = backStackEntry.arguments?.getString("code").orEmpty()
+            val claimTrackViewModel: ClaimTrackViewModel = viewModel(
+                factory = ClaimTrackViewModel.Factory(code)
+            )
+            ClaimTrackScreen(claimTrackViewModel, navController::popBackStack)
         }
         composable(Routes.TERMS) {
             TermsAcceptanceScreen(loginViewModel, onBack = { navController.popBackStack() })
@@ -284,6 +322,7 @@ fun AppNavigation(
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onEvents = { navController.navigate(Routes.CLIENT_EVENTS) },
                 onProfile = { navController.navigate(Routes.CLIENT_PROFILE) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) },
                 onLogout = logout
             )
         }
@@ -298,6 +337,7 @@ fun AppNavigation(
                 onEvents = { navController.navigate(Routes.WORKER_EVENTS) },
                 onEventApplications = { navController.navigate(Routes.WORKER_APPLICATIONS) },
                 onStats = { navController.navigate(Routes.WORKER_STATS) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) },
                 onLogout = logout
             )
         }

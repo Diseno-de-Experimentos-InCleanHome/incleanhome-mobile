@@ -45,7 +45,19 @@ private val presentationValues = mapOf(
     "open" to R.string.status_open,
     "staffed" to R.string.status_staffed,
     "in_progress" to R.string.status_in_progress,
-    "withdrawn" to R.string.status_withdrawn
+    "withdrawn" to R.string.status_withdrawn,
+    "reclamo" to R.string.claim_type_claim,
+    "queja" to R.string.claim_type_complaint,
+    "registered" to R.string.status_registered,
+    "in_review" to R.string.status_in_review,
+    "resolved" to R.string.status_resolved
+)
+
+private val claimStatusValues = mapOf(
+    "registered" to R.string.status_registered,
+    "in_review" to R.string.status_in_review,
+    "resolved" to R.string.status_resolved,
+    "rejected" to R.string.claim_status_rejected
 )
 
 val CanonicalServiceTypes = listOf(
@@ -62,11 +74,20 @@ val CanonicalServiceTypes = listOf(
 @StringRes
 fun presentationValueResource(value: String): Int? = presentationValues[value.trim().lowercase(Locale.ROOT)]
 
+@StringRes
+fun claimStatusResource(value: String): Int? = claimStatusValues[value.trim().lowercase(Locale.ROOT)]
+
 @Composable
 fun presentationValue(value: String): String {
     val normalized = value.trim()
     val resource = presentationValueResource(normalized)
     return resource?.let { stringResource(it) } ?: normalized
+}
+
+@Composable
+fun claimStatusValue(value: String): String {
+    val normalized = value.trim()
+    return claimStatusResource(normalized)?.let { stringResource(it) } ?: normalized
 }
 @Composable
 fun presentationValues(values: Iterable<String>, separator: String = ", "): String {

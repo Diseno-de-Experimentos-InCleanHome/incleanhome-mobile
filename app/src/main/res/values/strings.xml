@@ -67,6 +67,45 @@
     <string name="auth_admin_access_body">The InCleanHome administration panel is available in the web application.</string>
     <string name="auth_sign_out">Sign out</string>
 
+    <!-- Complaints book -->
+    <string name="claims_book_title">Complaints book</string>
+    <string name="claims_book_intro">Register a claim or complaint, or use your tracking code to check its status.</string>
+    <string name="claims_register_action">Register a claim or complaint</string>
+    <string name="claims_track_action">Check status</string>
+    <string name="claims_form_title">New claim or complaint</string>
+    <string name="claims_type">Type</string>
+    <string name="claim_type_claim">Claim</string>
+    <string name="claim_type_complaint">Complaint</string>
+    <string name="claims_consumer_name">Name</string>
+    <string name="claims_consumer_document">Document (optional)</string>
+    <string name="claims_consumer_email">Email</string>
+    <string name="claims_consumer_phone">Phone (optional)</string>
+    <string name="claims_related_service">Related service (optional)</string>
+    <string name="claims_description">Description</string>
+    <string name="claims_consumer_request">Consumer request (optional)</string>
+    <string name="claims_name_required">Name is required.</string>
+    <string name="claims_email_invalid">Enter a valid email address.</string>
+    <string name="claims_description_required">Description is required.</string>
+    <string name="claims_submit">Submit</string>
+    <string name="claims_created_title">Claim registered</string>
+    <string name="claims_created_body">Your request was registered successfully.</string>
+    <string name="claims_tracking_code_label">Tracking code</string>
+    <string name="claims_save_code">Save this code to check the status of your request.</string>
+    <string name="claims_track_title">Claim tracking</string>
+    <string name="claims_track_help">Enter the code you received when you registered your request.</string>
+    <string name="claims_code_required">Enter a tracking code.</string>
+    <string name="claims_track_submit">Track</string>
+    <string name="claims_status">Status</string>
+    <string name="claims_created_at">Registered on</string>
+    <string name="claims_resolved_at">Resolved on</string>
+    <string name="claims_admin_response">Administrative response</string>
+    <string name="claims_error_invalid_data">The submitted information is not valid.</string>
+    <string name="claims_error_not_found">No claim or complaint was found with that code.</string>
+    <string name="claims_error_network">Could not connect to the server.</string>
+    <string name="claims_error_server">The server is unavailable. Try again later.</string>
+    <string name="claims_error_invalid_response">The server returned an incomplete response.</string>
+    <string name="claims_error_unknown">The request could not be completed.</string>
+
     <!-- Common presentation -->
     <string name="action_back">Back</string>
     <string name="action_retry">Retry</string>
@@ -105,6 +144,10 @@
     <string name="status_staffed">Fully staffed</string>
     <string name="status_in_progress">In progress</string>
     <string name="status_withdrawn">Retirada</string>
+    <string name="status_registered">Registered</string>
+    <string name="status_in_review">In review</string>
+    <string name="status_resolved">Resolved</string>
+    <string name="claim_status_rejected">Rejected</string>
     <string name="availability_available">Available</string>
     <string name="availability_unavailable">Unavailable</string>
 

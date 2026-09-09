@@ -73,6 +73,45 @@
     <string name="auth_admin_access_body">El panel de administración de InCleanHome está disponible en la aplicación web.</string>
     <string name="auth_sign_out">Cerrar sesión</string>
 
+    <!-- Libro de reclamaciones -->
+    <string name="claims_book_title">Libro de reclamaciones</string>
+    <string name="claims_book_intro">Registra un reclamo o queja, o utiliza tu código de seguimiento para consultar su estado.</string>
+    <string name="claims_register_action">Registrar reclamo o queja</string>
+    <string name="claims_track_action">Consultar estado</string>
+    <string name="claims_form_title">Nuevo reclamo o queja</string>
+    <string name="claims_type">Tipo</string>
+    <string name="claim_type_claim">Reclamo</string>
+    <string name="claim_type_complaint">Queja</string>
+    <string name="claims_consumer_name">Nombre</string>
+    <string name="claims_consumer_document">Documento (opcional)</string>
+    <string name="claims_consumer_email">Correo electrónico</string>
+    <string name="claims_consumer_phone">Teléfono (opcional)</string>
+    <string name="claims_related_service">Servicio relacionado (opcional)</string>
+    <string name="claims_description">Descripción</string>
+    <string name="claims_consumer_request">Solicitud del consumidor (opcional)</string>
+    <string name="claims_name_required">El nombre es obligatorio.</string>
+    <string name="claims_email_invalid">Ingresa un correo electrónico válido.</string>
+    <string name="claims_description_required">La descripción es obligatoria.</string>
+    <string name="claims_submit">Registrar</string>
+    <string name="claims_created_title">Reclamo registrado</string>
+    <string name="claims_created_body">Tu solicitud fue registrada correctamente.</string>
+    <string name="claims_tracking_code_label">Código de seguimiento</string>
+    <string name="claims_save_code">Guarda este código para consultar el estado de tu solicitud.</string>
+    <string name="claims_track_title">Seguimiento de reclamo</string>
+    <string name="claims_track_help">Ingresa el código que recibiste al registrar tu solicitud.</string>
+    <string name="claims_code_required">Ingresa un código de seguimiento.</string>
+    <string name="claims_track_submit">Consultar</string>
+    <string name="claims_status">Estado</string>
+    <string name="claims_created_at">Registrado el</string>
+    <string name="claims_resolved_at">Resuelto el</string>
+    <string name="claims_admin_response">Respuesta administrativa</string>
+    <string name="claims_error_invalid_data">Los datos enviados no son válidos.</string>
+    <string name="claims_error_not_found">No encontramos un reclamo o queja con ese código.</string>
+    <string name="claims_error_network">No se pudo conectar con el servidor.</string>
+    <string name="claims_error_server">El servidor no está disponible. Inténtalo nuevamente.</string>
+    <string name="claims_error_invalid_response">El servidor devolvió una respuesta incompleta.</string>
+    <string name="claims_error_unknown">No se pudo completar la solicitud.</string>
+
     <!-- Common presentation -->
     <string name="action_back">Volver</string>
     <string name="action_retry">Reintentar</string>
@@ -111,6 +150,10 @@
     <string name="status_staffed">Personal completo</string>
     <string name="status_in_progress">En progreso</string>
     <string name="status_withdrawn">Retirada</string>
+    <string name="status_registered">Registrado</string>
+    <string name="status_in_review">En revisión</string>
+    <string name="status_resolved">Resuelto</string>
+    <string name="claim_status_rejected">Rechazado</string>
     <string name="availability_available">Disponible</string>
     <string name="availability_unavailable">No disponible</string>
 
