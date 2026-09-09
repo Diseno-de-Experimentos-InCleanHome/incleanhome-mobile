@@ -42,7 +42,7 @@ import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.format.formatCurrency
-import com.incleanhome.mobile.ui.format.formatDayOfWeek
+import com.incleanhome.mobile.ui.format.localizedDayOfWeek
 import com.incleanhome.mobile.ui.format.formatRating
 import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.humanizeIdentifier
@@ -182,7 +182,7 @@ private fun AvailabilityCard(slot: AvailabilitySlot) {
     InCleanHomeCard {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(formatDayOfWeek(slot.dayOfWeek), style = MaterialTheme.typography.titleMedium, color = Navy)
+                Text(localizedDayOfWeek(slot.dayOfWeek), style = MaterialTheme.typography.titleMedium, color = Navy)
                 Text(
                     stringResource(
                         R.string.availability_time_range,

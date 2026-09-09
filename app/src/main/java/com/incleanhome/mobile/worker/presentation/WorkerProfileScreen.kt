@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.legal.presentation.LegalDocumentLinks
 import com.incleanhome.mobile.worker.data.WorkerProfile
 import com.incleanhome.mobile.ui.components.*
 import com.incleanhome.mobile.ui.format.*
@@ -20,7 +21,14 @@ import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.Navy
 
 @Composable
-fun WorkerProfileScreen(viewModel: WorkerProfileViewModel, onBack: () -> Unit, onEdit: () -> Unit, modifier: Modifier = Modifier) {
+fun WorkerProfileScreen(
+    viewModel: WorkerProfileViewModel,
+    onBack: () -> Unit,
+    onEdit: () -> Unit,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val uiState by viewModel.uiState.collectAsState()
     ScreenBackground(modifier) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -47,6 +55,16 @@ fun WorkerProfileScreen(viewModel: WorkerProfileViewModel, onBack: () -> Unit, o
                     if (profile.bio.isNotBlank()) { Spacer(Modifier.height(12.dp)); InCleanHomeCard { Text(stringResource(R.string.label_bio_title), color = Navy, style = MaterialTheme.typography.titleMedium); Text(profile.bio) } }
                     Spacer(Modifier.height(16.dp)); PrimaryButton(stringResource(R.string.action_edit_profile), onEdit)
                 }
+            }
+            Spacer(Modifier.height(12.dp))
+            InCleanHomeCard {
+                Text(
+                    stringResource(R.string.legal_information),
+                    color = Navy,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(12.dp))
+                LegalDocumentLinks(onTerms = onTerms, onPrivacy = onPrivacy)
             }
         }
     }

@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.InCleanHomeDimens
 import com.incleanhome.mobile.ui.theme.Navy
@@ -134,7 +135,7 @@ internal fun AuthSectionTitle(text: String, icon: ImageVector? = null) {
 @Composable
 internal fun AuthInlineError(message: String, modifier: Modifier = Modifier) {
     Text(
-        text = message,
+        text = localizedUiMessage(message),
         modifier = modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Assertive },
         color = MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.bodySmall

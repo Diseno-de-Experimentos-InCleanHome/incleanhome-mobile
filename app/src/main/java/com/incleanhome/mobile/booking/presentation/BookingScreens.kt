@@ -56,6 +56,7 @@ import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatDateRange
 import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.ui.theme.Border
 import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.Navy
@@ -109,7 +110,7 @@ fun MyBookingsScreen(
                 }
             }
             state.successMessage?.let {
-                Text(it, color = PrimaryGreen, style = MaterialTheme.typography.bodyMedium)
+                Text(localizedUiMessage(it), color = PrimaryGreen, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
@@ -296,7 +297,7 @@ private fun BookingListScreen(
                 }
             }
         }
-        state.successMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+        state.successMessage?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
     }
     cancellationTarget?.let { booking -> AlertDialog(onDismissRequest={cancellationTarget=null}, title={Text(stringResource(R.string.booking_cancel))}, text={Text(stringResource(R.string.booking_cancel_question))}, confirmButton={TextButton({onCancelClick(booking.id);cancellationTarget=null}){Text(stringResource(R.string.action_confirm))}}, dismissButton={TextButton({cancellationTarget=null}){Text(stringResource(R.string.action_back))}}) }
 }
@@ -347,8 +348,8 @@ fun WorkerBookingDetailScreen(
                     ) { Text(stringResource(R.string.booking_mark_completed)) }
                 }
                 if (state.isUpdating) CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
-                state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                state.successMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+                state.errorMessage?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error) }
+                state.successMessage?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
             }
         }
     }

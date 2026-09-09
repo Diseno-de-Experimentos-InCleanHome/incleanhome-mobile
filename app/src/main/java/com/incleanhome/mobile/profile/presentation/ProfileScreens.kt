@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.legal.presentation.LegalDocumentLinks
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.InCleanHomeCard
@@ -21,25 +22,31 @@ import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.components.ServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatMonth
 import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.worker.data.WorkerProfile
 
 @Composable private fun Head(title:String,back:()->Unit){ScreenHeader(title,back)}
 @Composable
-fun ClientProfileScreen(vm: ClientProfileViewModel, onBack: () -> Unit) {
+fun ClientProfileScreen(
+    vm: ClientProfileViewModel,
+    onBack: () -> Unit,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit
+) {
     val s by vm.state.collectAsState()
     var editing by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     ScreenBackground {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Head("Mi perfil", onBack)
+            Head(stringResource(R.string.title_my_profile), onBack)
             when {
                 s.loading -> LoadingState()
                 s.error != null -> ErrorRetryState(s.error!!, vm::load)
                 s.profile != null -> {
                     val p = s.profile!!
                     InCleanHomeCard {
-                        Text("Cuenta", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                        Text(stringResource(R.string.profile_account), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                         Spacer(Modifier.height(12.dp))
                         if (!editing) {
                             Text(stringResource(R.string.profile_name), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -48,18 +55,27 @@ fun ClientProfileScreen(vm: ClientProfileViewModel, onBack: () -> Unit) {
                             Text(stringResource(R.string.profile_phone), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(p.phone ?: "-", style = MaterialTheme.typography.bodyLarge)
                             Spacer(Modifier.height(16.dp))
-                            PrimaryButton("Editar perfil", { name = p.name; phone = p.phone.orEmpty(); editing = true })
+                            PrimaryButton(stringResource(R.string.action_edit_profile), { name = p.name; phone = p.phone.orEmpty(); editing = true })
                         } else {
                             InCleanHomeTextField(name, { name = it }, stringResource(R.string.profile_name), enabled = !s.saving)
                             InCleanHomeTextField(phone, { phone = it }, stringResource(R.string.profile_phone), enabled = !s.saving)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                PrimaryButton("Guardar", { vm.save(name, phone); editing = false }, Modifier.weight(1f), enabled = !s.saving, loading = s.saving)
-                                SecondaryButton("Cancelar", { editing = false }, Modifier.weight(1f), enabled = !s.saving)
+                                PrimaryButton(stringResource(R.string.action_save), { vm.save(name, phone); editing = false }, Modifier.weight(1f), enabled = !s.saving, loading = s.saving)
+                                SecondaryButton(stringResource(R.string.action_cancel), { editing = false }, Modifier.weight(1f), enabled = !s.saving)
                             }
                         }
                     }
-                    s.success?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+                    s.success?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
                 }
+            }
+            InCleanHomeCard {
+                Text(
+                    stringResource(R.string.legal_information),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Spacer(Modifier.height(12.dp))
+                LegalDocumentLinks(onTerms = onTerms, onPrivacy = onPrivacy)
             }
         }
     }
@@ -138,8 +154,8 @@ fun WorkerProfileEditScreen(vm: WorkerProfileEditViewModel, onBack: () -> Unit) 
                 Text(stringResource(R.string.label_gender, presentationValue(p.gender)))
                 PrimaryButton(stringResource(R.string.action_save), { vm.save(name, phone, age, exp, rate, services, zones, bio) }, enabled = !s.saving, loading = s.saving)
                 if (s.saving) LoadingState()
-                s.success?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
-                s.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                s.success?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
+                s.error?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error) }
             }
         }
     }

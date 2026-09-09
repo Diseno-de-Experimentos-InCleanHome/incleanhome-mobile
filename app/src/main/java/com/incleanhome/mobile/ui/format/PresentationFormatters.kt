@@ -77,6 +77,67 @@ fun presentationValueResource(value: String): Int? = presentationValues[value.tr
 @StringRes
 fun claimStatusResource(value: String): Int? = claimStatusValues[value.trim().lowercase(Locale.ROOT)]
 
+@StringRes
+internal fun fixedUiMessageResource(message: String): Int? = when (message) {
+    "Email o contraseña incorrectos." -> R.string.ui_error_invalid_credentials
+    "Los datos no son válidos o el desafío expiró." -> R.string.ui_error_auth_challenge
+    "El servidor devolvió una respuesta de autenticación incompleta." -> R.string.ui_error_auth_incomplete
+    "El desafío de autenticación expiró. Inicia sesión nuevamente." -> R.string.ui_error_auth_expired
+    "No se pudo configurar la autenticación en dos pasos." -> R.string.ui_error_auth_setup
+    "El código de verificación no es válido." -> R.string.ui_error_auth_code
+    "No se pudo habilitar la autenticación en dos pasos." -> R.string.ui_error_auth_enable
+    "No se pudo verificar la autenticación en dos pasos." -> R.string.ui_error_auth_verify
+    "El servidor devolvió una respuesta de autenticación desconocida.",
+    "El servidor devolvió una respuesta inesperada." -> R.string.ui_error_auth_unknown
+    "Ingresa tu email y contraseña." -> R.string.ui_error_login_fields
+    "Ingresa un código TOTP de 6 dígitos." -> R.string.ui_error_totp_required
+    "El servidor devolvió un rol de usuario desconocido." -> R.string.ui_error_unknown_role
+    "No se pudo guardar la sesión de forma segura." -> R.string.ui_error_session_save
+    "Reserva cancelada." -> R.string.ui_booking_cancelled
+    "Estado actualizado correctamente." -> R.string.ui_booking_status_updated
+    "Selecciona uno de los servicios ofrecidos por el trabajador." -> R.string.ui_booking_service_required
+    "Ingresa una fecha válida en formato yyyy-MM-dd que no esté en el pasado." -> R.string.ui_booking_date_invalid
+    "Usa horas HH:mm y una hora de fin posterior a la de inicio.",
+    "Usa horas HH:mm y una hora final posterior." -> R.string.ui_time_range_invalid
+    "La dirección es obligatoria." -> R.string.ui_address_required
+    "El título es obligatorio." -> R.string.ui_event_title_required
+    "Ingresa al menos un tipo de servicio." -> R.string.ui_event_service_required
+    "La zona es obligatoria." -> R.string.ui_zone_required
+    "Usa una fecha válida que no esté en el pasado." -> R.string.ui_event_date_invalid
+    "Se necesita al menos 1 worker." -> R.string.ui_event_workers_required
+    "Ingresa una tarifa por hora válida." -> R.string.ui_event_rate_invalid
+    "Usa un deadline ISO-8601 UTC, por ejemplo 2026-09-10T18:00:00Z." -> R.string.ui_event_deadline_invalid
+    "El deadline debe ser anterior al inicio del evento." -> R.string.ui_event_deadline_order
+    "Postulación enviada." -> R.string.ui_application_submitted
+    "Evento cancelado." -> R.string.ui_event_cancelled
+    "Evento completado." -> R.string.ui_event_completed
+    "Perfil actualizado." -> R.string.profile_updated
+    "Completa correctamente los campos numéricos y el nombre." -> R.string.ui_profile_fields_invalid
+    "Solo se pueden calificar reservas completadas." -> R.string.ui_review_completed_only
+    "Esta reserva ya tiene una reseña." -> R.string.ui_review_already_exists
+    "Selecciona una calificación entre 1 y 5." -> R.string.ui_review_rating_invalid
+    "El mensaje no puede estar vacío." -> R.string.ui_message_empty
+    "Usa días del 0 al 6 y horarios en formato HH:mm." -> R.string.ui_availability_invalid
+    "Disponibilidad guardada." -> R.string.ui_availability_saved
+    "Los datos enviados no son válidos." -> R.string.ui_error_invalid_data
+    "La operación entra en conflicto con el estado actual." -> R.string.ui_error_conflict
+    "El servidor no está disponible. Inténtalo nuevamente." -> R.string.ui_error_server
+    "No se pudo conectar con el servidor." -> R.string.ui_error_network
+    "Ocurrió un error inesperado." -> R.string.ui_error_unexpected
+    else -> when {
+        message.startsWith("La sesión no es válida") -> R.string.ui_error_invalid_session
+        message.startsWith("No tienes permiso") -> R.string.ui_error_forbidden
+        message.startsWith("No se encontró") -> R.string.ui_error_not_found
+        message.startsWith("No se pudo completar") || message.startsWith("No se pudo obtener") ||
+            message.startsWith("No se pudo iniciar sesión") -> R.string.ui_error_operation
+        else -> null
+    }
+}
+
+@Composable
+fun localizedUiMessage(message: String): String =
+    fixedUiMessageResource(message)?.let { stringResource(it) } ?: message
+
 @Composable
 fun presentationValue(value: String): String {
     val normalized = value.trim()
@@ -125,7 +186,15 @@ fun humanizeIdentifier(value: String): String = value
     .replace('_', ' ')
     .replaceFirstChar { it.titlecase(locale()) }
 
-fun formatDayOfWeek(dayOfWeek: Int): String = if (dayOfWeek in 0..6) { LocalDate.of(2023, 1, 1).plusDays(dayOfWeek.toLong()).format(DateTimeFormatter.ofPattern("EEEE", locale())).replaceFirstChar { it.titlecase(locale()) } } else "Unavailable day"
+fun formatDayOfWeek(dayOfWeek: Int): String = if (dayOfWeek in 0..6) {
+    LocalDate.of(2023, 1, 1).plusDays(dayOfWeek.toLong())
+        .format(DateTimeFormatter.ofPattern("EEEE", locale()))
+        .replaceFirstChar { it.titlecase(locale()) }
+} else ""
+
+@Composable
+fun localizedDayOfWeek(dayOfWeek: Int): String =
+    formatDayOfWeek(dayOfWeek).ifBlank { stringResource(R.string.unavailable_day) }
 
 private inline fun parseOrOriginal(value: String, formatter: (String) -> String): String = try {
     formatter(value)

@@ -51,6 +51,7 @@ import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.components.RefreshButton
 import com.incleanhome.mobile.ui.format.formatDateTime
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.ui.theme.Border
 import com.incleanhome.mobile.ui.theme.Navy
 import com.incleanhome.mobile.ui.theme.PrimaryGreen
@@ -163,7 +164,7 @@ fun ChatScreen(
 
             state.errorMessage?.takeIf { state.messages.isNotEmpty() }?.let {
                 Text(
-                    text = it,
+                    text = localizedUiMessage(it),
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall

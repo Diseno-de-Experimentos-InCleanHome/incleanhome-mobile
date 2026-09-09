@@ -5,7 +5,9 @@ import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatMonth
 import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.formatDayOfWeek
+import com.incleanhome.mobile.ui.format.fixedUiMessageResource
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import java.math.BigDecimal
 import java.util.Locale
@@ -51,6 +53,14 @@ class PresentationFormattersTest {
     fun preservesInvalidApiPresentationValues() {
         assertEquals("sin-fecha", formatDate("sin-fecha"))
         assertEquals("sin-hora", formatTime("sin-hora"))
+    }
+
+    @Test
+    fun mapsOnlyKnownFixedMessagesToLocalizedResources() {
+        assertEquals(R.string.ui_booking_cancelled, fixedUiMessageResource("Reserva cancelada."))
+        assertEquals(R.string.ui_error_network, fixedUiMessageResource("No se pudo conectar con el servidor."))
+        assertEquals(R.string.ui_error_totp_required, fixedUiMessageResource("Ingresa un código TOTP de 6 dígitos."))
+        assertNull(fixedUiMessageResource("Backend-provided message"))
     }
 
     private fun withLocale(locale: Locale, assertions: () -> Unit) {

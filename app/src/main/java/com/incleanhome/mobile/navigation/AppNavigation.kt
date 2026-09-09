@@ -60,6 +60,7 @@ import com.incleanhome.mobile.iam.presentation.WorkerRegistrationScreen
 import com.incleanhome.mobile.iam.presentation.TermsAcceptanceScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorVerifyScreen
+import com.incleanhome.mobile.legal.presentation.LegalDocumentScreen
 import com.incleanhome.mobile.messaging.presentation.ChatScreen
 import com.incleanhome.mobile.messaging.presentation.ChatViewModel
 import com.incleanhome.mobile.messaging.presentation.ConversationsScreen
@@ -81,11 +82,16 @@ import com.incleanhome.mobile.ui.components.BottomNavigationItem
 import com.incleanhome.mobile.ui.components.InCleanHomeNavigationBar
 import kotlinx.coroutines.launch
 
+internal const val TERMS_DOCUMENT_ROUTE = "terms_document"
+internal const val PRIVACY_DOCUMENT_ROUTE = "privacy_document"
+
 private object Routes {
     const val LOGIN = "login"
     const val TWO_FACTOR_SETUP = "two_factor_setup"
     const val TWO_FACTOR_VERIFY = "two_factor_verify"
     const val TERMS = "terms"
+    const val TERMS_DOCUMENT = TERMS_DOCUMENT_ROUTE
+    const val PRIVACY_DOCUMENT = PRIVACY_DOCUMENT_ROUTE
     const val MEMBERSHIP_STATUS = "membership_status"
     const val ADMIN_ACCESS = "admin_access"
     const val CLAIMS_BOOK = "claims_book"
@@ -279,7 +285,26 @@ fun AppNavigation(
             ClaimTrackScreen(claimTrackViewModel, navController::popBackStack)
         }
         composable(Routes.TERMS) {
-            TermsAcceptanceScreen(loginViewModel, onBack = { navController.popBackStack() })
+            TermsAcceptanceScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
+        }
+        composable(Routes.TERMS_DOCUMENT) {
+            LegalDocumentScreen(
+                title = stringResource(R.string.auth_terms_title),
+                documentResource = R.raw.terms_v3,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.PRIVACY_DOCUMENT) {
+            LegalDocumentScreen(
+                title = stringResource(R.string.legal_privacy_title),
+                documentResource = R.raw.privacy_v3,
+                onBack = navController::popBackStack
+            )
         }
         composable(Routes.ACCOUNT_TYPE) {
             AccountTypeScreen(
@@ -289,10 +314,20 @@ fun AppNavigation(
             )
         }
         composable(Routes.REGISTER_CLIENT) {
-            ClientRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+            ClientRegistrationScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
         }
         composable(Routes.REGISTER_WORKER) {
-            WorkerRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+            WorkerRegistrationScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
         }
         composable(Routes.TWO_FACTOR_SETUP) {
             TwoFactorSetupScreen(loginViewModel = loginViewModel)
@@ -593,10 +628,20 @@ fun AppNavigation(
             WorkerProfileScreen(
                 viewModel = workerProfileViewModel,
                 onBack = navController::popBackStack,
-                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) }
+                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) },
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
             )
         }
-        composable(Routes.CLIENT_PROFILE) { val vm: ClientProfileViewModel = viewModel(factory=ClientProfileViewModel.Factory); ClientProfileScreen(vm, navController::popBackStack) }
+        composable(Routes.CLIENT_PROFILE) {
+            val vm: ClientProfileViewModel = viewModel(factory = ClientProfileViewModel.Factory)
+            ClientProfileScreen(
+                vm = vm,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
+        }
         composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, { navController.previousBackStackEntry?.savedStateHandle?.set("worker_profile_updated", true); navController.popBackStack() }) }
         composable(Routes.WORKER_STATS) { val vm: WorkerStatsViewModel = viewModel(factory=WorkerStatsViewModel.Factory); WorkerStatsScreen(vm, navController::popBackStack) }
         composable(Routes.WORKER_AVAILABILITY) {

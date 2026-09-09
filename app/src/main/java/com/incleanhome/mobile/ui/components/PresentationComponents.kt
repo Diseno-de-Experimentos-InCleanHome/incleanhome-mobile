@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.ui.theme.Border
 import com.incleanhome.mobile.ui.theme.DisabledContainer
 import com.incleanhome.mobile.ui.theme.DisabledContent
@@ -90,7 +91,7 @@ fun ErrorRetryState(message: String, onRetry: () -> Unit, modifier: Modifier = M
         modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Assertive },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.error_with_message, message), color = MaterialTheme.colorScheme.error)
+        Text(stringResource(R.string.error_with_message, localizedUiMessage(message)), color = MaterialTheme.colorScheme.error)
         Spacer(Modifier.height(8.dp))
         SecondaryButton(text = stringResource(R.string.action_retry), onClick = onRetry)
     }
@@ -99,7 +100,7 @@ fun ErrorRetryState(message: String, onRetry: () -> Unit, modifier: Modifier = M
 @Composable
 fun EmptyState(message: String, modifier: Modifier = Modifier, actionLabel: String? = null, onAction: (() -> Unit)? = null) {
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(message, style = MaterialTheme.typography.bodyLarge)
+        Text(localizedUiMessage(message), style = MaterialTheme.typography.bodyLarge)
         if (actionLabel != null && onAction != null) {
             Spacer(Modifier.height(8.dp))
             SecondaryButton(text = actionLabel, onClick = onAction)
