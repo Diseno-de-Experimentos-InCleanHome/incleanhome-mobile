@@ -5,6 +5,9 @@ import com.incleanhome.mobile.booking.data.*
 import com.incleanhome.mobile.events.data.*
 import com.incleanhome.mobile.iam.data.*
 import com.incleanhome.mobile.messaging.data.SendMessageRequest
+import com.incleanhome.mobile.iam.presentation.TERMS_VERSION
+import com.incleanhome.mobile.navigation.MobileAccess
+import com.incleanhome.mobile.navigation.mobileAccessForRole
 import com.incleanhome.mobile.reviews.data.CreateReviewRequest
 import com.incleanhome.mobile.reviews.presentation.CreateReviewViewModel
 import org.junit.Assert.*
@@ -25,6 +28,54 @@ class CoreContractsTest {
         val user = AuthUser(1,"a@b.com","client","A",null)
         assertTrue(interpretAuthResponse(AuthResponse(user=user,token="jwt")) is LoginResult.Authenticated)
         assertTrue(interpretAuthResponse(AuthResponse(user=user)) is LoginResult.Error)
+    }
+
+    @Test fun currentTermsVersionIsV3() {
+        assertEquals("v3", TERMS_VERSION)
+        assertEquals("v3", RegisterClientRequest("A", "a@b.com", "secret", null, TERMS_VERSION).acceptedTermsVersion)
+        assertEquals("v3", AcceptTermsRequest(TERMS_VERSION).version)
+    }
+
+    @Test fun pendingMembershipCannotBecomeAnAuthenticatedResultEvenWithJwt() {
+        val worker = AuthUser(2, "w@b.com", "worker", "W", null)
+        val result = interpretAuthResponse(
+            AuthResponse(
+                user = worker,
+                token = "must-not-be-persisted",
+                membershipPending = true,
+                membershipStatus = "pending",
+                whatsappLink = "https://wa.me/example"
+            )
+        )
+        assertTrue(result is LoginResult.MembershipBlocked)
+        assertFalse(result is LoginResult.Authenticated)
+    }
+
+    @Test fun rejectedWorkerDoesNotRouteToWorkerHome() {
+        val result = interpretAuthResponse(AuthResponse(membershipStatus = "rejected"))
+        assertTrue(result is LoginResult.MembershipBlocked)
+        assertFalse(result is LoginResult.Authenticated)
+    }
+
+    @Test fun activeWorkerAndClientKeepExistingSessionBehavior() {
+        val worker = AuthUser(2, "w@b.com", "worker", "W", null)
+        val client = AuthUser(1, "c@b.com", "client", "C", null)
+        assertTrue(
+            interpretAuthResponse(
+                AuthResponse(user = worker, token = "jwt", membershipStatus = "active")
+            ) is LoginResult.Authenticated
+        )
+        assertTrue(
+            interpretAuthResponse(AuthResponse(user = client, token = "jwt")) is LoginResult.Authenticated
+        )
+        assertEquals(MobileAccess.WORKER, mobileAccessForRole("worker"))
+        assertEquals(MobileAccess.CLIENT, mobileAccessForRole("client"))
+    }
+
+    @Test fun adminHasDedicatedMobileDestination() {
+        assertEquals(MobileAccess.ADMIN, mobileAccessForRole("admin"))
+        assertNotEquals(MobileAccess.CLIENT, mobileAccessForRole("admin"))
+        assertNotEquals(MobileAccess.WORKER, mobileAccessForRole("admin"))
     }
 
     @Test fun bookingStatusesAndCancellationPayloadMatchBackend() {

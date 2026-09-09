@@ -61,6 +61,17 @@
     <string name="auth_2fa_verify_title">Verificación en dos pasos</string>
     <string name="auth_2fa_verify_subtitle">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</string>
     <string name="auth_verify">Verificar</string>
+    <string name="auth_membership_pending_title">Membresía pendiente</string>
+    <string name="auth_membership_pending_body">El pago de tu membresía está pendiente de validación.\nEnvía tu comprobante por WhatsApp para que un administrador pueda revisarlo.</string>
+    <string name="auth_membership_rejected_title">Membresía rechazada</string>
+    <string name="auth_membership_rejected_body">Tu membresía no pudo ser validada.\nComunícate con nosotros por WhatsApp para obtener más información.</string>
+    <string name="auth_membership_send_receipt">Enviar comprobante por WhatsApp</string>
+    <string name="auth_membership_contact_whatsapp">Contactar por WhatsApp</string>
+    <string name="auth_membership_whatsapp_error">El enlace de WhatsApp no está disponible o no es válido.</string>
+    <string name="auth_back_to_sign_in">Volver al inicio de sesión</string>
+    <string name="auth_admin_access_title">Acceso administrativo</string>
+    <string name="auth_admin_access_body">El panel de administración de InCleanHome está disponible en la aplicación web.</string>
+    <string name="auth_sign_out">Cerrar sesión</string>
 
     <!-- Common presentation -->
     <string name="action_back">Volver</string>

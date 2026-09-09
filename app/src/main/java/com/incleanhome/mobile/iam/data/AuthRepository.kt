@@ -22,11 +22,22 @@ sealed interface LoginResult {
         val token: String
     ) : LoginResult
 
+    data class MembershipBlocked(
+        val status: String,
+        val message: String?,
+        val whatsappLink: String?
+    ) : LoginResult
+
     data class Error(val message: String) : LoginResult
 }
 
 sealed interface TwoFactorSetupResult {
     data class Success(val setup: TwoFactorSetupResponse) : TwoFactorSetupResult
+    data class MembershipBlocked(
+        val status: String,
+        val message: String?,
+        val whatsappLink: String?
+    ) : TwoFactorSetupResult
     data class Error(val message: String) : TwoFactorSetupResult
 }
 
@@ -50,11 +61,13 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            val message = when (exception.code()) {
-                400, 401 -> "Email o contraseña incorrectos."
-                else -> "No se pudo iniciar sesión. Inténtalo nuevamente."
+            exception.membershipResultFromErrorBody() ?: run {
+                val message = when (exception.code()) {
+                    400, 401 -> "Email o contraseña incorrectos."
+                    else -> "No se pudo iniciar sesión. Inténtalo nuevamente."
+                }
+                LoginResult.Error(message)
             }
-            LoginResult.Error(message)
         } catch (exception: IOException) {
             LoginResult.Error("No se pudo conectar con el servidor.")
         } catch (exception: Exception) {
@@ -68,14 +81,19 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            val bodyMessage = runCatching {
-                val body = exception.response()?.errorBody()?.string().orEmpty()
-                com.google.gson.JsonParser.parseString(body).asJsonObject.get("error")?.asString
-            }.getOrNull()
-            LoginResult.Error(bodyMessage ?: when (exception.code()) {
-                400, 401 -> "Los datos no son válidos o el desafío expiró."
-                else -> "No se pudo completar la autenticación."
-            })
+            val errorBody = exception.errorBodyText()
+            membershipResultFromJson(errorBody) ?: run {
+                val bodyMessage = runCatching {
+                    com.google.gson.JsonParser.parseString(errorBody)
+                        .asJsonObject
+                        .get("error")
+                        ?.asString
+                }.getOrNull()
+                LoginResult.Error(bodyMessage ?: when (exception.code()) {
+                    400, 401 -> "Los datos no son válidos o el desafío expiró."
+                    else -> "No se pudo completar la autenticación."
+                })
+            }
         } catch (exception: IOException) {
             LoginResult.Error("No se pudo conectar con el servidor.")
         } catch (exception: Exception) {
@@ -86,16 +104,31 @@ class AuthRepository(
     suspend fun setupTwoFactor(challengeToken: String): TwoFactorSetupResult {
         return try {
             val response = api.setupTwoFactor(authorization = challengeToken.asBearerToken())
-            TwoFactorSetupResult.Success(response)
+            membershipBlock(
+                membershipPending = response.membershipPending,
+                membershipStatus = response.membershipStatus,
+                message = response.message,
+                whatsappLink = response.whatsappLink
+            )?.let {
+                TwoFactorSetupResult.MembershipBlocked(it.status, it.message, it.whatsappLink)
+            } ?: if (!response.qrCodeDataUrl.isNullOrBlank() && !response.secret.isNullOrBlank()) {
+                TwoFactorSetupResult.Success(response)
+            } else {
+                TwoFactorSetupResult.Error("El servidor devolvió una respuesta de autenticación incompleta.")
+            }
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            val message = if (exception.code() == 401) {
-                "El desafío de autenticación expiró. Inicia sesión nuevamente."
-            } else {
-                "No se pudo configurar la autenticación en dos pasos."
+            exception.membershipResultFromErrorBody()?.let {
+                TwoFactorSetupResult.MembershipBlocked(it.status, it.message, it.whatsappLink)
+            } ?: run {
+                val message = if (exception.code() == 401) {
+                    "El desafío de autenticación expiró. Inicia sesión nuevamente."
+                } else {
+                    "No se pudo configurar la autenticación en dos pasos."
+                }
+                TwoFactorSetupResult.Error(message)
             }
-            TwoFactorSetupResult.Error(message)
         } catch (exception: IOException) {
             TwoFactorSetupResult.Error("No se pudo conectar con el servidor.")
         } catch (exception: Exception) {
@@ -114,12 +147,14 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            val message = when (exception.code()) {
-                400 -> "El código de verificación no es válido."
-                401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
-                else -> "No se pudo habilitar la autenticación en dos pasos."
+            exception.membershipResultFromErrorBody() ?: run {
+                val message = when (exception.code()) {
+                    400 -> "El código de verificación no es válido."
+                    401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
+                    else -> "No se pudo habilitar la autenticación en dos pasos."
+                }
+                LoginResult.Error(message)
             }
-            LoginResult.Error(message)
         } catch (exception: IOException) {
             LoginResult.Error("No se pudo conectar con el servidor.")
         } catch (exception: Exception) {
@@ -140,12 +175,14 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            val message = when (exception.code()) {
-                400 -> "El código de verificación no es válido."
-                401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
-                else -> "No se pudo verificar la autenticación en dos pasos."
+            exception.membershipResultFromErrorBody() ?: run {
+                val message = when (exception.code()) {
+                    400 -> "El código de verificación no es válido."
+                    401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
+                    else -> "No se pudo verificar la autenticación en dos pasos."
+                }
+                LoginResult.Error(message)
             }
-            LoginResult.Error(message)
         } catch (exception: IOException) {
             LoginResult.Error("No se pudo conectar con el servidor.")
         } catch (exception: Exception) {
@@ -159,6 +196,13 @@ class AuthRepository(
 }
 
 internal fun interpretAuthResponse(response: AuthResponse): LoginResult {
+        membershipBlock(
+            membershipPending = response.membershipPending,
+            membershipStatus = response.membershipStatus,
+            message = response.message,
+            whatsappLink = response.whatsappLink
+        )?.let { return it }
+
         val nextStep = when {
             response.requiresTermsAcceptance == true -> LoginNextStep.TERMS
             response.requires2faSetup == true -> LoginNextStep.TWO_FA_SETUP
@@ -183,5 +227,47 @@ internal fun interpretAuthResponse(response: AuthResponse): LoginResult {
             LoginResult.Error("El servidor devolvió una respuesta de autenticación desconocida.")
         }
     }
+
+private fun membershipBlock(
+    membershipPending: Boolean?,
+    membershipStatus: String?,
+    message: String?,
+    whatsappLink: String?
+): LoginResult.MembershipBlocked? {
+    val normalizedStatus = membershipStatus?.trim()?.lowercase()
+    val isBlocked = membershipPending == true ||
+        (normalizedStatus != null && normalizedStatus != MEMBERSHIP_ACTIVE)
+    if (!isBlocked) return null
+
+    return LoginResult.MembershipBlocked(
+        status = if (membershipPending == true && normalizedStatus == MEMBERSHIP_ACTIVE) {
+            MEMBERSHIP_PENDING
+        } else {
+            normalizedStatus ?: MEMBERSHIP_PENDING
+        },
+        message = message?.trim()?.takeIf(String::isNotEmpty),
+        whatsappLink = whatsappLink?.takeIf(String::isNotBlank)
+    )
+}
+
+internal const val MEMBERSHIP_ACTIVE = "active"
+internal const val MEMBERSHIP_PENDING = "pending"
+
+private fun HttpException.membershipResultFromErrorBody(): LoginResult.MembershipBlocked? =
+    membershipResultFromJson(errorBodyText())
+
+private fun membershipResultFromJson(json: String): LoginResult.MembershipBlocked? = runCatching {
+    val response = com.google.gson.Gson().fromJson(json, AuthResponse::class.java)
+    membershipBlock(
+        membershipPending = response.membershipPending,
+        membershipStatus = response.membershipStatus,
+        message = response.message,
+        whatsappLink = response.whatsappLink
+    )
+}.getOrNull()
+
+private fun HttpException.errorBodyText(): String = runCatching {
+    response()?.errorBody()?.string().orEmpty()
+}.getOrDefault("")
 
 private fun String.asBearerToken(): String = "Bearer $this"

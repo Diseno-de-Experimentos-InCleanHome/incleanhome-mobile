@@ -48,7 +48,9 @@ import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
 import com.incleanhome.mobile.iam.presentation.AccountTypeScreen
+import com.incleanhome.mobile.iam.presentation.AdministrativeAccessScreen
 import com.incleanhome.mobile.iam.presentation.ClientRegistrationScreen
+import com.incleanhome.mobile.iam.presentation.MembershipStatusScreen
 import com.incleanhome.mobile.iam.presentation.WorkerRegistrationScreen
 import com.incleanhome.mobile.iam.presentation.TermsAcceptanceScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
@@ -79,6 +81,8 @@ private object Routes {
     const val TWO_FACTOR_SETUP = "two_factor_setup"
     const val TWO_FACTOR_VERIFY = "two_factor_verify"
     const val TERMS = "terms"
+    const val MEMBERSHIP_STATUS = "membership_status"
+    const val ADMIN_ACCESS = "admin_access"
     const val ACCOUNT_TYPE = "account_type"
     const val REGISTER_CLIENT = "register_client"
     const val REGISTER_WORKER = "register_worker"
@@ -149,27 +153,28 @@ fun AppNavigation(
         destinationForSession(sessionState)
     }
     val authenticatedSession = (sessionState as? SessionState.Authenticated)?.session
-    val homeRoute = if (authenticatedSession?.role.equals(SessionManager.WORKER_ROLE, true)) {
-        Routes.WORKER_HOME
-    } else {
-        Routes.CLIENT_HOME
+    val homeRoute = when (mobileAccessForRole(authenticatedSession?.role)) {
+        MobileAccess.WORKER -> Routes.WORKER_HOME
+        MobileAccess.CLIENT -> Routes.CLIENT_HOME
+        MobileAccess.ADMIN -> Routes.ADMIN_ACCESS
+        MobileAccess.NONE -> Routes.LOGIN
     }
-    val mainDestinations = if (homeRoute == Routes.WORKER_HOME) {
-        listOf(
+    val mainDestinations = when (homeRoute) {
+        Routes.WORKER_HOME -> listOf(
             BottomNavigationItem(Routes.WORKER_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
             BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.Default.Assignment),
             BottomNavigationItem(Routes.WORKER_EVENTS, stringResource(R.string.nav_events), Icons.Default.Event),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.WORKER_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
         )
-    } else {
-        listOf(
+        Routes.CLIENT_HOME -> listOf(
             BottomNavigationItem(Routes.CLIENT_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
             BottomNavigationItem(Routes.WORKER_SEARCH, stringResource(R.string.nav_search), Icons.Default.Search),
             BottomNavigationItem(Routes.CLIENT_BOOKINGS, stringResource(R.string.nav_bookings), Icons.Default.DateRange),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.CLIENT_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
         )
+        else -> emptyList()
     }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -189,6 +194,12 @@ fun AppNavigation(
             }
 
             null -> Unit
+        }
+    }
+
+    LaunchedEffect(loginUiState.membershipStatus) {
+        if (loginUiState.membershipStatus != null) {
+            navController.navigateAndClearBackStack(Routes.MEMBERSHIP_STATUS)
         }
     }
 
@@ -250,6 +261,20 @@ fun AppNavigation(
         }
         composable(Routes.TWO_FACTOR_VERIFY) {
             TwoFactorVerifyScreen(loginViewModel = loginViewModel)
+        }
+        composable(Routes.MEMBERSHIP_STATUS) {
+            MembershipStatusScreen(
+                status = loginUiState.membershipStatus.orEmpty(),
+                backendMessage = loginUiState.membershipMessage,
+                whatsappLink = loginUiState.membershipWhatsappLink,
+                onBackToLogin = {
+                    loginViewModel.clearAuthenticationState()
+                    navController.navigateAndClearBackStack(Routes.LOGIN)
+                }
+            )
+        }
+        composable(Routes.ADMIN_ACCESS) {
+            AdministrativeAccessScreen(onSignOut = logout)
         }
         composable(Routes.CLIENT_HOME) {
             ClientHomeScreen(
@@ -553,20 +578,24 @@ fun AppNavigation(
 
 private fun destinationForSession(sessionState: SessionState): String {
     return when (sessionState) {
-        is SessionState.Authenticated -> when {
-            sessionState.session.role.equals(SessionManager.CLIENT_ROLE, ignoreCase = true) -> {
-                Routes.CLIENT_HOME
-            }
-
-            sessionState.session.role.equals(SessionManager.WORKER_ROLE, ignoreCase = true) -> {
-                Routes.WORKER_HOME
-            }
-
-            else -> Routes.LOGIN
+        is SessionState.Authenticated -> when (mobileAccessForRole(sessionState.session.role)) {
+            MobileAccess.CLIENT -> Routes.CLIENT_HOME
+            MobileAccess.WORKER -> Routes.WORKER_HOME
+            MobileAccess.ADMIN -> Routes.ADMIN_ACCESS
+            MobileAccess.NONE -> Routes.LOGIN
         }
 
         SessionState.Loading, SessionState.LoggedOut -> Routes.LOGIN
     }
+}
+
+internal enum class MobileAccess { CLIENT, WORKER, ADMIN, NONE }
+
+internal fun mobileAccessForRole(role: String?): MobileAccess = when {
+    role.equals(SessionManager.CLIENT_ROLE, ignoreCase = true) -> MobileAccess.CLIENT
+    role.equals(SessionManager.WORKER_ROLE, ignoreCase = true) -> MobileAccess.WORKER
+    role.equals(SessionManager.ADMIN_ROLE, ignoreCase = true) -> MobileAccess.ADMIN
+    else -> MobileAccess.NONE
 }
 
 private fun NavHostController.navigateAndClearBackStack(route: String) {

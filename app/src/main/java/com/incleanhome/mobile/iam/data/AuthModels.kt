@@ -43,7 +43,11 @@ data class AuthResponse(
     val requires2faSetup: Boolean? = null,
     val challengeToken: String? = null,
     val user: AuthUser? = null,
-    val token: String? = null
+    val token: String? = null,
+    val membershipPending: Boolean? = null,
+    val membershipStatus: String? = null,
+    val message: String? = null,
+    val whatsappLink: String? = null
 )
 
 data class AuthUser(
@@ -55,8 +59,12 @@ data class AuthUser(
 )
 
 data class TwoFactorSetupResponse(
-    val qrCodeDataUrl: String,
-    val secret: String
+    val qrCodeDataUrl: String? = null,
+    val secret: String? = null,
+    val membershipPending: Boolean? = null,
+    val membershipStatus: String? = null,
+    val message: String? = null,
+    val whatsappLink: String? = null
 )
 
 data class Enable2faRequest(

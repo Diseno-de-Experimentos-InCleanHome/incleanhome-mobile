@@ -55,6 +55,17 @@
     <string name="auth_2fa_verify_title">Verificación en dos pasos</string>
     <string name="auth_2fa_verify_subtitle">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</string>
     <string name="auth_verify">Verificar</string>
+    <string name="auth_membership_pending_title">Membership pending</string>
+    <string name="auth_membership_pending_body">Your membership payment is pending verification.\nSend your payment receipt through WhatsApp so an administrator can review it.</string>
+    <string name="auth_membership_rejected_title">Membership rejected</string>
+    <string name="auth_membership_rejected_body">Your membership could not be validated.\nContact us through WhatsApp for more information.</string>
+    <string name="auth_membership_send_receipt">Send receipt via WhatsApp</string>
+    <string name="auth_membership_contact_whatsapp">Contact us via WhatsApp</string>
+    <string name="auth_membership_whatsapp_error">The WhatsApp link is unavailable or invalid.</string>
+    <string name="auth_back_to_sign_in">Back to sign in</string>
+    <string name="auth_admin_access_title">Administrative access</string>
+    <string name="auth_admin_access_body">The InCleanHome administration panel is available in the web application.</string>
+    <string name="auth_sign_out">Sign out</string>
 
     <!-- Common presentation -->
     <string name="action_back">Back</string>

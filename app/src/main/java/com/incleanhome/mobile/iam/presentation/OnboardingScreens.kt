@@ -393,4 +393,4 @@ private fun validateCommon(name: String, email: String, password: String, accept
 private fun splitValues(value: String): List<String> =
     value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
 
-private const val TERMS_VERSION = "v2"
+internal const val TERMS_VERSION = "v3"

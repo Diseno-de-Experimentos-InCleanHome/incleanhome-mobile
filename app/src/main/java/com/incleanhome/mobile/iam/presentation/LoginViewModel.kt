@@ -32,7 +32,10 @@ data class LoginUiState(
     val isTwoFactorEnableLoading: Boolean = false,
     val isTwoFactorVerifyLoading: Boolean = false,
     val twoFactorErrorMessage: String? = null,
-    val authenticatedRole: String? = null
+    val authenticatedRole: String? = null,
+    val membershipStatus: String? = null,
+    val membershipMessage: String? = null,
+    val membershipWhatsappLink: String? = null
 )
 
 class LoginViewModel(
@@ -108,6 +111,10 @@ class LoginViewModel(
                     }
                 }
 
+                is LoginResult.MembershipBlocked -> recordMembershipBlock(result) {
+                    it.copy(isLoading = false)
+                }
+
                 is LoginResult.Error -> {
                     challengeToken = null
                     _uiState.update {
@@ -134,6 +141,9 @@ class LoginViewModel(
                 is LoginResult.Authenticated -> {
                     val error = persistAuthenticatedSession(result)
                     _uiState.update { it.copy(isLoading = false, errorMessage = error) }
+                }
+                is LoginResult.MembershipBlocked -> recordMembershipBlock(result) {
+                    it.copy(isLoading = false)
                 }
                 is LoginResult.Error -> _uiState.update {
                     it.copy(isLoading = false, errorMessage = result.message)
@@ -164,6 +174,9 @@ class LoginViewModel(
                     val error = persistAuthenticatedSession(result)
                     _uiState.update { it.copy(isLoading = false, errorMessage = error) }
                 }
+                is LoginResult.MembershipBlocked -> recordMembershipBlock(result) {
+                    it.copy(isLoading = false)
+                }
                 is LoginResult.Error -> _uiState.update {
                     it.copy(isLoading = false, errorMessage = result.message)
                 }
@@ -184,6 +197,9 @@ class LoginViewModel(
                 is LoginResult.Authenticated -> {
                     val error = persistAuthenticatedSession(result)
                     _uiState.update { it.copy(isLoading = false, errorMessage = error) }
+                }
+                is LoginResult.MembershipBlocked -> recordMembershipBlock(result) {
+                    it.copy(isLoading = false)
                 }
                 is LoginResult.Error -> _uiState.update {
                     it.copy(isLoading = false, errorMessage = result.message)
@@ -218,6 +234,19 @@ class LoginViewModel(
                             isTwoFactorSetupLoading = false,
                             twoFactorQrCodeDataUrl = result.setup.qrCodeDataUrl,
                             twoFactorSecret = result.setup.secret
+                        )
+                    }
+                }
+
+                is TwoFactorSetupResult.MembershipBlocked -> {
+                    challengeToken = null
+                    _uiState.update {
+                        it.copy(
+                            isTwoFactorSetupLoading = false,
+                            nextStep = null,
+                            membershipStatus = result.status,
+                            membershipMessage = result.message,
+                            membershipWhatsappLink = result.whatsappLink
                         )
                     }
                 }
@@ -283,6 +312,10 @@ class LoginViewModel(
                     }
                 }
 
+                is LoginResult.MembershipBlocked -> recordMembershipBlock(result) {
+                    it.copy(isTwoFactorEnableLoading = false)
+                }
+
                 is LoginResult.Challenge -> {
                     _uiState.update {
                         it.copy(
@@ -337,6 +370,10 @@ class LoginViewModel(
                     }
                 }
 
+                is LoginResult.MembershipBlocked -> recordMembershipBlock(result) {
+                    it.copy(isTwoFactorVerifyLoading = false)
+                }
+
                 is LoginResult.Challenge -> {
                     _uiState.update {
                         it.copy(
@@ -354,11 +391,29 @@ class LoginViewModel(
         _uiState.value = LoginUiState()
     }
 
+    private fun recordMembershipBlock(
+        result: LoginResult.MembershipBlocked,
+        clearLoading: (LoginUiState) -> LoginUiState
+    ) {
+        challengeToken = null
+        _uiState.update {
+            clearLoading(it).copy(
+                nextStep = null,
+                authenticatedRole = null,
+                authenticatedMessage = null,
+                membershipStatus = result.status,
+                membershipMessage = result.message,
+                membershipWhatsappLink = result.whatsappLink
+            )
+        }
+    }
+
     private suspend fun persistAuthenticatedSession(result: LoginResult.Authenticated): String? {
         val normalizedRole = result.user.role.lowercase()
         if (
             normalizedRole != SessionManager.CLIENT_ROLE &&
-            normalizedRole != SessionManager.WORKER_ROLE
+            normalizedRole != SessionManager.WORKER_ROLE &&
+            normalizedRole != SessionManager.ADMIN_ROLE
         ) {
             return "El servidor devolvió un rol de usuario desconocido."
         }

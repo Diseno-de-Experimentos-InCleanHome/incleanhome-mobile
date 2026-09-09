@@ -89,7 +89,8 @@ class SessionManager(context: Context) {
 
     private fun isValidSession(session: UserSession): Boolean {
         val knownRole = session.role.equals(CLIENT_ROLE, ignoreCase = true) ||
-            session.role.equals(WORKER_ROLE, ignoreCase = true)
+            session.role.equals(WORKER_ROLE, ignoreCase = true) ||
+            session.role.equals(ADMIN_ROLE, ignoreCase = true)
         return session.userId > 0 && session.token.isNotBlank() && knownRole
     }
 
@@ -146,6 +147,7 @@ class SessionManager(context: Context) {
     companion object {
         const val CLIENT_ROLE = "client"
         const val WORKER_ROLE = "worker"
+        const val ADMIN_ROLE = "admin"
 
         private const val PREFERENCES_NAME = "incleanhome_secure_session"
         private const val ENCRYPTED_SESSION_KEY = "encrypted_session"
