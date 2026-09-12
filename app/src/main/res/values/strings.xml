@@ -21,7 +21,7 @@
     <string name="auth_client_registration_subtitle">Completa tus datos para empezar a encontrar ayuda de confianza.</string>
     <string name="auth_worker_registration">Registro de trabajador/a</string>
     <string name="auth_worker_registration_subtitle">Cuéntanos sobre ti y los servicios que deseas ofrecer.</string>
-    <string name="auth_personal_information">Information personal</string>
+    <string name="auth_personal_information">Personal Information</string>
     <string name="auth_professional_information">Datos profesionales</string>
     <string name="auth_services">Services</string>
     <string name="auth_work_zones">Zones de trabajo</string>
