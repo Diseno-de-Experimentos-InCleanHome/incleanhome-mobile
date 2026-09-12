@@ -24,7 +24,7 @@
     <string name="auth_personal_information">Personal Information</string>
     <string name="auth_professional_information">Datos profesionales</string>
     <string name="auth_services">Services</string>
-    <string name="auth_work_zones">Zones de trabajo</string>
+    <string name="auth_work_zones">Work Zones</string>
     <string name="auth_about_me">Sobre mí</string>
     <string name="auth_name">Nombre completo</string>
     <string name="auth_phone_optional">Phone (optional)</string>
