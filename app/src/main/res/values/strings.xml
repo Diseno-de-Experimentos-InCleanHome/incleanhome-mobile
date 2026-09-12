@@ -27,7 +27,7 @@
     <string name="auth_work_zones">Work Zones</string>
     <string name="auth_about_me">Sobre mí</string>
     <string name="auth_name">Nombre completo</string>
-    <string name="auth_phone_optional">Phone (optional)</string>
+    <string name="auth_phone_optional">Optional phone</string>
     <string name="auth_age">Age</string>
     <string name="auth_choose_services">Selecciona uno o más servicios.</string>
     <string name="auth_services_required">Debes elegir al menos uno.</string>
