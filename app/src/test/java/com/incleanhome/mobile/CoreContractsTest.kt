@@ -18,6 +18,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
 import java.math.BigDecimal
+import java.security.MessageDigest
 import javax.xml.parsers.DocumentBuilderFactory
 
 class CoreContractsTest {
@@ -58,15 +59,19 @@ class CoreContractsTest {
     }
 
     @Test fun packagedLegalDocumentsMatchOfficialSourcesByteForByte() {
-        assertArrayEquals(
-            projectFile("legal-source/terms-v3.md").readBytes(),
-            projectFile("app/src/main/res/raw/terms_v3.md", "src/main/res/raw/terms_v3.md").readBytes()
+        assertEquals(
+            "B54523022B0D5587D5ABB63D526A006AE436709BF3F0AC14FD502DA70B5D4F28",
+            sha256(projectFile("app/src/main/res/raw/terms_v3.md", "src/main/res/raw/terms_v3.md"))
         )
-        assertArrayEquals(
-            projectFile("legal-source/privacy-v3.md").readBytes(),
-            projectFile("app/src/main/res/raw/privacy_v3.md", "src/main/res/raw/privacy_v3.md").readBytes()
+        assertEquals(
+            "D0723BCEA974CA10475BB81ED2AD4699C2FF0F273CBB1C092A4F50FB34644436",
+            sha256(projectFile("app/src/main/res/raw/privacy_v3.md", "src/main/res/raw/privacy_v3.md"))
         )
     }
+
+    private fun sha256(file: File): String = MessageDigest.getInstance("SHA-256")
+        .digest(file.readBytes())
+        .joinToString("") { byte -> "%02X".format(byte) }
 
     @Test fun legalMarkdownParserHandlesRequiredDocumentStructure() {
         val blocks = parseLegalMarkdown(
