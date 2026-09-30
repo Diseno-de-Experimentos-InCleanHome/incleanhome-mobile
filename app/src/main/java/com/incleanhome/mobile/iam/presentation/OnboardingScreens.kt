@@ -45,6 +45,7 @@ import com.incleanhome.mobile.ui.format.presentationValue
 import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.Navy
 import com.incleanhome.mobile.ui.theme.PrimaryGreen
+import java.math.BigDecimal
 
 @Composable
 fun AccountTypeScreen(
@@ -91,6 +92,7 @@ fun ClientRegistrationScreen(
     var validationError by rememberSaveable { mutableStateOf<String?>(null) }
     val state by viewModel.uiState.collectAsState()
     val commonValidation = commonValidationMessages()
+    val invalidPhone = stringResource(R.string.validation_phone_invalid)
 
     AuthScreen(modifier = modifier, onBack = onBack) {
         AuthTitle(
@@ -143,7 +145,7 @@ fun ClientRegistrationScreen(
             loading = state.isLoading,
             enabled = !state.isLoading,
             onClick = {
-                validationError = validateCommon(name, email, password, accepted, commonValidation)
+                validationError = validateCommon(name, email, password, phone, accepted, commonValidation, invalidPhone)
                 if (validationError == null) {
                     viewModel.registerClient(
                         name.trim(), email.trim(), password,
@@ -181,9 +183,11 @@ fun WorkerRegistrationScreen(
     val commonValidation = commonValidationMessages()
     val invalidGender = stringResource(R.string.validation_gender_invalid)
     val missingService = stringResource(R.string.validation_service_required)
+    val missingZone = stringResource(R.string.validation_zone_required)
     val invalidAge = stringResource(R.string.validation_age_invalid)
     val invalidRate = stringResource(R.string.validation_rate_invalid)
     val invalidExperience = stringResource(R.string.validation_experience_invalid)
+    val invalidPhone = stringResource(R.string.validation_phone_invalid)
 
     AuthScreen(modifier = modifier, onBack = onBack) {
         AuthTitle(
@@ -292,13 +296,14 @@ fun WorkerRegistrationScreen(
                 val serviceList = splitValues(services)
                 val zoneList = splitValues(zones)
                 validationError = when {
-                    validateCommon(name, email, password, accepted, commonValidation) != null ->
-                        validateCommon(name, email, password, accepted, commonValidation)
+                    validateCommon(name, email, password, phone, accepted, commonValidation, invalidPhone) != null ->
+                        validateCommon(name, email, password, phone, accepted, commonValidation, invalidPhone)
                     gender !in AuthGender.VALUES -> invalidGender
                     serviceList.isEmpty() -> missingService
-                    age.toIntOrNull() == null -> invalidAge
-                    hourlyRate.toBigDecimalOrNull() == null -> invalidRate
-                    experience.toIntOrNull() == null -> invalidExperience
+                    zoneList.isEmpty() -> missingZone
+                    age.toIntOrNull() !in WORKER_AGE_RANGE -> invalidAge
+                    hourlyRate.toBigDecimalOrNull()?.let { it in WORKER_RATE_RANGE } != true -> invalidRate
+                    experience.toIntOrNull() !in WORKER_EXPERIENCE_RANGE -> invalidExperience
                     else -> null
                 }
                 if (validationError == null) {
@@ -430,16 +435,18 @@ private fun TermsCheck(
 
 private data class CommonValidationMessages(
     val nameRequired: String,
+    val nameInvalid: String,
     val emailInvalid: String,
-    val passwordRequired: String,
+    val passwordInvalid: String,
     val termsRequired: String
 )
 
 @Composable
 private fun commonValidationMessages() = CommonValidationMessages(
     nameRequired = stringResource(R.string.validation_name_required),
+    nameInvalid = stringResource(R.string.validation_name_invalid),
     emailInvalid = stringResource(R.string.validation_email_invalid),
-    passwordRequired = stringResource(R.string.validation_password_required),
+    passwordInvalid = stringResource(R.string.validation_password_invalid),
     termsRequired = stringResource(R.string.validation_terms_required)
 )
 
@@ -447,12 +454,16 @@ private fun validateCommon(
     name: String,
     email: String,
     password: String,
+    phone: String,
     accepted: Boolean,
-    messages: CommonValidationMessages
+    messages: CommonValidationMessages,
+    invalidPhone: String
 ): String? = when {
     name.isBlank() -> messages.nameRequired
-    !email.contains("@") -> messages.emailInvalid
-    password.isBlank() -> messages.passwordRequired
+    !NAME_PATTERN.matches(name.trim()) -> messages.nameInvalid
+    !EMAIL_PATTERN.matches(email.trim()) -> messages.emailInvalid
+    password.length < MINIMUM_PASSWORD_LENGTH -> messages.passwordInvalid
+    phone.isNotBlank() && !PHONE_PATTERN.matches(phone.trim()) -> invalidPhone
     !accepted -> messages.termsRequired
     else -> null
 }
@@ -461,3 +472,11 @@ private fun splitValues(value: String): List<String> =
     value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
 
 internal const val TERMS_VERSION = "v3"
+
+private const val MINIMUM_PASSWORD_LENGTH = 8
+private val NAME_PATTERN = Regex("^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ '-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$")
+private val EMAIL_PATTERN = Regex("^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+$", RegexOption.IGNORE_CASE)
+private val PHONE_PATTERN = Regex("^9\\d{8}$")
+private val WORKER_AGE_RANGE = 18..70
+private val WORKER_RATE_RANGE = BigDecimal("10")..BigDecimal("500")
+private val WORKER_EXPERIENCE_RANGE = 0..50

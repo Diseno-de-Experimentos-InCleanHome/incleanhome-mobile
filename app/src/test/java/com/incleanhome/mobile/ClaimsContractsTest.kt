@@ -31,17 +31,19 @@ class ClaimsContractsTest {
     fun validRegistrationContainsRequiredFields() = runBlocking {
         val state = ClaimFormState(
             consumerName = "Alex Doe",
+            consumerDocument = "12345678",
             consumerEmail = "alex@example.com",
-            description = "Service details"
+            consumerPhone = "912345678",
+            description = "Detalles del servicio"
         )
         assertTrue(validateClaimForm(state).isEmpty())
 
         val request = CreateClaimRequest(
             type = ClaimType.CLAIM,
             consumerName = state.consumerName,
-            consumerDocument = "",
+            consumerDocument = state.consumerDocument,
             consumerEmail = state.consumerEmail,
-            consumerPhone = "",
+            consumerPhone = state.consumerPhone,
             relatedService = null,
             description = state.description,
             consumerRequest = null
@@ -62,12 +64,17 @@ class ClaimsContractsTest {
     @Test
     fun emptyAndInvalidRequiredFieldsAreRejected() {
         assertEquals(
-            setOf(ClaimFormField.NAME, ClaimFormField.EMAIL, ClaimFormField.DESCRIPTION),
+            setOf(ClaimFormField.NAME, ClaimFormField.DOCUMENT, ClaimFormField.EMAIL, ClaimFormField.PHONE, ClaimFormField.DESCRIPTION),
             validateClaimForm(ClaimFormState())
         )
         assertTrue(
             ClaimFormField.EMAIL in validateClaimForm(
-                ClaimFormState(consumerName = "A", consumerEmail = "invalid", description = "D")
+                ClaimFormState(consumerName = "A", consumerDocument = "12345678", consumerEmail = "invalid", consumerPhone = "912345678", description = "Detalles válidos")
+            )
+        )
+        assertTrue(
+            ClaimFormField.CONSUMER_REQUEST in validateClaimForm(
+                ClaimFormState(consumerName = "Ana María", consumerDocument = "12345678", consumerEmail = "ana@example.com", consumerPhone = "912345678", description = "Detalles válidos", consumerRequest = "x".repeat(1001))
             )
         )
     }

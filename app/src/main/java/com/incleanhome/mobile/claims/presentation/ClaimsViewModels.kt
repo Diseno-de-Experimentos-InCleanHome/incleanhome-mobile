@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class ClaimFormField { NAME, EMAIL, DESCRIPTION }
+enum class ClaimFormField {
+    NAME, DOCUMENT, EMAIL, PHONE, RELATED_SERVICE, DESCRIPTION, CONSUMER_REQUEST
+}
 
 data class ClaimFormState(
     val type: String = ClaimType.CLAIM,
@@ -34,11 +36,16 @@ data class ClaimFormState(
 )
 
 internal fun validateClaimForm(state: ClaimFormState): Set<ClaimFormField> = buildSet {
-    if (state.consumerName.isBlank()) add(ClaimFormField.NAME)
+    val name = state.consumerName.trim()
+    if (name.length !in 2..120 || !NAME_REGEX.matches(name)) add(ClaimFormField.NAME)
+    if (!DOCUMENT_REGEX.matches(state.consumerDocument.trim())) add(ClaimFormField.DOCUMENT)
     if (state.consumerEmail.isBlank() || !EMAIL_REGEX.matches(state.consumerEmail.trim())) {
         add(ClaimFormField.EMAIL)
     }
-    if (state.description.isBlank()) add(ClaimFormField.DESCRIPTION)
+    if (!PHONE_REGEX.matches(state.consumerPhone.trim())) add(ClaimFormField.PHONE)
+    if (state.relatedService.trim().length > 200) add(ClaimFormField.RELATED_SERVICE)
+    if (state.description.trim().length !in 10..2000) add(ClaimFormField.DESCRIPTION)
+    if (state.consumerRequest.trim().length > 1000) add(ClaimFormField.CONSUMER_REQUEST)
 }
 
 class CreateClaimViewModel(
@@ -52,12 +59,12 @@ class CreateClaimViewModel(
     }
 
     fun onNameChange(value: String) = updateField(ClaimFormField.NAME) { copy(consumerName = value) }
-    fun onDocumentChange(value: String) = update { copy(consumerDocument = value) }
+    fun onDocumentChange(value: String) = updateField(ClaimFormField.DOCUMENT) { copy(consumerDocument = value) }
     fun onEmailChange(value: String) = updateField(ClaimFormField.EMAIL) { copy(consumerEmail = value) }
-    fun onPhoneChange(value: String) = update { copy(consumerPhone = value) }
-    fun onRelatedServiceChange(value: String) = update { copy(relatedService = value) }
+    fun onPhoneChange(value: String) = updateField(ClaimFormField.PHONE) { copy(consumerPhone = value) }
+    fun onRelatedServiceChange(value: String) = updateField(ClaimFormField.RELATED_SERVICE) { copy(relatedService = value) }
     fun onDescriptionChange(value: String) = updateField(ClaimFormField.DESCRIPTION) { copy(description = value) }
-    fun onConsumerRequestChange(value: String) = update { copy(consumerRequest = value) }
+    fun onConsumerRequestChange(value: String) = updateField(ClaimFormField.CONSUMER_REQUEST) { copy(consumerRequest = value) }
 
     fun submit() {
         val state = _uiState.value
@@ -171,3 +178,6 @@ class ClaimTrackViewModel(
 }
 
 private val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+private val NAME_REGEX = Regex("^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ '-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$")
+private val DOCUMENT_REGEX = Regex("^\\d{8,12}$")
+private val PHONE_REGEX = Regex("^9\\d{8}$")

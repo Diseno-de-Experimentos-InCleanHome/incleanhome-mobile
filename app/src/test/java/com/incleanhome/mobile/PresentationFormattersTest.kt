@@ -72,6 +72,7 @@ class PresentationFormattersTest {
             "Select at least one service type" to R.string.backend_error_select_service_type,
             "Invalid verification code" to R.string.backend_error_invalid_verification_code,
             "Run 2FA setup first" to R.string.backend_error_run_2fa_setup_first,
+            "Invalid token" to R.string.backend_error_invalid_or_expired_token,
             "Invalid or expired token" to R.string.backend_error_invalid_or_expired_token,
             "Invalid or expired challenge token" to R.string.backend_error_invalid_or_expired_challenge_token,
             "Worker not found" to R.string.backend_error_worker_not_found,

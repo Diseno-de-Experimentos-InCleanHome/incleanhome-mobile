@@ -38,7 +38,7 @@
     <string name="auth_age">Edad</string>
     <string name="auth_choose_services">Selecciona uno o más servicios.</string>
     <string name="auth_services_required">Debes elegir al menos uno.</string>
-    <string name="auth_zones_csv">Zonas separadas por coma (opcional)</string>
+    <string name="auth_zones_csv">Zonas separadas por coma</string>
     <string name="auth_zones_help">Escribe nombres claros de distritos o zonas de atención.</string>
     <string name="auth_hourly_rate">Tarifa por hora</string>
     <string name="auth_experience_years">Años de experiencia</string>
@@ -68,11 +68,15 @@
     <string name="auth_2fa_verify_subtitle">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</string>
     <string name="auth_verify">Verificar</string>
     <string name="validation_name_required">El nombre es obligatorio.</string>
+    <string name="validation_name_invalid">Ingresa un nombre válido.</string>
     <string name="validation_email_invalid">Ingresa un correo electrónico válido.</string>
     <string name="validation_password_required">La contraseña es obligatoria.</string>
+    <string name="validation_password_invalid">La contraseña debe tener al menos 8 caracteres.</string>
+    <string name="validation_phone_invalid">Ingresa un teléfono válido solo con números.</string>
     <string name="validation_terms_required">Debes aceptar los términos y condiciones.</string>
     <string name="validation_gender_invalid">Selecciona un género válido.</string>
     <string name="validation_service_required">Ingresa al menos un servicio.</string>
+    <string name="validation_zone_required">Ingresa al menos una zona de trabajo.</string>
     <string name="validation_age_invalid">Ingresa una edad válida.</string>
     <string name="validation_rate_invalid">Ingresa una tarifa válida.</string>
     <string name="validation_experience_invalid">Ingresa los años de experiencia.</string>

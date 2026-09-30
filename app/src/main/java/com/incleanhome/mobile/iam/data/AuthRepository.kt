@@ -1,6 +1,7 @@
 package com.incleanhome.mobile.iam.data
 
 import com.incleanhome.mobile.core.network.RetrofitClient
+import com.incleanhome.mobile.core.network.serverErrorMessage
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
@@ -83,12 +84,7 @@ class AuthRepository(
         } catch (exception: HttpException) {
             val errorBody = exception.errorBodyText()
             membershipResultFromJson(errorBody) ?: run {
-                val bodyMessage = runCatching {
-                    com.google.gson.JsonParser.parseString(errorBody)
-                        .asJsonObject
-                        .get("error")
-                        ?.asString
-                }.getOrNull()
+                val bodyMessage = serverErrorMessage(errorBody)
                 LoginResult.Error(bodyMessage ?: when (exception.code()) {
                     400, 401 -> "Los datos no son válidos o el desafío expiró."
                     else -> "No se pudo completar la autenticación."

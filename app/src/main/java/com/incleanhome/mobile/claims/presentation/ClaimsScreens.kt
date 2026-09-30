@@ -123,13 +123,16 @@ private fun ClaimForm(state: ClaimFormState, viewModel: CreateClaimViewModel) {
             onValueChange = viewModel::onNameChange,
             label = stringResource(R.string.claims_consumer_name),
             invalid = ClaimFormField.NAME in state.invalidFields,
-            requiredMessage = stringResource(R.string.claims_name_required)
+            requiredMessage = "El nombre debe tener entre 2 y 120 caracteres y usar solo letras, espacios, apóstrofos o guiones."
         )
         ClaimSpacer()
-        InCleanHomeTextField(
-            state.consumerDocument,
-            viewModel::onDocumentChange,
-            stringResource(R.string.claims_consumer_document)
+        ClaimField(
+            value = state.consumerDocument,
+            onValueChange = viewModel::onDocumentChange,
+            label = stringResource(R.string.claims_consumer_document),
+            invalid = ClaimFormField.DOCUMENT in state.invalidFields,
+            requiredMessage = "El documento debe contener solo números, entre 8 y 12 dígitos.",
+            keyboardType = KeyboardType.Number
         )
         ClaimSpacer()
         ClaimField(
@@ -141,17 +144,21 @@ private fun ClaimForm(state: ClaimFormState, viewModel: CreateClaimViewModel) {
             keyboardType = KeyboardType.Email
         )
         ClaimSpacer()
-        InCleanHomeTextField(
-            state.consumerPhone,
-            viewModel::onPhoneChange,
-            stringResource(R.string.claims_consumer_phone),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+        ClaimField(
+            value = state.consumerPhone,
+            onValueChange = viewModel::onPhoneChange,
+            label = stringResource(R.string.claims_consumer_phone),
+            invalid = ClaimFormField.PHONE in state.invalidFields,
+            requiredMessage = "El teléfono debe tener 9 dígitos y comenzar con 9.",
+            keyboardType = KeyboardType.Phone
         )
         ClaimSpacer()
-        InCleanHomeTextField(
-            state.relatedService,
-            viewModel::onRelatedServiceChange,
-            stringResource(R.string.claims_related_service)
+        ClaimField(
+            value = state.relatedService,
+            onValueChange = viewModel::onRelatedServiceChange,
+            label = stringResource(R.string.claims_related_service),
+            invalid = ClaimFormField.RELATED_SERVICE in state.invalidFields,
+            requiredMessage = "El servicio relacionado no puede superar 200 caracteres."
         )
         ClaimSpacer()
         ClaimField(
@@ -159,15 +166,17 @@ private fun ClaimForm(state: ClaimFormState, viewModel: CreateClaimViewModel) {
             onValueChange = viewModel::onDescriptionChange,
             label = stringResource(R.string.claims_description),
             invalid = ClaimFormField.DESCRIPTION in state.invalidFields,
-            requiredMessage = stringResource(R.string.claims_description_required),
+            requiredMessage = "La descripción debe tener entre 10 y 2000 caracteres.",
             singleLine = false,
             minLines = 4
         )
         ClaimSpacer()
-        InCleanHomeTextField(
-            state.consumerRequest,
-            viewModel::onConsumerRequestChange,
-            stringResource(R.string.claims_consumer_request),
+        ClaimField(
+            value = state.consumerRequest,
+            onValueChange = viewModel::onConsumerRequestChange,
+            label = stringResource(R.string.claims_consumer_request),
+            invalid = ClaimFormField.CONSUMER_REQUEST in state.invalidFields,
+            requiredMessage = "El pedido del consumidor no puede superar 1000 caracteres.",
             singleLine = false,
             minLines = 3
         )

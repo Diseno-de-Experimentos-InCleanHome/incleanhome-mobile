@@ -42,7 +42,7 @@ fun ClientProfileScreen(
             Head(stringResource(R.string.title_my_profile), onBack)
             when {
                 s.loading -> LoadingState()
-                s.error != null -> ErrorRetryState(s.error!!, vm::load)
+                s.error != null && s.profile == null -> ErrorRetryState(s.error!!, vm::load)
                 s.profile != null -> {
                     val p = s.profile!!
                     InCleanHomeCard {
@@ -66,6 +66,7 @@ fun ClientProfileScreen(
                         }
                     }
                     s.success?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
+                    s.error?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error) }
                 }
             }
             InCleanHomeCard {
