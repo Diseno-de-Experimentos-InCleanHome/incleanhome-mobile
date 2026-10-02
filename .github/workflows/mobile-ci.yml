@@ -33,16 +33,15 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
       - name: Install Android 17 SDK
+        shell: bash
         run: |
-        yes | sdkmanager --licenses > /dev/null || true
-        sdkmanager --channel=3 "platforms;android-37" "build-tools;37.0.0"
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager --channel=3 --install "platforms;android-37.0" "build-tools;37.0.0"
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
@@ -63,6 +62,7 @@ jobs:
           retention-days: 14
 
       - name: Upload debug APK
+        if: success()
         uses: actions/upload-artifact@v7
         with:
           name: InCleanHome-debug-apk
