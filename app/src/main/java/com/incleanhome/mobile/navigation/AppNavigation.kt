@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Event
@@ -157,7 +157,7 @@ fun AppNavigation(
     val mainDestinations = if (homeRoute == Routes.WORKER_HOME) {
         listOf(
             BottomNavigationItem(Routes.WORKER_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
-            BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.Default.Assignment),
+            BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.AutoMirrored.Filled.Assignment),
             BottomNavigationItem(Routes.WORKER_EVENTS, stringResource(R.string.nav_events), Icons.Default.Event),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.WORKER_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
