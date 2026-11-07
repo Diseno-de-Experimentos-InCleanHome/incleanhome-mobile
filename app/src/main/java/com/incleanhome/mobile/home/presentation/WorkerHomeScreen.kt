@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
@@ -54,7 +54,7 @@ fun WorkerHomeScreen(
             PrimaryButton(
                 text = stringResource(R.string.home_view_requests),
                 onClick = onRequests,
-                leadingIcon = { androidx.compose.material3.Icon(Icons.Default.Assignment, null) }
+                leadingIcon = { androidx.compose.material3.Icon(Icons.AutoMirrored.Filled.Assignment, null) }
             )
             Spacer(Modifier.height(32.dp))
             HomeSectionTitle(stringResource(R.string.home_quick_actions))
