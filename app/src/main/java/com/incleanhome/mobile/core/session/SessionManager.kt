@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import androidx.core.content.edit
 import com.google.gson.Gson
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -54,7 +55,7 @@ class SessionManager(context: Context) {
         }.getOrNull()
 
         if (restoredSession == null) {
-            preferences.edit().remove(ENCRYPTED_SESSION_KEY).commit()
+            preferences.edit { remove(ENCRYPTED_SESSION_KEY) }
             currentSession = null
             _sessionState.value = SessionState.LoggedOut
         } else {
@@ -66,6 +67,7 @@ class SessionManager(context: Context) {
     suspend fun saveSession(session: UserSession) = withContext(Dispatchers.IO) {
         require(isValidSession(session)) { "Invalid session data" }
         val encryptedSession = encrypt(gson.toJson(session))
+        // A completed login must persist the token before the UI reports success.
         check(
             preferences.edit()
                 .putString(ENCRYPTED_SESSION_KEY, encryptedSession)
@@ -77,6 +79,7 @@ class SessionManager(context: Context) {
     }
 
     suspend fun logout() = withContext(Dispatchers.IO) {
+        // Keep the synchronous result so a failed logout does not appear successful.
         check(
             preferences.edit()
                 .remove(ENCRYPTED_SESSION_KEY)

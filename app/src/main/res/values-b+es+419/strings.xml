@@ -1,8 +1,8 @@
-﻿<resources>
-    <string name="settings_title">Configuración</string><string name="settings_appearance">Apariencia</string><string name="settings_language">Idioma</string><string name="settings_information">Información</string><string name="settings_account">Cuenta</string><string name="settings_terms">Términos y condiciones</string><string name="settings_system">Sistema</string><string name="settings_light">Claro</string><string name="settings_dark">Oscuro</string><string name="settings_spanish">Español</string><string name="settings_english">Inglés</string>
+<resources>
+
     <string name="profile_name">Nombre</string>
     <string name="profile_phone">Teléfono</string>
-    <string name="profile_updated">Perfil actualizado.</string>
+
     <string name="profile_zones_csv">Zonas (separadas por coma)</string>
     <string name="profile_bio">Biografía</string>
     <string name="profile_experience_years">Experiencia (años)</string>
@@ -74,7 +74,7 @@
     <string name="action_reject">Rechazar</string>
     <string name="loading">Cargando…</string>
     <string name="error_with_message">Error: %1$s</string>
-    <string name="success_with_message">Confirmación: %1$s</string>
+
     <string name="unknown_value">Sin especificar</string>
 
     <!-- Canonical backend values: presentation only -->
@@ -114,16 +114,16 @@
     <string name="label_address">Dirección: %1$s</string>
     <string name="label_notes">Notas: %1$s</string>
     <string name="label_duration_hours">Duración: %1$s horas</string>
-    <string name="label_hourly_rate">%1$s por hora</string>
+
     <string name="label_hourly_rate_named">Tarifa por hora: %1$s</string>
     <string name="label_reference_amount">Monto referencial: %1$s</string>
-    <string name="label_schedule">Horario: %1$s</string>
+
     <string name="label_date">Fecha: %1$s</string>
     <string name="label_rating">Calificación: %1$s</string>
     <string name="label_phone">Teléfono: %1$s</string>
     <string name="label_age">Edad: %1$d</string>
-    <string name="label_experience">Experiencia: %1$d años</string>
-    <string name="label_bio">Biografía: %1$s</string>
+    <plurals name="label_experience"><item quantity="one">Experiencia: %1$d año</item><item quantity="many">Experiencia: %1$d años</item><item quantity="other">Experiencia: %1$d años</item></plurals>
+
     <string name="label_bio_title">Biografía</string>
     <string name="label_services_completed">Servicios realizados: %1$d</string>
 
@@ -142,8 +142,8 @@
     <string name="booking_mark_completed">Marcar como completado</string>
     <string name="booking_created">Reserva creada correctamente</string>
     <string name="booking_view_mine">Ver Mis reservas</string>
-    <string name="booking_worker">Trabajador: %1$s</string>
-    <string name="booking_choose_service">Selecciona un servicio ofrecido por este trabajador:</string>
+
+
     <string name="booking_no_worker_services">Este trabajador no tiene servicios registrados.</string>
     <string name="booking_confirm">Confirmar reserva</string>
 
@@ -178,11 +178,11 @@
     <string name="action_refresh_conversation">Actualizar conversación</string>
     <string name="empty_conversations">No tienes conversaciones todavía\nCuando contactes a alguien, aparecerán aquí.</string>
     <string name="empty_messages">Todavía no hay mensajes en esta conversación. Envía el primero cuando quieras.</string>
-    <string name="label_message">Mensaje</string>
+
     <string name="message_placeholder">Escribe un mensaje…</string>
     <string name="message_character_count">%1$d/%2$d</string>
     <string name="action_send">Enviar</string>
-    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
+    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="many">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
 
     <!-- Reviews -->
     <string name="title_rate_service">Calificar servicio</string>
@@ -194,25 +194,25 @@
     <string name="empty_reviews">Todavía no hay reseñas para mostrar.</string>
 
     <!-- Search, profiles, availability and statistics -->
-    <string name="title_search_workers">Buscar trabajadores</string>
+
     <string name="search_marketplace_title">Buscar personal</string>
     <string name="search_marketplace_subtitle">Encuentra a la persona ideal para tu hogar</string>
     <string name="search_filters">Filtros de búsqueda</string>
     <string name="search_results">Resultados</string>
     <string name="search_view_profile">Ver perfil</string>
     <string name="search_more_items"> · +%1$d</string>
-    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="other">%1$d servicios</item></plurals>
-    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="other">%1$d servicios realizados</item></plurals>
+    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="many">%1$d servicios</item><item quantity="other">%1$d servicios</item></plurals>
+    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="many">%1$d servicios realizados</item><item quantity="other">%1$d servicios realizados</item></plurals>
     <string name="worker_profile_title">Perfil</string>
     <string name="worker_about">Sobre mí</string>
     <string name="worker_work_zones">Zonas de trabajo</string>
-    <string name="worker_information">Información profesional</string>
+
     <string name="worker_availability">Disponibilidad</string>
     <string name="worker_reviews">Reseñas</string>
     <string name="worker_book_service">Reservar servicio</string>
     <string name="worker_rate_value">%1$s por hora</string>
-    <string name="worker_experience_value">%1$d años de experiencia</string>
-    <string name="worker_age_value">%1$d años</string>
+    <plurals name="worker_experience_value"><item quantity="one">%1$d año de experiencia</item><item quantity="many">%1$d años de experiencia</item><item quantity="other">%1$d años de experiencia</item></plurals>
+    <plurals name="worker_age_value"><item quantity="one">%1$d año</item><item quantity="many">%1$d años</item><item quantity="other">%1$d años</item></plurals>
     <string name="availability_time_range">%1$s – %2$s</string>
     <string name="booking_worker_section">Trabajador</string>
     <string name="booking_service_section">Servicio</string>
@@ -226,10 +226,10 @@
     <string name="field_service_type">Tipo de servicio</string>
     <string name="all_services">Todos los servicios</string>
     <string name="field_zone">Zona</string>
-    <string name="title_worker_detail">Detalle del trabajador</string>
+
     <string name="action_contact">Contactar</string>
-    <string name="action_book">Reservar</string>
-    <string name="title_availability">Disponibilidad</string>
+
+
     <string name="title_my_availability">Mi disponibilidad</string>
     <string name="empty_worker_availability">Este trabajador todavía no registró disponibilidad.</string>
     <string name="empty_my_availability">Todavía no tienes horarios de disponibilidad. Agrega uno para comenzar.</string>
@@ -244,8 +244,8 @@
     <string name="title_my_profile">Mi perfil</string>
     <string name="title_edit_profile">Editar perfil</string>
     <string name="action_edit_profile">Editar perfil</string>
-    <string name="stats_completed_services">Servicios completados: %1$d</string>
-    <string name="stats_average_rating">Calificación promedio: %1$s</string>
+
+
     <string name="stats_completed_services_title">Servicios completados</string>
     <string name="stats_average_rating_title">Calificación promedio</string>
     <string name="stats_services_by_month">Servicios por mes</string>
@@ -253,6 +253,7 @@
 
     <plurals name="services_count">
         <item quantity="one">%1$d servicio</item>
+        <item quantity="many">%1$d servicios</item>
         <item quantity="other">%1$d servicios</item>
     </plurals>
 
@@ -262,15 +263,15 @@
     <string name="field_notes_optional">Notas (opcional)</string>
     <string name="field_title">Título</string>
     <string name="field_description_optional">Descripción (opcional)</string>
-    <string name="field_services_csv">Tipos de servicio separados por coma</string>
+
     <string name="field_workers_count">Cantidad de trabajadores</string>
     <string name="field_hourly_rate_offered">Tarifa por hora ofrecida</string>
     <string name="field_deadline_iso">Límite de postulación (ISO-8601 UTC)</string>
     <string name="field_application_message_optional">Mensaje de postulación (opcional)</string>
     <string name="field_gender">Género</string>
-    <string name="home_welcome">Bienvenido</string>
-    <string name="home_role">Rol: %1$s</string>
-    <string name="home_messages">Mensajes</string>
+
+
+
     <string name="home_logout">Cerrar sesión</string>
     <string name="home_brand">InCleanHome</string>
     <string name="home_hello">Hola</string>

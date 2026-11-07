@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.worker.data.WorkerProfile
@@ -42,7 +43,7 @@ fun WorkerProfileScreen(viewModel: WorkerProfileViewModel, onBack: () -> Unit, o
                     }
                     Spacer(Modifier.height(12.dp)); InCleanHomeCard {
                         Text(stringResource(R.string.label_hourly_rate_named, formatCurrency(profile.hourlyRate)), color = Navy, style = MaterialTheme.typography.titleMedium)
-                        Text(stringResource(R.string.label_experience, profile.experienceYears)); Row { Icon(Icons.Rounded.Star, null, tint = MaterialTheme.colorScheme.primary); Text(" ${formatRating(profile.averageRating)}") }; Text(stringResource(R.string.label_services_completed, profile.totalServices))
+                        Text(pluralStringResource(R.plurals.label_experience, profile.experienceYears, profile.experienceYears)); Row { Icon(Icons.Rounded.Star, null, tint = MaterialTheme.colorScheme.primary); Text(" ${formatRating(profile.averageRating)}") }; Text(stringResource(R.string.label_services_completed, profile.totalServices))
                     }
                     if (profile.bio.isNotBlank()) { Spacer(Modifier.height(12.dp)); InCleanHomeCard { Text(stringResource(R.string.label_bio_title), color = Navy, style = MaterialTheme.typography.titleMedium); Text(profile.bio) } }
                     Spacer(Modifier.height(16.dp)); PrimaryButton(stringResource(R.string.action_edit_profile), onEdit)

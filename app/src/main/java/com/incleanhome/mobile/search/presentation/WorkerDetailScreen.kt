@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.AvailabilitySlot
@@ -154,9 +155,9 @@ private fun WorkerProfile(worker: Worker) {
                 color = Navy
             )
             Spacer(Modifier.height(4.dp))
-            Text(stringResource(R.string.worker_experience_value, worker.experienceYears))
+            Text(pluralStringResource(R.plurals.worker_experience_value, worker.experienceYears, worker.experienceYears))
             Text(
-                text = "${stringResource(R.string.worker_age_value, worker.age)} · ${presentationValue(worker.gender)}",
+                text = "${pluralStringResource(R.plurals.worker_age_value, worker.age, worker.age)} · ${presentationValue(worker.gender)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
