@@ -39,7 +39,7 @@ object ReviewReminderPolicy {
 /**
  * In-app delivery of the reminder: at most one reminder per booking (Escenario 3), only for the
  * treatment group (Escenario 5) and recorded as review_reminder_sent with channel in_app.
- * Push or e-mail delivery requires the backend job described in the pending endpoints.
+ * Push or e-mail delivery requires the backend job described in docs/backend-endpoints.md.
  */
 class ReviewReminderService(
     private val store: KeyValueStore,

@@ -9,7 +9,7 @@ import retrofit2.http.POST
 /**
  * Endpoints the mobile app needs from the API for US42 and US43. They do not exist yet in
  * incleanhome-backend (main, 6af2c7f); the calls stay disabled through BuildConfig until the
- * backend publishes them. Contract: documentos/ENDPOINTS-BACKEND-PENDIENTES.md.
+ * backend publishes them. Contract: docs/backend-endpoints.md.
  */
 interface ExperimentationApi {
     @GET("experiments/config")
