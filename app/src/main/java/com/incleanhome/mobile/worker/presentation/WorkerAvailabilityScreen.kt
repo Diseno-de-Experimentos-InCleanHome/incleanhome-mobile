@@ -36,8 +36,9 @@ import com.incleanhome.mobile.ui.components.InCleanHomeCard
 import com.incleanhome.mobile.ui.components.InCleanHomeTextField
 import com.incleanhome.mobile.ui.components.PrimaryButton
 import com.incleanhome.mobile.ui.components.SecondaryButton
-import com.incleanhome.mobile.ui.format.formatDayOfWeek
+import com.incleanhome.mobile.ui.format.localizedDayOfWeek
 import com.incleanhome.mobile.ui.format.formatTime
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 
 @Composable
 fun WorkerAvailabilityScreen(
@@ -104,11 +105,11 @@ fun WorkerAvailabilityScreen(
 
                 uiState.errorMessage?.let { message ->
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(message, color = MaterialTheme.colorScheme.error)
+                    Text(localizedUiMessage(message), color = MaterialTheme.colorScheme.error)
                 }
                 uiState.successMessage?.let { message ->
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(message, color = MaterialTheme.colorScheme.primary)
+                    Text(localizedUiMessage(message), color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -160,7 +161,7 @@ private fun AvailabilityEditor(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("${formatDayOfWeek(slot.dayOfWeek.toIntOrNull() ?: 0)} · ${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}")
+                Text("${localizedDayOfWeek(slot.dayOfWeek.toIntOrNull() ?: 0)} · ${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}")
                 Text(stringResource(if (slot.isAvailable) R.string.availability_available else R.string.availability_unavailable), color = MaterialTheme.colorScheme.primary)
                 Switch(
                     checked = slot.isAvailable,

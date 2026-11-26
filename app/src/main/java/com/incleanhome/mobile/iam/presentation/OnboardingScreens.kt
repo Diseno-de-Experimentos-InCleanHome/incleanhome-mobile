@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.iam.data.AuthGender
+import com.incleanhome.mobile.legal.presentation.LegalDocumentLinks
 import com.incleanhome.mobile.ui.components.InCleanHomeCard
 import com.incleanhome.mobile.ui.components.InCleanHomeTextField
 import com.incleanhome.mobile.ui.components.PrimaryButton
@@ -45,6 +45,7 @@ import com.incleanhome.mobile.ui.format.presentationValue
 import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.Navy
 import com.incleanhome.mobile.ui.theme.PrimaryGreen
+import java.math.BigDecimal
 
 @Composable
 fun AccountTypeScreen(
@@ -79,15 +80,19 @@ fun AccountTypeScreen(
 fun ClientRegistrationScreen(
     viewModel: LoginViewModel,
     onBack: () -> Unit,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     var phone by rememberSaveable { mutableStateOf("") }
     var accepted by rememberSaveable { mutableStateOf(false) }
     var validationError by rememberSaveable { mutableStateOf<String?>(null) }
     val state by viewModel.uiState.collectAsState()
+    val commonValidation = commonValidationMessages()
+    val invalidPhone = stringResource(R.string.validation_phone_invalid)
 
     AuthScreen(modifier = modifier, onBack = onBack) {
         AuthTitle(
@@ -123,7 +128,13 @@ fun ClientRegistrationScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        TermsCheck(accepted, { accepted = it }, enabled = !state.isLoading)
+        TermsCheck(
+            checked = accepted,
+            onChecked = { accepted = it },
+            onTerms = onTerms,
+            onPrivacy = onPrivacy,
+            enabled = !state.isLoading
+        )
         (validationError ?: state.errorMessage)?.let {
             Spacer(Modifier.height(8.dp))
             AuthInlineError(it)
@@ -134,7 +145,7 @@ fun ClientRegistrationScreen(
             loading = state.isLoading,
             enabled = !state.isLoading,
             onClick = {
-                validationError = validateCommon(name, email, password, accepted)
+                validationError = validateCommon(name, email, password, phone, accepted, commonValidation, invalidPhone)
                 if (validationError == null) {
                     viewModel.registerClient(
                         name.trim(), email.trim(), password,
@@ -151,11 +162,13 @@ fun ClientRegistrationScreen(
 fun WorkerRegistrationScreen(
     viewModel: LoginViewModel,
     onBack: () -> Unit,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     var phone by rememberSaveable { mutableStateOf("") }
     var age by rememberSaveable { mutableStateOf("") }
     var gender by rememberSaveable { mutableStateOf("") }
@@ -167,6 +180,14 @@ fun WorkerRegistrationScreen(
     var accepted by rememberSaveable { mutableStateOf(false) }
     var validationError by rememberSaveable { mutableStateOf<String?>(null) }
     val state by viewModel.uiState.collectAsState()
+    val commonValidation = commonValidationMessages()
+    val invalidGender = stringResource(R.string.validation_gender_invalid)
+    val missingService = stringResource(R.string.validation_service_required)
+    val missingZone = stringResource(R.string.validation_zone_required)
+    val invalidAge = stringResource(R.string.validation_age_invalid)
+    val invalidRate = stringResource(R.string.validation_rate_invalid)
+    val invalidExperience = stringResource(R.string.validation_experience_invalid)
+    val invalidPhone = stringResource(R.string.validation_phone_invalid)
 
     AuthScreen(modifier = modifier, onBack = onBack) {
         AuthTitle(
@@ -255,7 +276,13 @@ fun WorkerRegistrationScreen(
         }
 
         Spacer(Modifier.height(4.dp))
-        TermsCheck(accepted, { accepted = it }, enabled = !state.isLoading)
+        TermsCheck(
+            checked = accepted,
+            onChecked = { accepted = it },
+            onTerms = onTerms,
+            onPrivacy = onPrivacy,
+            enabled = !state.isLoading
+        )
         (validationError ?: state.errorMessage)?.let {
             Spacer(Modifier.height(8.dp))
             AuthInlineError(it)
@@ -269,12 +296,14 @@ fun WorkerRegistrationScreen(
                 val serviceList = splitValues(services)
                 val zoneList = splitValues(zones)
                 validationError = when {
-                    validateCommon(name, email, password, accepted) != null -> validateCommon(name, email, password, accepted)
-                    gender !in AuthGender.VALUES -> "Selecciona un género válido."
-                    serviceList.isEmpty() -> "Ingresa al menos un servicio."
-                    age.toIntOrNull() == null -> "Ingresa una edad válida."
-                    hourlyRate.toBigDecimalOrNull() == null -> "Ingresa una tarifa válida."
-                    experience.toIntOrNull() == null -> "Ingresa los años de experiencia."
+                    validateCommon(name, email, password, phone, accepted, commonValidation, invalidPhone) != null ->
+                        validateCommon(name, email, password, phone, accepted, commonValidation, invalidPhone)
+                    gender !in AuthGender.VALUES -> invalidGender
+                    serviceList.isEmpty() -> missingService
+                    zoneList.isEmpty() -> missingZone
+                    age.toIntOrNull() !in WORKER_AGE_RANGE -> invalidAge
+                    hourlyRate.toBigDecimalOrNull()?.let { it in WORKER_RATE_RANGE } != true -> invalidRate
+                    experience.toIntOrNull() !in WORKER_EXPERIENCE_RANGE -> invalidExperience
                     else -> null
                 }
                 if (validationError == null) {
@@ -295,6 +324,8 @@ fun WorkerRegistrationScreen(
 fun TermsAcceptanceScreen(
     viewModel: LoginViewModel,
     onBack: () -> Unit,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -317,6 +348,12 @@ fun TermsAcceptanceScreen(
                 color = Navy
             )
         }
+        Spacer(Modifier.height(16.dp))
+        LegalDocumentLinks(
+            onTerms = onTerms,
+            onPrivacy = onPrivacy,
+            enabled = !state.isLoading
+        )
         state.errorMessage?.let {
             Spacer(Modifier.height(12.dp))
             AuthInlineError(it)
@@ -364,33 +401,82 @@ private fun FormSection(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun TermsCheck(checked: Boolean, onChecked: (Boolean) -> Unit, enabled: Boolean) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled) { onChecked(!checked) }
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(checked = checked, onCheckedChange = onChecked, enabled = enabled)
-        Text(
-            text = stringResource(R.string.auth_accept_terms_version, TERMS_VERSION),
-            modifier = Modifier.padding(start = 8.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Navy
+private fun TermsCheck(
+    checked: Boolean,
+    onChecked: (Boolean) -> Unit,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit,
+    enabled: Boolean
+) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) { onChecked(!checked) }
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(checked = checked, onCheckedChange = onChecked, enabled = enabled)
+            Text(
+                text = stringResource(R.string.auth_accept_terms_version, TERMS_VERSION),
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Navy
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        LegalDocumentLinks(
+            onTerms = onTerms,
+            onPrivacy = onPrivacy,
+            enabled = enabled
         )
     }
 }
 
-private fun validateCommon(name: String, email: String, password: String, accepted: Boolean): String? = when {
-    name.isBlank() -> "El nombre es obligatorio."
-    !email.contains("@") -> "Ingresa un correo electrónico válido."
-    password.isBlank() -> "La contraseña es obligatoria."
-    !accepted -> "Debes aceptar los términos y condiciones."
+private data class CommonValidationMessages(
+    val nameRequired: String,
+    val nameInvalid: String,
+    val emailInvalid: String,
+    val passwordInvalid: String,
+    val termsRequired: String
+)
+
+@Composable
+private fun commonValidationMessages() = CommonValidationMessages(
+    nameRequired = stringResource(R.string.validation_name_required),
+    nameInvalid = stringResource(R.string.validation_name_invalid),
+    emailInvalid = stringResource(R.string.validation_email_invalid),
+    passwordInvalid = stringResource(R.string.validation_password_invalid),
+    termsRequired = stringResource(R.string.validation_terms_required)
+)
+
+private fun validateCommon(
+    name: String,
+    email: String,
+    password: String,
+    phone: String,
+    accepted: Boolean,
+    messages: CommonValidationMessages,
+    invalidPhone: String
+): String? = when {
+    name.isBlank() -> messages.nameRequired
+    !NAME_PATTERN.matches(name.trim()) -> messages.nameInvalid
+    !EMAIL_PATTERN.matches(email.trim()) -> messages.emailInvalid
+    password.length < MINIMUM_PASSWORD_LENGTH -> messages.passwordInvalid
+    phone.isNotBlank() && !PHONE_PATTERN.matches(phone.trim()) -> invalidPhone
+    !accepted -> messages.termsRequired
     else -> null
 }
 
 private fun splitValues(value: String): List<String> =
     value.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
 
-private const val TERMS_VERSION = "v2"
+internal const val TERMS_VERSION = "v3"
+
+private const val MINIMUM_PASSWORD_LENGTH = 8
+private val NAME_PATTERN = Regex("^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ '-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$")
+private val EMAIL_PATTERN = Regex("^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+$", RegexOption.IGNORE_CASE)
+private val PHONE_PATTERN = Regex("^9\\d{8}$")
+private val WORKER_AGE_RANGE = 18..70
+private val WORKER_RATE_RANGE = BigDecimal("10")..BigDecimal("500")
+private val WORKER_EXPERIENCE_RANGE = 0..50

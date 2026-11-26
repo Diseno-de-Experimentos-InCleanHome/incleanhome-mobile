@@ -7,6 +7,8 @@ import com.incleanhome.mobile.booking.data.Booking
 import com.incleanhome.mobile.booking.data.BookingRepository
 import com.incleanhome.mobile.booking.data.BookingResult
 import com.incleanhome.mobile.booking.data.BookingStatus
+import com.incleanhome.mobile.experiments.Experimentation
+import com.incleanhome.mobile.reviews.domain.ReviewReminderService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,23 +20,35 @@ data class BookingListUiState(
     val bookings: List<Booking> = emptyList(),
     val errorMessage: String? = null,
     val updatingBookingId: Int? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    /** US35: completed bookings whose rating reminder is shown in this visit. */
+    val reviewReminders: List<Booking> = emptyList()
 )
 
 class BookingListViewModel(
-    private val repository: BookingRepository = BookingRepository()
+    private val repository: BookingRepository = BookingRepository(),
+    private val reminders: ReviewReminderService? = Experimentation.reminderServiceOrNull()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(BookingListUiState())
     val uiState: StateFlow<BookingListUiState> = _uiState.asStateFlow()
 
     init { refresh() }
 
+    fun dismissReminder(bookingId: Int) =
+        _uiState.update { state -> state.copy(reviewReminders = state.reviewReminders.filterNot { it.id == bookingId }) }
+
     fun refresh() {
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
             when (val result = repository.getMine()) {
-                is BookingResult.Success -> _uiState.update {
-                    it.copy(isLoading = false, bookings = result.data)
+                is BookingResult.Success -> {
+                    val delivered = reminders?.deliverDue(result.data).orEmpty()
+                    _uiState.update { state ->
+                        // Keep this visit's reminders until the booking gets its review.
+                        val pending = (state.reviewReminders + delivered).distinctBy(Booking::id)
+                            .filter { reminder -> result.data.any { it.id == reminder.id && !it.hasReview } }
+                        state.copy(isLoading = false, bookings = result.data, reviewReminders = pending)
+                    }
                 }
                 is BookingResult.Error -> _uiState.update {
                     it.copy(isLoading = false, errorMessage = result.message)

@@ -1,0 +1,2 @@
+# Legal documents are verified byte for byte (CoreContractsTest); keep LF on every OS.
+app/src/main/res/raw/*.md text eol=lf

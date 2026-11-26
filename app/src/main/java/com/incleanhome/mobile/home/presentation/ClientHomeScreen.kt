@@ -33,8 +33,10 @@ fun ClientHomeScreen(
     onMessages: () -> Unit,
     onEvents: () -> Unit,
     onProfile: () -> Unit,
+    onClaims: () -> Unit,
     onLogout: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDiagnostics: (() -> Unit)? = null
 ) {
     ScreenBackground(modifier) {
         Column(
@@ -69,6 +71,16 @@ fun ClientHomeScreen(
                 HomeActionCard(stringResource(R.string.title_my_profile), Icons.Default.Person, onProfile, Modifier.weight(1f))
             }
             Spacer(Modifier.height(28.dp))
+            SecondaryButton(
+                text = stringResource(R.string.claims_book_title),
+                onClick = onClaims,
+                modifier = Modifier.fillMaxWidth()
+            )
+            onDiagnostics?.let {
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(stringResource(R.string.diagnostics_title), it, Modifier.fillMaxWidth())
+            }
+            Spacer(Modifier.height(12.dp))
             SecondaryButton(
                 text = stringResource(R.string.home_logout),
                 onClick = onLogout,

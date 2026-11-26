@@ -9,7 +9,8 @@ import retrofit2.HttpException
 
 sealed interface BookingResult<out T> {
     data class Success<T>(val data: T) : BookingResult<T>
-    data class Error(val message: String) : BookingResult<Nothing>
+    /** [errorType] classifies the failure for booking_request_failed without exposing details. */
+    data class Error(val message: String, val errorType: String = "unexpected") : BookingResult<Nothing>
 }
 
 class BookingRepository(
@@ -34,9 +35,9 @@ class BookingRepository(
                 403 -> "No tienes permiso para realizar esta acción."
                 404 -> "No se encontró la reserva."
                 else -> "No se pudo completar la operación de reserva."
-            })
+            }, errorType = "http_${exception.code()}")
         } catch (exception: IOException) {
-            BookingResult.Error("No se pudo conectar con el servidor.")
+            BookingResult.Error("No se pudo conectar con el servidor.", errorType = "network")
         } catch (exception: Exception) {
             BookingResult.Error("Ocurrió un error inesperado.")
         }
