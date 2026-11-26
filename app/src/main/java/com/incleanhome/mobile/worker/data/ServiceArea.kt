@@ -15,7 +15,7 @@ import retrofit2.http.PUT
  */
 data class ServiceArea(val district: String, val radiusKm: Int)
 
-/** Pending endpoints of incleanhome-backend (see documentos/ENDPOINTS-BACKEND-PENDIENTES.md). */
+/** Pending endpoints of incleanhome-backend (see docs/backend-endpoints.md). */
 interface ServiceAreaApi {
     @GET("workers/me/service-area")
     suspend fun get(): ServiceArea

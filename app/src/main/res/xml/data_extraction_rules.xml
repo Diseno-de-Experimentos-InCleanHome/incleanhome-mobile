@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
+   Backup and device-transfer rules for Android 12+ (API 31).
    See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+   Keep in sync with backup_rules.xml (API 30 or lower).
 -->
 <data-extraction-rules>
     <cloud-backup>
+        <!-- Session encrypted with a device-bound Keystore key: useless on another device. -->
         <exclude domain="sharedpref" path="incleanhome_secure_session.xml" />
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Experiment variants, pending tracking events and reminders (US42/US43): device data only. -->
+        <exclude domain="sharedpref" path="incleanhome_experiments.xml" />
+        <!-- Tracking exports written by the staging diagnostics screen. -->
+        <exclude domain="external" path="." />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="incleanhome_secure_session.xml" />
+        <exclude domain="sharedpref" path="incleanhome_experiments.xml" />
+        <exclude domain="external" path="." />
     </device-transfer>
-    <!--
-    <device-transfer>
-        <include .../>
-        <exclude .../>
-    </device-transfer>
-    -->
 </data-extraction-rules>

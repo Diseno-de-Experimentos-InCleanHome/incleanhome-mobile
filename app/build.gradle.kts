@@ -63,7 +63,7 @@ android {
 
     buildTypes {
         all {
-            // Endpoints still missing in incleanhome-backend; enable once they are deployed.
+            // Endpoints still missing in incleanhome-backend (docs/backend-endpoints.md); enable once deployed.
             buildConfigField(
                 "boolean", "REMOTE_EXPERIMENTS_ENABLED",
                 providers.gradleProperty("incleanhome.remoteExperiments").orElse("false").get()

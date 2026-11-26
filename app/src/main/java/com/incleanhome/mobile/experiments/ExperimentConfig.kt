@@ -45,7 +45,7 @@ data class ExperimentConfig(val settings: Map<Experiment, ExperimentSetting>) {
     }
 }
 
-/** Response of GET experiments/config (dependency documented for the backend; see ENDPOINTS-BACKEND). */
+/** Response of GET experiments/config (dependency documented for the backend; see docs/backend-endpoints.md). */
 data class RemoteExperimentConfig(val experiments: List<RemoteExperimentSetting>?) {
     fun toConfig(): ExperimentConfig {
         val settings = experiments.orEmpty().mapNotNull { remote ->
