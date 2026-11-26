@@ -41,7 +41,9 @@ fun WorkerHomeScreen(
     onStats: () -> Unit,
     onClaims: () -> Unit,
     onLogout: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onServiceArea: (() -> Unit)? = null,
+    onDiagnostics: (() -> Unit)? = null
 ) {
     ScreenBackground(modifier) {
         Column(
@@ -85,12 +87,20 @@ fun WorkerHomeScreen(
                 HomeActionCard(stringResource(R.string.home_reviews), Icons.Default.Star, onReviews, Modifier.weight(1f))
                 HomeActionCard(stringResource(R.string.home_applications), Icons.Default.HowToReg, onEventApplications, Modifier.weight(1f))
             }
+            onServiceArea?.let {
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(stringResource(R.string.service_area_title), it, Modifier.fillMaxWidth())
+            }
             Spacer(Modifier.height(28.dp))
             SecondaryButton(
                 text = stringResource(R.string.claims_book_title),
                 onClick = onClaims,
                 modifier = Modifier.fillMaxWidth()
             )
+            onDiagnostics?.let {
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(stringResource(R.string.diagnostics_title), it, Modifier.fillMaxWidth())
+            }
             Spacer(Modifier.height(12.dp))
             SecondaryButton(
                 text = stringResource(R.string.home_logout),

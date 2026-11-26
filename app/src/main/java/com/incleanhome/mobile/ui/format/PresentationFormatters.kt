@@ -164,6 +164,11 @@ internal fun fixedUiMessageResource(message: String): Int? = backendUiMessageRes
     "El servidor no está disponible. Inténtalo nuevamente." -> R.string.ui_error_server
     "No se pudo conectar con el servidor." -> R.string.ui_error_network
     "Ocurrió un error inesperado." -> R.string.ui_error_unexpected
+    "Demasiados intentos. Espera un minuto antes de volver a intentarlo." -> R.string.ui_error_rate_limited
+    "Selecciona un tipo de servicio para recibir sugerencias." -> R.string.ui_suggestion_service_required
+    "Ingresa el distrito del servicio para recibir sugerencias." -> R.string.ui_suggestion_district_required
+    "El radio de atención debe estar dentro del rango permitido." -> R.string.ui_service_area_radius_invalid
+    "Selecciona el distrito de tu ubicación base." -> R.string.ui_service_area_district_required
     else -> when {
         message.startsWith("La sesión no es válida") -> R.string.ui_error_invalid_session
         message.startsWith("No tienes permiso") -> R.string.ui_error_forbidden

@@ -6,6 +6,9 @@ import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 
+/** US39: the API rejects with 429 after 5 logins or 10 TOTP checks per minute from one origin. */
+const val RATE_LIMITED_MESSAGE = "Demasiados intentos. Espera un minuto antes de volver a intentarlo."
+
 enum class LoginNextStep(val label: String) {
     TERMS("TERMS"),
     TWO_FA_SETUP("2FA_SETUP"),
@@ -64,6 +67,7 @@ class AuthRepository(
         } catch (exception: HttpException) {
             exception.membershipResultFromErrorBody() ?: run {
                 val message = when (exception.code()) {
+                    429 -> RATE_LIMITED_MESSAGE
                     400, 401 -> "Email o contraseña incorrectos."
                     else -> "No se pudo iniciar sesión. Inténtalo nuevamente."
                 }
@@ -145,6 +149,7 @@ class AuthRepository(
         } catch (exception: HttpException) {
             exception.membershipResultFromErrorBody() ?: run {
                 val message = when (exception.code()) {
+                    429 -> RATE_LIMITED_MESSAGE
                     400 -> "El código de verificación no es válido."
                     401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
                     else -> "No se pudo habilitar la autenticación en dos pasos."
@@ -173,6 +178,7 @@ class AuthRepository(
         } catch (exception: HttpException) {
             exception.membershipResultFromErrorBody() ?: run {
                 val message = when (exception.code()) {
+                    429 -> RATE_LIMITED_MESSAGE
                     400 -> "El código de verificación no es válido."
                     401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
                     else -> "No se pudo verificar la autenticación en dos pasos."

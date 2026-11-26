@@ -43,7 +43,8 @@ fun ClaimsBookScreen(
     onCreate: () -> Unit,
     onTrack: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFaq: (() -> Unit)? = null
 ) {
     ScreenBackground(modifier) {
         Column(
@@ -54,6 +55,17 @@ fun ClaimsBookScreen(
         ) {
             ScreenHeader(stringResource(R.string.claims_book_title), onBack)
             Spacer(Modifier.height(20.dp))
+            // US38: frequent answers first, keeping direct access to the complaints book (Escenario 4).
+            onFaq?.let { openFaq ->
+                InCleanHomeCard {
+                    Text(stringResource(R.string.support_entry_title), style = MaterialTheme.typography.titleMedium, color = Navy)
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.support_entry_body), style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(12.dp))
+                    PrimaryButton(stringResource(R.string.support_entry_action), openFaq)
+                }
+                Spacer(Modifier.height(16.dp))
+            }
             InCleanHomeCard {
                 Text(
                     stringResource(R.string.claims_book_intro),

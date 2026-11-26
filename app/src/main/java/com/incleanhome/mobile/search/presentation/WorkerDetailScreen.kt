@@ -34,6 +34,7 @@ import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.AvailabilitySlot
 import com.incleanhome.mobile.search.data.Worker
 import com.incleanhome.mobile.reviews.presentation.ReviewsColumn
+import com.incleanhome.mobile.reviews.presentation.VerifiedReviewsSection
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.InCleanHomeCard
@@ -101,12 +102,26 @@ fun WorkerDetailScreen(
                     SectionDivider()
                     SectionTitle(stringResource(R.string.worker_reviews))
                     Spacer(Modifier.height(12.dp))
-                    ReviewsColumn(
-                        reviews = uiState.reviews,
-                        isLoading = uiState.isReviewsLoading,
-                        errorMessage = uiState.reviewsErrorMessage,
-                        onRetry = viewModel::loadWorker
-                    )
+                    if (uiState.verifiedReviewsEnabled) {
+                        VerifiedReviewsSection(
+                            history = uiState.reviewHistory,
+                            arrangedReviews = uiState.arrangedReviews,
+                            sort = uiState.reviewSort,
+                            serviceFilter = uiState.reviewServiceFilter,
+                            isLoading = uiState.isReviewsLoading,
+                            errorMessage = uiState.reviewsErrorMessage,
+                            onRetry = viewModel::loadWorker,
+                            onSortChange = viewModel::sortReviews,
+                            onServiceFilterChange = viewModel::filterReviews
+                        )
+                    } else {
+                        ReviewsColumn(
+                            reviews = uiState.reviews,
+                            isLoading = uiState.isReviewsLoading,
+                            errorMessage = uiState.reviewsErrorMessage,
+                            onRetry = viewModel::loadWorker
+                        )
+                    }
                     Spacer(Modifier.height(24.dp))
                     PrimaryButton(
                         text = stringResource(R.string.worker_book_service),

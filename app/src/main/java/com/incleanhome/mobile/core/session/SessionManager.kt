@@ -46,6 +46,8 @@ class SessionManager(context: Context) {
 
     fun currentToken(): String? = currentSession?.token
 
+    fun currentSession(): UserSession? = currentSession
+
     suspend fun restoreSession() = withContext(Dispatchers.IO) {
         val restoredSession = runCatching {
             preferences.getString(ENCRYPTED_SESSION_KEY, null)

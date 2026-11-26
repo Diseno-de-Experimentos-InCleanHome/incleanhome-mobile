@@ -10,6 +10,15 @@ import com.incleanhome.mobile.search.data.WorkerResult
 import com.incleanhome.mobile.reviews.data.Review
 import com.incleanhome.mobile.reviews.data.ReviewResult
 import com.incleanhome.mobile.reviews.data.ReviewsRepository
+import com.incleanhome.mobile.experiments.Assignment
+import com.incleanhome.mobile.experiments.Experiment
+import com.incleanhome.mobile.experiments.ExperimentService
+import com.incleanhome.mobile.experiments.Experimentation
+import com.incleanhome.mobile.experiments.tracking.EventTracker
+import com.incleanhome.mobile.experiments.tracking.TrackingPlan
+import com.incleanhome.mobile.reviews.domain.ReviewHistory
+import com.incleanhome.mobile.reviews.domain.ReviewSort
+import java.util.UUID
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,20 +35,41 @@ data class WorkerDetailUiState(
     val availability: List<AvailabilitySlot> = emptyList(),
     val isReviewsLoading: Boolean = true,
     val reviewsErrorMessage: String? = null,
-    val reviews: List<Review> = emptyList()
-)
+    val reviews: List<Review> = emptyList(),
+    /** US34 presentation (treatment of EC-BLQ02); the control keeps the current review list. */
+    val verifiedReviewsEnabled: Boolean = false,
+    val reviewSort: ReviewSort = ReviewSort.NEWEST,
+    val reviewServiceFilter: String? = null
+) {
+    val reviewHistory: ReviewHistory get() = ReviewHistory.from(reviews, worker?.totalServices ?: 0)
+    val arrangedReviews: List<Review>
+        get() = ReviewHistory.arrange(reviewHistory.verifiedReviews, reviewSort, reviewServiceFilter)
+}
 
 class WorkerDetailViewModel(
     private val workerId: Int,
+    private val source: String = "direct",
+    private val searchId: String? = null,
     private val repository: WorkerRepository = WorkerRepository(),
-    private val reviewsRepository: ReviewsRepository = ReviewsRepository()
+    private val reviewsRepository: ReviewsRepository = ReviewsRepository(),
+    private val experiments: ExperimentService? = Experimentation.experimentsOrNull(),
+    private val tracker: EventTracker? = Experimentation.trackerOrNull()
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(WorkerDetailUiState())
+    private val viewId = UUID.randomUUID().toString()
+    private val reviewsAssignment: Assignment =
+        experiments?.recordExposure(Experiment.VERIFIED_REVIEWS, "worker_profile")
+            ?: Assignment.inactive(Experiment.VERIFIED_REVIEWS)
+
+    private val _uiState = MutableStateFlow(WorkerDetailUiState(verifiedReviewsEnabled = reviewsAssignment.featureActive))
     val uiState: StateFlow<WorkerDetailUiState> = _uiState.asStateFlow()
 
     init {
         loadWorker()
     }
+
+    fun sortReviews(sort: ReviewSort) = _uiState.update { it.copy(reviewSort = sort) }
+
+    fun filterReviews(serviceType: String?) = _uiState.update { it.copy(reviewServiceFilter = serviceType) }
 
     fun loadWorker() {
         _uiState.update {
@@ -63,6 +93,12 @@ class WorkerDetailViewModel(
                     _uiState.update {
                         it.copy(isWorkerLoading = false, worker = result.data)
                     }
+                    tracker?.track(
+                        TrackingPlan.WORKER_PROFILE_VIEWED,
+                        mapOf("workerId" to workerId, "source" to source, "searchId" to searchId),
+                        operationKey = viewId,
+                        assignment = reviewsAssignment
+                    )
                 }
 
                 is WorkerResult.Error -> {
@@ -98,8 +134,18 @@ class WorkerDetailViewModel(
             }
 
             when (val result = reviewsRequest.await()) {
-                is ReviewResult.Success -> _uiState.update {
-                    it.copy(isReviewsLoading = false, reviews = result.data)
+                is ReviewResult.Success -> {
+                    _uiState.update { it.copy(isReviewsLoading = false, reviews = result.data) }
+                    tracker?.track(
+                        TrackingPlan.WORKER_REVIEWS_VIEWED,
+                        mapOf(
+                            "workerId" to workerId,
+                            "reviewCount" to result.data.size,
+                            "verifiedCount" to result.data.count(ReviewHistory::isVerified)
+                        ),
+                        operationKey = viewId,
+                        assignment = reviewsAssignment
+                    )
                 }
                 is ReviewResult.Error -> _uiState.update {
                     it.copy(
@@ -113,12 +159,12 @@ class WorkerDetailViewModel(
     }
 
     companion object {
-        fun Factory(workerId: Int): ViewModelProvider.Factory {
+        fun Factory(workerId: Int, source: String = "direct", searchId: String? = null): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     if (modelClass.isAssignableFrom(WorkerDetailViewModel::class.java)) {
-                        return WorkerDetailViewModel(workerId = workerId) as T
+                        return WorkerDetailViewModel(workerId = workerId, source = source, searchId = searchId) as T
                     }
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
                 }

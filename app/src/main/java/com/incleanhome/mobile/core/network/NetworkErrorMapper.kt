@@ -10,6 +10,7 @@ fun userMessage(exception: HttpException, resource: String = "la operación"): S
         403 -> "No tienes permiso para realizar esta acción."
         404 -> "No se encontró el recurso solicitado."
         409 -> "La operación entra en conflicto con el estado actual."
+        429 -> "Demasiados intentos. Espera un minuto antes de volver a intentarlo."
         in 500..599 -> "El servidor no está disponible. Inténtalo nuevamente."
         else -> "No se pudo completar $resource."
     }

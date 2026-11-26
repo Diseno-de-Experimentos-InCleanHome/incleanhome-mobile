@@ -154,9 +154,13 @@ class CoreContractsTest {
             "src/main/res/values-b+es+419/strings.xml"
         )
         assertEquals(listOf("%1\$d service", "%1\$d services"), english.getValue("services_count"))
-        assertEquals(listOf("%1\$d servicio", "%1\$d servicios"), spanish.getValue("services_count"))
+        // es-419 declares one, many (CLDR, required by Android Lint) and other.
+        assertEquals(listOf("%1\$d servicio", "%1\$d servicios", "%1\$d servicios"), spanish.getValue("services_count"))
         assertEquals(listOf("%1\$d service completed", "%1\$d services completed"), english.getValue("services_completed"))
-        assertEquals(listOf("%1\$d servicio realizado", "%1\$d servicios realizados"), spanish.getValue("services_completed"))
+        assertEquals(
+            listOf("%1\$d servicio realizado", "%1\$d servicios realizados", "%1\$d servicios realizados"),
+            spanish.getValue("services_completed")
+        )
     }
 
     @Test fun pendingMembershipCannotBecomeAnAuthenticatedResultEvenWithJwt() {

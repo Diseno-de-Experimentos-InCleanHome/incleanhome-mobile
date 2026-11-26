@@ -49,9 +49,11 @@ internal fun validateClaimForm(state: ClaimFormState): Set<ClaimFormField> = bui
 }
 
 class CreateClaimViewModel(
-    private val repository: ClaimsDataSource = ClaimsRepository()
+    private val repository: ClaimsDataSource = ClaimsRepository(),
+    initialRelatedService: String = ""
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ClaimFormState())
+    // US38 Escenario 3: a claim started from a frequent answer keeps its category.
+    private val _uiState = MutableStateFlow(ClaimFormState(relatedService = initialRelatedService.take(200)))
     val uiState: StateFlow<ClaimFormState> = _uiState.asStateFlow()
 
     fun onTypeChange(value: String) {
@@ -114,10 +116,12 @@ class CreateClaimViewModel(
     )
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        val Factory: ViewModelProvider.Factory = Factory("")
+
+        fun Factory(relatedService: String): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                CreateClaimViewModel() as T
+                CreateClaimViewModel(initialRelatedService = relatedService) as T
         }
     }
 }

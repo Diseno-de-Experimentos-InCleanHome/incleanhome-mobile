@@ -1,5 +1,5 @@
-﻿<resources>
-    <string name="settings_title">Configuración</string><string name="settings_appearance">Apariencia</string><string name="settings_language">Idioma</string><string name="settings_information">Información</string><string name="settings_account">Cuenta</string><string name="settings_terms">Términos y condiciones</string><string name="settings_system">Sistema</string><string name="settings_light">Claro</string><string name="settings_dark">Oscuro</string><string name="settings_spanish">Español</string><string name="settings_english">Inglés</string>
+<resources>
+
     <string name="profile_name">Nombre</string>
     <string name="profile_phone">Teléfono</string>
     <string name="profile_updated">Perfil actualizado.</string>
@@ -70,7 +70,7 @@
     <string name="validation_name_required">El nombre es obligatorio.</string>
     <string name="validation_name_invalid">Ingresa un nombre válido.</string>
     <string name="validation_email_invalid">Ingresa un correo electrónico válido.</string>
-    <string name="validation_password_required">La contraseña es obligatoria.</string>
+
     <string name="validation_password_invalid">La contraseña debe tener al menos 8 caracteres.</string>
     <string name="validation_phone_invalid">Ingresa un teléfono válido solo con números.</string>
     <string name="validation_terms_required">Debes aceptar los términos y condiciones.</string>
@@ -108,9 +108,9 @@
     <string name="claims_related_service">Servicio relacionado (opcional)</string>
     <string name="claims_description">Descripción</string>
     <string name="claims_consumer_request">Solicitud del consumidor (opcional)</string>
-    <string name="claims_name_required">El nombre es obligatorio.</string>
+
     <string name="claims_email_invalid">Ingresa un correo electrónico válido.</string>
-    <string name="claims_description_required">La descripción es obligatoria.</string>
+
     <string name="claims_submit">Registrar</string>
     <string name="claims_created_title">Reclamo registrado</string>
     <string name="claims_created_body">Tu solicitud fue registrada correctamente.</string>
@@ -143,7 +143,7 @@
     <string name="action_reject">Rechazar</string>
     <string name="loading">Cargando…</string>
     <string name="error_with_message">Error: %1$s</string>
-    <string name="success_with_message">Confirmación: %1$s</string>
+
     <string name="unknown_value">Sin especificar</string>
     <string name="unavailable_day">Día no disponible</string>
     <string name="ui_error_invalid_data">Los datos enviados no son válidos.</string>
@@ -269,16 +269,16 @@
     <string name="label_address">Dirección: %1$s</string>
     <string name="label_notes">Notas: %1$s</string>
     <string name="label_duration_hours">Duración: %1$s horas</string>
-    <string name="label_hourly_rate">%1$s por hora</string>
+
     <string name="label_hourly_rate_named">Tarifa por hora: %1$s</string>
     <string name="label_reference_amount">Monto referencial: %1$s</string>
-    <string name="label_schedule">Horario: %1$s</string>
+
     <string name="label_date">Fecha: %1$s</string>
     <string name="label_rating">Calificación: %1$s</string>
     <string name="label_phone">Teléfono: %1$s</string>
     <string name="label_age">Edad: %1$d</string>
     <plurals name="label_experience"><item quantity="one">Experiencia: %1$d año</item><item quantity="many">Experiencia: %1$d años</item><item quantity="other">Experiencia: %1$d años</item></plurals>
-    <string name="label_bio">Biografía: %1$s</string>
+
     <string name="label_bio_title">Biografía</string>
     <string name="label_services_completed">Servicios realizados: %1$d</string>
 
@@ -297,8 +297,8 @@
     <string name="booking_mark_completed">Marcar como completado</string>
     <string name="booking_created">Reserva creada correctamente</string>
     <string name="booking_view_mine">Ver mis reservas</string>
-    <string name="booking_worker">Trabajador: %1$s</string>
-    <string name="booking_choose_service">Selecciona un servicio ofrecido por este trabajador:</string>
+
+    
     <string name="booking_no_worker_services">Este trabajador no tiene servicios registrados.</string>
     <string name="booking_confirm">Confirmar reserva</string>
 
@@ -333,11 +333,11 @@
     <string name="action_refresh_conversation">Actualizar conversación</string>
     <string name="empty_conversations">No tienes conversaciones todavía\nCuando contactes a alguien, aparecerán aquí.</string>
     <string name="empty_messages">Todavía no hay mensajes en esta conversación. Envía el primero cuando quieras.</string>
-    <string name="label_message">Mensaje</string>
+
     <string name="message_placeholder">Escribe un mensaje…</string>
     <string name="message_character_count">%1$d/%2$d</string>
     <string name="action_send">Enviar</string>
-    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
+    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="many">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
 
     <!-- Reviews -->
     <string name="title_rate_service">Calificar servicio</string>
@@ -349,19 +349,19 @@
     <string name="empty_reviews">Todavía no hay reseñas para mostrar.</string>
 
     <!-- Search, profiles, availability and statistics -->
-    <string name="title_search_workers">Buscar trabajadores</string>
+
     <string name="search_marketplace_title">Buscar personal</string>
     <string name="search_marketplace_subtitle">Encuentra a la persona ideal para tu hogar</string>
     <string name="search_filters">Filtros de búsqueda</string>
     <string name="search_results">Resultados</string>
     <string name="search_view_profile">Ver perfil</string>
     <string name="search_more_items"> · +%1$d</string>
-    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="other">%1$d servicios</item></plurals>
-    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="other">%1$d servicios realizados</item></plurals>
+    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="many">%1$d servicios</item><item quantity="other">%1$d servicios</item></plurals>
+    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="many">%1$d servicios realizados</item><item quantity="other">%1$d servicios realizados</item></plurals>
     <string name="worker_profile_title">Perfil</string>
     <string name="worker_about">Sobre mí</string>
     <string name="worker_work_zones">Zonas de trabajo</string>
-    <string name="worker_information">Información profesional</string>
+
     <string name="worker_availability">Disponibilidad</string>
     <string name="worker_reviews">Reseñas</string>
     <string name="worker_book_service">Reservar servicio</string>
@@ -381,10 +381,10 @@
     <string name="field_service_type">Tipo de servicio</string>
     <string name="all_services">Todos los servicios</string>
     <string name="field_zone">Zona</string>
-    <string name="title_worker_detail">Detalle del trabajador</string>
+
     <string name="action_contact">Contactar</string>
-    <string name="action_book">Reservar</string>
-    <string name="title_availability">Disponibilidad</string>
+
+    
     <string name="title_my_availability">Mi disponibilidad</string>
     <string name="empty_worker_availability">Este trabajador todavía no registró disponibilidad.</string>
     <string name="empty_my_availability">Todavía no tienes horarios de disponibilidad. Agrega uno para comenzar.</string>
@@ -399,8 +399,8 @@
     <string name="title_my_profile">Mi perfil</string>
     <string name="title_edit_profile">Editar perfil</string>
     <string name="action_edit_profile">Editar perfil</string>
-    <string name="stats_completed_services">Servicios completados: %1$d</string>
-    <string name="stats_average_rating">Calificación promedio: %1$s</string>
+
+    
     <string name="stats_completed_services_title">Servicios completados</string>
     <string name="stats_average_rating_title">Calificación promedio</string>
     <string name="stats_services_by_month">Servicios por mes</string>
@@ -408,6 +408,7 @@
 
     <plurals name="services_count">
         <item quantity="one">%1$d servicio</item>
+        <item quantity="many">%1$d servicios</item>
         <item quantity="other">%1$d servicios</item>
     </plurals>
 
@@ -417,15 +418,15 @@
     <string name="field_notes_optional">Notas (opcional)</string>
     <string name="field_title">Título</string>
     <string name="field_description_optional">Descripción (opcional)</string>
-    <string name="field_services_csv">Tipos de servicio separados por coma</string>
+
     <string name="field_workers_count">Cantidad de trabajadores</string>
     <string name="field_hourly_rate_offered">Tarifa por hora ofrecida</string>
     <string name="field_deadline_iso">Límite de postulación (ISO-8601 UTC)</string>
     <string name="field_application_message_optional">Mensaje de postulación (opcional)</string>
     <string name="field_gender">Género</string>
-    <string name="home_welcome">Bienvenido</string>
-    <string name="home_role">Rol: %1$s</string>
-    <string name="home_messages">Mensajes</string>
+
+    
+
     <string name="home_logout">Cerrar sesión</string>
     <string name="home_brand">InCleanHome</string>
     <string name="home_hello">Hola</string>
@@ -445,6 +446,107 @@
     <string name="nav_profile">Perfil</string>
     <string name="nav_requests">Solicitudes</string>
     <string name="nav_events">Eventos</string>
+
+    <!-- To-Be (TB2): monto estimado, US41 -->
+    <string name="booking_estimate_title">Monto total estimado</string>
+    <string name="booking_estimate_duration">Duración</string>
+    <string name="booking_estimate_hours">%1$s h</string>
+    <string name="booking_estimate_note">Tarifa por hora × duración. Es un monto referencial; el pago se coordina fuera de la plataforma.</string>
+    <string name="booking_estimate_invalid">Ingresa un horario válido para ver el monto estimado.</string>
+    <string name="booking_amount_matches">El monto registrado coincide con el estimado mostrado antes de confirmar.</string>
+    <string name="booking_amount_differs">El monto registrado difiere del estimado mostrado. Revisa el detalle de la reserva.</string>
+
+    <!-- To-Be (TB2): sugerencias, US33 -->
+    <string name="suggestions_title">Prestadores sugeridos</string>
+    <string name="suggestions_subtitle">Te sugerimos hasta cinco prestadores que ofrecen el servicio seleccionado en tu distrito y están disponibles en ese horario.</string>
+    <string name="suggestions_action">Sugerir prestadores</string>
+    <string name="suggestions_results">Sugerencias</string>
+    <string name="suggestions_empty">No hay sugerencias para ese horario. Puedes continuar con la búsqueda por filtros.</string>
+    <string name="suggestions_badge">Sugerido · disponible en el horario solicitado</string>
+    <string name="ui_suggestion_service_required">Selecciona un tipo de servicio para recibir sugerencias.</string>
+    <string name="ui_suggestion_district_required">Ingresa el distrito del servicio para recibir sugerencias.</string>
+
+    <!-- To-Be (TB2): reseñas verificadas, US34 -->
+    <string name="verified_reviews_empty">Este prestador aún no tiene reseñas verificadas.</string>
+    <string name="reviews_sort_newest">Más recientes</string>
+    <string name="reviews_sort_oldest">Más antiguas</string>
+    <string name="verified_reviews_average">Calificación promedio</string>
+    <plurals name="verified_reviews_count"><item quantity="one">%1$d reseña verificada</item><item quantity="many">%1$d reseñas verificadas</item><item quantity="other">%1$d reseñas verificadas</item></plurals>
+    <string name="reviews_stars_label">%1$d ★</string>
+    <string name="verified_review_badge">Reseña verificada · servicio completado</string>
+    <string name="verified_review_service">%1$s · %2$s</string>
+    <string name="verified_review_published">Publicada: %1$s</string>
+
+    <!-- To-Be (TB2): recordatorio para calificar, US35 -->
+    <string name="reminder_title">¿Cómo fue tu servicio?</string>
+    <string name="reminder_body">Califica a %1$s por %2$s del %3$s mientras recuerdas la experiencia.</string>
+    <string name="reminder_action">Calificar ahora</string>
+    <string name="reminder_dismiss">Ahora no</string>
+
+    <!-- To-Be (TB2): problemas frecuentes, US38 -->
+    <string name="support_title">Ayuda y preguntas frecuentes</string>
+    <string name="support_intro">Revisa si tu problema tiene una solución rápida antes de registrar un reclamo.</string>
+    <string name="support_question_solved">¿Esto resolvió tu problema?</string>
+    <string name="support_yes_solved">Sí, se resolvió</string>
+    <string name="support_not_solved">No, registrar un reclamo</string>
+    <string name="support_resolved_thanks">Listo, registramos que tu problema se resolvió.</string>
+    <string name="support_direct_claim">Ir directamente al Libro de Reclamaciones</string>
+    <string name="support_entry_title">Antes de registrar un reclamo</string>
+    <string name="support_entry_body">Muchos problemas frecuentes tienen una respuesta inmediata.</string>
+    <string name="support_entry_action">Ver preguntas frecuentes</string>
+    <string name="faq_category_bookings">Reservas</string>
+    <string name="faq_category_account">Cuenta y acceso</string>
+    <string name="faq_category_workers">Prestadores</string>
+    <string name="faq_category_memberships">Membresías</string>
+    <string name="faq_bookings_amount_q">¿Cómo se calcula el monto de la reserva?</string>
+    <string name="faq_bookings_amount_a">El monto referencial es la tarifa por hora del prestador multiplicada por la duración reservada. El pago se coordina fuera de la plataforma.</string>
+    <string name="faq_bookings_cancel_q">¿Cómo cancelo una reserva?</string>
+    <string name="faq_bookings_cancel_a">En Mis reservas, usa Cancelar en una reserva pendiente o aceptada.</string>
+    <string name="faq_bookings_review_q">¿Cuándo puedo calificar un servicio?</string>
+    <string name="faq_bookings_review_a">Cuando la reserva está completada, desde Mis reservas. Cada reserva se califica una sola vez.</string>
+    <string name="faq_account_code_q">Mi código de verificación es rechazado</string>
+    <string name="faq_account_code_a">El código de seis dígitos lo genera tu aplicación de autenticación. Verifica que la fecha y hora del teléfono sean automáticas y usa el código más reciente.</string>
+    <string name="faq_account_attempts_q">Veo un mensaje de demasiados intentos</string>
+    <string name="faq_account_attempts_a">Por seguridad, la plataforma limita por minuto los intentos de inicio de sesión y de código de verificación. Espera un minuto e inténtalo de nuevo.</string>
+    <string name="faq_workers_contact_q">¿Cómo contacto a un prestador?</string>
+    <string name="faq_workers_contact_a">Abre el perfil del prestador y elige Contactar para iniciar una conversación en Mensajes.</string>
+    <string name="faq_workers_verified_q">¿Qué es una reseña verificada?</string>
+    <string name="faq_workers_verified_a">Es una reseña que proviene de una reserva completada en la plataforma.</string>
+    <string name="faq_memberships_pending_q">Mi solicitud de prestador sigue pendiente</string>
+    <string name="faq_memberships_pending_a">El equipo de InCleanHome revisa cada solicitud de prestador. La pantalla de estado que aparece al iniciar sesión indica el resultado y los siguientes pasos.</string>
+
+    <!-- To-Be (TB2): protección del acceso, US39 -->
+    <string name="ui_error_rate_limited">Demasiados intentos. Espera un minuto antes de volver a intentarlo.</string>
+
+    <!-- To-Be (TB2): área de atención, US32 -->
+    <string name="service_area_title">Área de atención</string>
+    <string name="service_area_intro">Registra tu ubicación base aproximada (distrito) y el radio en el que atiendes para recibir solicitudes cercanas.</string>
+    <string name="service_area_district">Distrito base</string>
+    <string name="service_area_no_zones">Primero agrega zonas de trabajo en tu perfil.</string>
+    <string name="service_area_radius">Radio en km (%1$d–%2$d)</string>
+    <string name="service_area_range">Rango permitido: %1$d a %2$d km.</string>
+    <string name="service_area_privacy">Los clientes solo ven tu distrito y una distancia aproximada, nunca una ubicación exacta.</string>
+    <string name="service_area_unavailable">El servidor todavía no ofrece este servicio. Tus datos no se guardaron.</string>
+    <string name="service_area_saved">Área de atención guardada.</string>
+    <string name="ui_service_area_radius_invalid">El radio de atención debe estar dentro del rango permitido.</string>
+    <string name="ui_service_area_district_required">Selecciona el distrito de tu ubicación base.</string>
+
+    <!-- To-Be (TB2): diagnóstico del ambiente de pruebas -->
+    <string name="diagnostics_title">Diagnóstico de pruebas</string>
+    <string name="diagnostics_environment">Ambiente: %1$s</string>
+    <string name="diagnostics_version">Versión %1$s (%2$d)</string>
+    <string name="diagnostics_api">API: %1$s</string>
+    <string name="diagnostics_endpoints">Configuración remota: %1$s · Envío de eventos: %2$s</string>
+    <string name="diagnostics_assignment">Config.: %1$s %2$d%% · variante: %3$s · activa: %4$s</string>
+    <string name="diagnostics_override_base">Base</string>
+    <string name="diagnostics_override_off">Apagado</string>
+    <string name="diagnostics_override_treatment">Tratamiento</string>
+    <string name="diagnostics_override_control">Control</string>
+    <string name="diagnostics_override_half">50/50</string>
+    <string name="diagnostics_events">Eventos registrados: %1$d</string>
+    <string name="diagnostics_export">Exportar eventos (JSON)</string>
+    <string name="diagnostics_send">Enviar eventos a la API</string>
+    <string name="diagnostics_sent">Eventos enviados: %1$d</string>
 </resources>
 
 

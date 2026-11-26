@@ -35,7 +35,8 @@ fun ClientHomeScreen(
     onProfile: () -> Unit,
     onClaims: () -> Unit,
     onLogout: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDiagnostics: (() -> Unit)? = null
 ) {
     ScreenBackground(modifier) {
         Column(
@@ -75,6 +76,10 @@ fun ClientHomeScreen(
                 onClick = onClaims,
                 modifier = Modifier.fillMaxWidth()
             )
+            onDiagnostics?.let {
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(stringResource(R.string.diagnostics_title), it, Modifier.fillMaxWidth())
+            }
             Spacer(Modifier.height(12.dp))
             SecondaryButton(
                 text = stringResource(R.string.home_logout),

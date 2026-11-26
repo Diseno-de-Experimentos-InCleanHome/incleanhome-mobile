@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.booking.domain.BookingEstimator
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.InCleanHomeCard
 import com.incleanhome.mobile.ui.components.InCleanHomeTextField
@@ -79,6 +80,20 @@ fun CreateBookingScreen(
                     Text("${booking.workerName} · ${presentationValue(booking.serviceType)}")
                     Text(formatDateRange(booking.date, booking.startTime, booking.endTime))
                     Text(stringResource(R.string.label_status, presentationValue(booking.status)))
+                    Text(stringResource(R.string.label_reference_amount, formatCurrency(booking.totalAmount)))
+                    state.confirmedEstimate?.let { shown ->
+                        Text(
+                            stringResource(
+                                if (BookingEstimator.matches(shown, booking.totalAmount)) {
+                                    R.string.booking_amount_matches
+                                } else {
+                                    R.string.booking_amount_differs
+                                }
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 PrimaryButton(stringResource(R.string.booking_view_mine), onViewBookings)
                 return@Column
@@ -182,6 +197,45 @@ fun CreateBookingScreen(
                     stringResource(R.string.booking_summary_rate),
                     stringResource(R.string.worker_rate_value, formatCurrency(worker.hourlyRate))
                 )
+                if (state.showEstimate) {
+                    val estimate = state.estimate
+                    if (estimate == null) {
+                        Text(
+                            stringResource(R.string.booking_estimate_invalid),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        BookingSummaryRow(
+                            stringResource(R.string.booking_estimate_duration),
+                            stringResource(R.string.booking_estimate_hours, estimate.hours.stripTrailingZeros().toPlainString())
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics { liveRegion = LiveRegionMode.Polite },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                stringResource(R.string.booking_estimate_title),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Navy
+                            )
+                            Text(
+                                formatCurrency(estimate.totalAmount),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = Navy
+                            )
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            stringResource(R.string.booking_estimate_note),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
 
             state.errorMessage?.let {

@@ -1,0 +1,4 @@
+<resources>
+    <!-- Distinguishes the testing build installed next to the production app. -->
+    <string name="app_name" translatable="false">InCleanHome Pruebas</string>
+</resources>

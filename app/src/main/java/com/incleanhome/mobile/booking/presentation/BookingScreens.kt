@@ -62,13 +62,41 @@ import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.Navy
 import com.incleanhome.mobile.ui.theme.PrimaryGreen
 
+/** In-app reminder of US35 (treatment of EC-BLQ03). */
+@Composable
+private fun ReviewReminderCard(booking: Booking, onReview: () -> Unit, onDismiss: () -> Unit) {
+    Surface(
+        color = GreenLight,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, PrimaryGreen)
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.reminder_title), style = MaterialTheme.typography.titleMedium, color = Navy)
+            Text(
+                stringResource(
+                    R.string.reminder_body,
+                    booking.workerName,
+                    presentationValue(booking.serviceType),
+                    formatDate(booking.date)
+                ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                PrimaryButton(stringResource(R.string.reminder_action), onReview, Modifier.weight(1f))
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.reminder_dismiss)) }
+            }
+        }
+    }
+}
+
 @Composable
 fun MyBookingsScreen(
     viewModel: BookingListViewModel,
     onBack: () -> Unit,
     onReviewClick: (Int) -> Unit,
     onCancelClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onReminderReviewClick: (Int) -> Unit = onReviewClick
 ) {
     val state by viewModel.uiState.collectAsState()
     var cancellationTarget by remember { mutableStateOf<Booking?>(null) }
@@ -98,6 +126,13 @@ fun MyBookingsScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    items(state.reviewReminders, key = { "reminder-${it.id}" }) { booking ->
+                        ReviewReminderCard(
+                            booking = booking,
+                            onReview = { onReminderReviewClick(booking.id) },
+                            onDismiss = { viewModel.dismissReminder(booking.id) }
+                        )
+                    }
                     items(state.bookings, key = Booking::id) { booking ->
                         ClientBookingCard(
                             booking = booking,
