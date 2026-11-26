@@ -15,3 +15,10 @@
 .cxx
 local.properties
 *.log
+# Release outputs are published as GitHub Release assets, not versioned
+/app/release/
+*.apk
+*.aab
+*.dm
+# Local tool caches
+/Microsoft/
