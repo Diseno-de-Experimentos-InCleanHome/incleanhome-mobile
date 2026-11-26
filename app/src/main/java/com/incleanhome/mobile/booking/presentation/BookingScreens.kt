@@ -56,10 +56,38 @@ import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatDateRange
 import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.ui.theme.Border
 import com.incleanhome.mobile.ui.theme.GreenLight
 import com.incleanhome.mobile.ui.theme.Navy
 import com.incleanhome.mobile.ui.theme.PrimaryGreen
+
+/** In-app reminder of US35 (treatment of EC-BLQ03). */
+@Composable
+private fun ReviewReminderCard(booking: Booking, onReview: () -> Unit, onDismiss: () -> Unit) {
+    Surface(
+        color = GreenLight,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, PrimaryGreen)
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.reminder_title), style = MaterialTheme.typography.titleMedium, color = Navy)
+            Text(
+                stringResource(
+                    R.string.reminder_body,
+                    booking.workerName,
+                    presentationValue(booking.serviceType),
+                    formatDate(booking.date)
+                ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                PrimaryButton(stringResource(R.string.reminder_action), onReview, Modifier.weight(1f))
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.reminder_dismiss)) }
+            }
+        }
+    }
+}
 
 @Composable
 fun MyBookingsScreen(
@@ -67,7 +95,8 @@ fun MyBookingsScreen(
     onBack: () -> Unit,
     onReviewClick: (Int) -> Unit,
     onCancelClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onReminderReviewClick: (Int) -> Unit = onReviewClick
 ) {
     val state by viewModel.uiState.collectAsState()
     var cancellationTarget by remember { mutableStateOf<Booking?>(null) }
@@ -97,6 +126,13 @@ fun MyBookingsScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    items(state.reviewReminders, key = { "reminder-${it.id}" }) { booking ->
+                        ReviewReminderCard(
+                            booking = booking,
+                            onReview = { onReminderReviewClick(booking.id) },
+                            onDismiss = { viewModel.dismissReminder(booking.id) }
+                        )
+                    }
                     items(state.bookings, key = Booking::id) { booking ->
                         ClientBookingCard(
                             booking = booking,
@@ -109,7 +145,7 @@ fun MyBookingsScreen(
                 }
             }
             state.successMessage?.let {
-                Text(it, color = PrimaryGreen, style = MaterialTheme.typography.bodyMedium)
+                Text(localizedUiMessage(it), color = PrimaryGreen, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
@@ -296,7 +332,7 @@ private fun BookingListScreen(
                 }
             }
         }
-        state.successMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+        state.successMessage?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
     }
     cancellationTarget?.let { booking -> AlertDialog(onDismissRequest={cancellationTarget=null}, title={Text(stringResource(R.string.booking_cancel))}, text={Text(stringResource(R.string.booking_cancel_question))}, confirmButton={TextButton({onCancelClick(booking.id);cancellationTarget=null}){Text(stringResource(R.string.action_confirm))}}, dismissButton={TextButton({cancellationTarget=null}){Text(stringResource(R.string.action_back))}}) }
 }
@@ -347,8 +383,8 @@ fun WorkerBookingDetailScreen(
                     ) { Text(stringResource(R.string.booking_mark_completed)) }
                 }
                 if (state.isUpdating) CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
-                state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                state.successMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+                state.errorMessage?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error) }
+                state.successMessage?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.primary) }
             }
         }
     }

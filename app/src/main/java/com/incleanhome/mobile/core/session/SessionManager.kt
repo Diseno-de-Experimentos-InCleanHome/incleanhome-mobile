@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import androidx.core.content.edit
 import com.google.gson.Gson
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -45,6 +46,8 @@ class SessionManager(context: Context) {
 
     fun currentToken(): String? = currentSession?.token
 
+    fun currentSession(): UserSession? = currentSession
+
     suspend fun restoreSession() = withContext(Dispatchers.IO) {
         val restoredSession = runCatching {
             preferences.getString(ENCRYPTED_SESSION_KEY, null)
@@ -54,7 +57,7 @@ class SessionManager(context: Context) {
         }.getOrNull()
 
         if (restoredSession == null) {
-            preferences.edit().remove(ENCRYPTED_SESSION_KEY).commit()
+            preferences.edit { remove(ENCRYPTED_SESSION_KEY) }
             currentSession = null
             _sessionState.value = SessionState.LoggedOut
         } else {
@@ -66,6 +69,7 @@ class SessionManager(context: Context) {
     suspend fun saveSession(session: UserSession) = withContext(Dispatchers.IO) {
         require(isValidSession(session)) { "Invalid session data" }
         val encryptedSession = encrypt(gson.toJson(session))
+        // A completed login must persist the token before the UI reports success.
         check(
             preferences.edit()
                 .putString(ENCRYPTED_SESSION_KEY, encryptedSession)
@@ -77,6 +81,7 @@ class SessionManager(context: Context) {
     }
 
     suspend fun logout() = withContext(Dispatchers.IO) {
+        // Keep the synchronous result so a failed logout does not appear successful.
         check(
             preferences.edit()
                 .remove(ENCRYPTED_SESSION_KEY)
@@ -89,7 +94,8 @@ class SessionManager(context: Context) {
 
     private fun isValidSession(session: UserSession): Boolean {
         val knownRole = session.role.equals(CLIENT_ROLE, ignoreCase = true) ||
-            session.role.equals(WORKER_ROLE, ignoreCase = true)
+            session.role.equals(WORKER_ROLE, ignoreCase = true) ||
+            session.role.equals(ADMIN_ROLE, ignoreCase = true)
         return session.userId > 0 && session.token.isNotBlank() && knownRole
     }
 
@@ -146,6 +152,7 @@ class SessionManager(context: Context) {
     companion object {
         const val CLIENT_ROLE = "client"
         const val WORKER_ROLE = "worker"
+        const val ADMIN_ROLE = "admin"
 
         private const val PREFERENCES_NAME = "incleanhome_secure_session"
         private const val ENCRYPTED_SESSION_KEY = "encrypted_session"

@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
@@ -39,8 +39,11 @@ fun WorkerHomeScreen(
     onEvents: () -> Unit,
     onEventApplications: () -> Unit,
     onStats: () -> Unit,
+    onClaims: () -> Unit,
     onLogout: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onServiceArea: (() -> Unit)? = null,
+    onDiagnostics: (() -> Unit)? = null
 ) {
     ScreenBackground(modifier) {
         Column(
@@ -54,7 +57,7 @@ fun WorkerHomeScreen(
             PrimaryButton(
                 text = stringResource(R.string.home_view_requests),
                 onClick = onRequests,
-                leadingIcon = { androidx.compose.material3.Icon(Icons.Default.Assignment, null) }
+                leadingIcon = { androidx.compose.material3.Icon(Icons.AutoMirrored.Filled.Assignment, null) }
             )
             Spacer(Modifier.height(32.dp))
             HomeSectionTitle(stringResource(R.string.home_quick_actions))
@@ -84,7 +87,21 @@ fun WorkerHomeScreen(
                 HomeActionCard(stringResource(R.string.home_reviews), Icons.Default.Star, onReviews, Modifier.weight(1f))
                 HomeActionCard(stringResource(R.string.home_applications), Icons.Default.HowToReg, onEventApplications, Modifier.weight(1f))
             }
+            onServiceArea?.let {
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(stringResource(R.string.service_area_title), it, Modifier.fillMaxWidth())
+            }
             Spacer(Modifier.height(28.dp))
+            SecondaryButton(
+                text = stringResource(R.string.claims_book_title),
+                onClick = onClaims,
+                modifier = Modifier.fillMaxWidth()
+            )
+            onDiagnostics?.let {
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(stringResource(R.string.diagnostics_title), it, Modifier.fillMaxWidth())
+            }
+            Spacer(Modifier.height(12.dp))
             SecondaryButton(
                 text = stringResource(R.string.home_logout),
                 onClick = onLogout,

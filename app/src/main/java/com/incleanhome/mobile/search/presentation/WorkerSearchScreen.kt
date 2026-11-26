@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.Worker
@@ -50,7 +52,7 @@ import com.incleanhome.mobile.ui.theme.PrimaryGreen
 fun WorkerSearchScreen(
     viewModel: WorkerSearchViewModel,
     onBack: () -> Unit,
-    onWorkerClick: (Int) -> Unit,
+    onWorkerClick: (workerId: Int, source: String, searchId: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -110,6 +112,33 @@ fun WorkerSearchScreen(
                     )
                 }
             }
+            if (uiState.suggestionsEnabled) {
+                item {
+                    SuggestionCard(uiState, viewModel)
+                }
+                uiState.suggestions?.let { suggestions ->
+                    if (suggestions.isEmpty()) {
+                        item {
+                            EmptyState(stringResource(R.string.suggestions_empty), Modifier.padding(vertical = 8.dp))
+                        }
+                    } else {
+                        item {
+                            Text(
+                                text = stringResource(R.string.suggestions_results),
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Navy
+                            )
+                        }
+                        items(suggestions, key = { "suggestion-${it.id}" }) { worker ->
+                            WorkerResultCard(
+                                worker = worker,
+                                suggested = true,
+                                onClick = { onWorkerClick(worker.id, "suggestion", uiState.suggestionSearchId) }
+                            )
+                        }
+                    }
+                }
+            }
             item {
                 Text(
                     text = stringResource(R.string.search_results),
@@ -126,7 +155,7 @@ fun WorkerSearchScreen(
                     EmptyState(stringResource(R.string.empty_search_results), Modifier.padding(vertical = 32.dp))
                 }
                 else -> items(uiState.workers, key = Worker::id) { worker ->
-                    WorkerResultCard(worker = worker, onClick = { onWorkerClick(worker.id) })
+                    WorkerResultCard(worker = worker, onClick = { onWorkerClick(worker.id, "filters", uiState.searchId) })
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }
@@ -135,12 +164,74 @@ fun WorkerSearchScreen(
 }
 
 @Composable
+private fun SuggestionCard(uiState: WorkerSearchUiState, viewModel: WorkerSearchViewModel) {
+    InCleanHomeCard {
+        Text(
+            text = stringResource(R.string.suggestions_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = Navy
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.suggestions_subtitle),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(12.dp))
+        InCleanHomeTextField(
+            value = uiState.suggestionDate,
+            onValueChange = viewModel::onSuggestionDateChange,
+            label = stringResource(R.string.field_date_iso),
+            enabled = !uiState.isSuggesting
+        )
+        Spacer(Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            InCleanHomeTextField(
+                value = uiState.suggestionStart,
+                onValueChange = viewModel::onSuggestionStartChange,
+                label = stringResource(R.string.field_start_time),
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isSuggesting,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+            InCleanHomeTextField(
+                value = uiState.suggestionEnd,
+                onValueChange = viewModel::onSuggestionEndChange,
+                label = stringResource(R.string.field_end_time),
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isSuggesting,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+        uiState.suggestionError?.let {
+            Spacer(Modifier.height(8.dp))
+            Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(Modifier.height(16.dp))
+        PrimaryButton(
+            text = stringResource(R.string.suggestions_action),
+            onClick = viewModel::requestSuggestions,
+            enabled = !uiState.isSuggesting,
+            loading = uiState.isSuggesting
+        )
+    }
+}
+
+@Composable
 private fun WorkerResultCard(
     worker: Worker,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    suggested: Boolean = false
 ) {
     InCleanHomeCard(onClick = onClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (suggested) {
+                Text(
+                    text = stringResource(R.string.suggestions_badge),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = PrimaryGreen
+                )
+            }
             Text(worker.name, style = MaterialTheme.typography.titleLarge, color = Navy)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(Icons.Rounded.Star, contentDescription = null, tint = PrimaryGreen)

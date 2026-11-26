@@ -1,6 +1,6 @@
-﻿<resources>
-    <string name="settings_title">Settings</string><string name="settings_appearance">Appearance</string><string name="settings_language">Language</string><string name="settings_information">Information</string><string name="settings_account">Account</string><string name="settings_terms">Terms and conditions</string><string name="settings_system">System</string><string name="settings_light">Light</string><string name="settings_dark">Dark</string><string name="settings_spanish">Spanish</string><string name="settings_english">English</string>
-    <string name="app_name" translatable="false">InCleanHome</string><string name="profile_name">Name</string><string name="profile_phone">Phone</string><string name="profile_updated">Profile updated.</string><string name="profile_zones_csv">Zones (comma-separated)</string><string name="profile_bio">Bio</string><string name="profile_experience_years">Experience (years)</string><string name="profile_hourly_rate">Hourly rate</string>
+<resources>
+
+    <string name="app_name" translatable="false">InCleanHome</string><string name="profile_name">Name</string><string name="profile_phone">Phone</string><string name="profile_updated">Profile updated.</string><string name="profile_zones_csv">Zones (comma-separated)</string><string name="profile_bio">Bio</string><string name="profile_experience_years">Experience (years)</string><string name="profile_hourly_rate">Hourly rate</string><string name="profile_account">Account</string>
 
     <!-- Authentication and onboarding -->
     <string name="auth_login_title">Welcome back</string>
@@ -10,51 +10,119 @@
     <string name="auth_show_password">Show password</string>
     <string name="auth_hide_password">Hide password</string>
     <string name="auth_sign_in">Sign in</string>
-    <string name="auth_no_account">¿No tienes una cuenta?</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
     <string name="auth_create_account">Create account</string>
-    <string name="auth_account_type_subtitle">¿Cómo deseas utilizar InCleanHome?</string>
-    <string name="auth_client_type">Soy cliente</string>
-    <string name="auth_client_type_description">Encuentra personal de confianza para tu hogar</string>
-    <string name="auth_worker_type">Soy trabajador/a</string>
-    <string name="auth_worker_type_description">Ofrece tus servicios y encuentra oportunidades</string>
-    <string name="auth_client_registration">Registro de cliente</string>
-    <string name="auth_client_registration_subtitle">Completa tus datos para empezar a encontrar ayuda de confianza.</string>
-    <string name="auth_worker_registration">Registro de trabajador/a</string>
-    <string name="auth_worker_registration_subtitle">Cuéntanos sobre ti y los servicios que deseas ofrecer.</string>
-    <string name="auth_personal_information">Information personal</string>
-    <string name="auth_professional_information">Datos profesionales</string>
+    <string name="auth_account_type_subtitle">How would you like to use InCleanHome?</string>
+    <string name="auth_client_type">I am a client</string>
+    <string name="auth_client_type_description">Find trusted help for your home</string>
+    <string name="auth_worker_type">I am a worker</string>
+    <string name="auth_worker_type_description">Offer your services and find opportunities</string>
+    <string name="auth_client_registration">Client registration</string>
+    <string name="auth_client_registration_subtitle">Complete your details to start finding trusted help.</string>
+    <string name="auth_worker_registration">Worker registration</string>
+    <string name="auth_worker_registration_subtitle">Tell us about yourself and the services you want to offer.</string>
+    <string name="auth_personal_information">Personal information</string>
+    <string name="auth_professional_information">Professional information</string>
     <string name="auth_services">Services</string>
-    <string name="auth_work_zones">Zones de trabajo</string>
-    <string name="auth_about_me">Sobre mí</string>
-    <string name="auth_name">Nombre completo</string>
+    <string name="auth_work_zones">Work zones</string>
+    <string name="auth_about_me">About me</string>
+    <string name="auth_name">Full name</string>
     <string name="auth_phone_optional">Phone (optional)</string>
     <string name="auth_age">Age</string>
-    <string name="auth_choose_services">Selecciona uno o más servicios.</string>
-    <string name="auth_services_required">Debes elegir al menos uno.</string>
-    <string name="auth_zones_csv">Zones separadas por coma (optional)</string>
-    <string name="auth_zones_help">Escribe nombres claros de distritos o zonas de atención.</string>
+    <string name="auth_choose_services">Select one or more services.</string>
+    <string name="auth_services_required">You must select at least one.</string>
+    <string name="auth_zones_csv">Comma-separated zones</string>
+    <string name="auth_zones_help">Enter clear district or service-area names.</string>
     <string name="auth_hourly_rate">Hourly rate</string>
-    <string name="auth_experience_years">Años de experiencia</string>
+    <string name="auth_experience_years">Years of experience</string>
     <string name="auth_bio_optional">Bio (optional)</string>
-    <string name="auth_accept_terms_version">Acepto los términos y condiciones (%1$s)</string>
+    <string name="auth_accept_terms_version">I accept the terms and conditions (%1$s)</string>
     <string name="auth_create_account_action">Create account</string>
-    <string name="auth_terms_title">Términos y condiciones</string>
-    <string name="auth_terms_subtitle">Para continuar, necesitamos que aceptes la versión actual de nuestros términos.</string>
-    <string name="auth_terms_summary">Al aceptar, confirmas que conoces las condiciones de uso de InCleanHome y el tratamiento aplicable a tu cuenta.</string>
-    <string name="auth_terms_current_version">Versión vigente: %1$s</string>
-    <string name="auth_accept_continue">Accept y continuar</string>
-    <string name="auth_protect_account">Protege tu cuenta</string>
-    <string name="auth_2fa_setup_subtitle">Añade una capa extra de seguridad antes de continuar.</string>
-    <string name="auth_2fa_step_scan">1. Escanea el código QR con Google Authenticator o Microsoft Authenticator.</string>
-    <string name="auth_2fa_step_code">2. Introduce el código de 6 dígitos.</string>
-    <string name="auth_2fa_qr_description">Código QR para configurar la verificación en dos pasos</string>
-    <string name="auth_manual_secret">¿No puedes escanearlo? Usa esta clave:</string>
-    <string name="auth_totp_code">Código de 6 dígitos</string>
-    <string name="auth_six_digits">6 dígitos</string>
-    <string name="auth_enable_2fa">Activar verificación</string>
-    <string name="auth_2fa_verify_title">Verificación en dos pasos</string>
-    <string name="auth_2fa_verify_subtitle">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</string>
-    <string name="auth_verify">Verificar</string>
+    <string name="auth_terms_title">Terms and conditions</string>
+    <string name="auth_terms_subtitle">To continue, you need to accept the current version of our terms.</string>
+    <string name="auth_terms_summary">By accepting, you confirm that you understand the InCleanHome terms of use and the processing applicable to your account.</string>
+    <string name="auth_terms_current_version">Current version: %1$s</string>
+    <string name="auth_accept_continue">Accept and continue</string>
+    <string name="legal_privacy_title">Privacy policy</string>
+    <string name="legal_view_terms">View terms and conditions</string>
+    <string name="legal_view_privacy">View privacy policy</string>
+    <string name="legal_information">Legal information</string>
+    <string name="legal_spanish_only_notice">Official legal document available in Spanish.</string>
+    <string name="auth_protect_account">Protect your account</string>
+    <string name="auth_2fa_setup_subtitle">Add an extra layer of security before continuing.</string>
+    <string name="auth_2fa_step_scan">1. Scan the QR code with Google Authenticator or Microsoft Authenticator.</string>
+    <string name="auth_2fa_step_code">2. Enter the 6-digit code.</string>
+    <string name="auth_2fa_qr_description">QR code for two-step verification setup</string>
+    <string name="auth_manual_secret">Can\'t scan it? Use this key:</string>
+    <string name="auth_totp_code">6-digit code</string>
+    <string name="auth_six_digits">6 digits</string>
+    <string name="auth_enable_2fa">Enable verification</string>
+    <string name="auth_2fa_verify_title">Two-step verification</string>
+    <string name="auth_2fa_verify_subtitle">Enter the 6-digit code generated by your authenticator app.</string>
+    <string name="auth_verify">Verify</string>
+    <string name="validation_name_required">Name is required.</string>
+    <string name="validation_name_invalid">Enter a valid name.</string>
+    <string name="validation_email_invalid">Enter a valid email address.</string>
+
+    <string name="validation_password_invalid">Password must have at least 8 characters.</string>
+    <string name="validation_phone_invalid">Enter a valid phone number using digits only.</string>
+    <string name="validation_terms_required">You must accept the terms and conditions.</string>
+    <string name="validation_gender_invalid">Select a valid gender.</string>
+    <string name="validation_service_required">Enter at least one service.</string>
+    <string name="validation_zone_required">Enter at least one work zone.</string>
+    <string name="validation_age_invalid">Enter a valid age.</string>
+    <string name="validation_rate_invalid">Enter a valid rate.</string>
+    <string name="validation_experience_invalid">Enter years of experience.</string>
+    <string name="auth_membership_pending_title">Membership pending</string>
+    <string name="auth_membership_pending_body">Your membership payment is pending verification.\nSend your payment receipt through WhatsApp so an administrator can review it.</string>
+    <string name="auth_membership_rejected_title">Membership rejected</string>
+    <string name="auth_membership_rejected_body">Your membership could not be validated.\nContact us through WhatsApp for more information.</string>
+    <string name="auth_membership_send_receipt">Send receipt via WhatsApp</string>
+    <string name="auth_membership_contact_whatsapp">Contact us via WhatsApp</string>
+    <string name="auth_membership_whatsapp_error">The WhatsApp link is unavailable or invalid.</string>
+    <string name="auth_back_to_sign_in">Back to sign in</string>
+    <string name="auth_admin_access_title">Administrative access</string>
+    <string name="auth_admin_access_body">The InCleanHome administration panel is available in the web application.</string>
+    <string name="auth_sign_out">Sign out</string>
+
+    <!-- Complaints book -->
+    <string name="claims_book_title">Complaints book</string>
+    <string name="claims_book_intro">Register a claim or complaint, or use your tracking code to check its status.</string>
+    <string name="claims_register_action">Register a claim or complaint</string>
+    <string name="claims_track_action">Check status</string>
+    <string name="claims_form_title">New claim or complaint</string>
+    <string name="claims_type">Type</string>
+    <string name="claim_type_claim">Claim</string>
+    <string name="claim_type_complaint">Complaint</string>
+    <string name="claims_consumer_name">Name</string>
+    <string name="claims_consumer_document">Document (optional)</string>
+    <string name="claims_consumer_email">Email</string>
+    <string name="claims_consumer_phone">Phone (optional)</string>
+    <string name="claims_related_service">Related service (optional)</string>
+    <string name="claims_description">Description</string>
+    <string name="claims_consumer_request">Consumer request (optional)</string>
+
+    <string name="claims_email_invalid">Enter a valid email address.</string>
+
+    <string name="claims_submit">Submit</string>
+    <string name="claims_created_title">Claim registered</string>
+    <string name="claims_created_body">Your request was registered successfully.</string>
+    <string name="claims_tracking_code_label">Tracking code</string>
+    <string name="claims_save_code">Save this code to check the status of your request.</string>
+    <string name="claims_track_title">Claim tracking</string>
+    <string name="claims_track_help">Enter the code you received when you registered your request.</string>
+    <string name="claims_code_required">Enter a tracking code.</string>
+    <string name="claims_track_submit">Track</string>
+    <string name="claims_status">Status</string>
+    <string name="claims_created_at">Registered on</string>
+    <string name="claims_resolved_at">Resolved on</string>
+    <string name="claims_admin_response">Administrative response</string>
+    <string name="claims_error_invalid_data">The submitted information is not valid.</string>
+    <string name="claims_error_not_found">No claim or complaint was found with that code.</string>
+    <string name="claims_error_network">Could not connect to the server.</string>
+    <string name="claims_error_server">The server is unavailable. Try again later.</string>
+    <string name="claims_error_invalid_response">The server returned an incomplete response.</string>
+    <string name="claims_error_unknown">The request could not be completed.</string>
 
     <!-- Common presentation -->
     <string name="action_back">Back</string>
@@ -68,8 +136,90 @@
     <string name="action_reject">Reject</string>
     <string name="loading">Loading…</string>
     <string name="error_with_message">Error: %1$s</string>
-    <string name="success_with_message">Confirmación: %1$s</string>
+
     <string name="unknown_value">Not specified</string>
+    <string name="unavailable_day">Unavailable day</string>
+    <string name="ui_error_invalid_data">The submitted information is not valid.</string>
+    <string name="ui_error_invalid_session">Your session is invalid. Sign in again.</string>
+    <string name="ui_error_forbidden">You do not have permission to perform this action.</string>
+    <string name="ui_error_not_found">The requested information was not found.</string>
+    <string name="ui_error_conflict">The operation conflicts with the current state.</string>
+    <string name="ui_error_server">The server is unavailable. Try again.</string>
+    <string name="ui_error_operation">The operation could not be completed.</string>
+    <string name="ui_error_network">Could not connect to the server.</string>
+    <string name="ui_error_unexpected">An unexpected error occurred.</string>
+    <string name="backend_error_email_taken">Email %1$s is already taken</string>
+    <string name="backend_error_invalid_email_or_password">Invalid email or password</string>
+    <string name="backend_error_invalid_gender">Invalid gender</string>
+    <string name="backend_error_select_service_type">Select at least one service type</string>
+    <string name="backend_error_invalid_verification_code">Invalid verification code</string>
+    <string name="backend_error_run_2fa_setup_first">Run 2FA setup first</string>
+    <string name="backend_error_invalid_or_expired_token">Invalid or expired token</string>
+    <string name="backend_error_invalid_or_expired_challenge_token">Invalid or expired challenge token</string>
+    <string name="backend_error_worker_not_found">Worker not found</string>
+    <string name="backend_error_worker_unavailable">Worker not available at that time slot</string>
+    <string name="backend_error_booking_date_in_past">Booking date cannot be in the past</string>
+    <string name="backend_error_only_clients_create_bookings">Only clients can create bookings</string>
+    <string name="backend_error_invalid_date_format">Invalid date format (expected yyyy-MM-dd)</string>
+    <string name="backend_error_invalid_status">Invalid status</string>
+    <string name="backend_error_event_not_found">Event not found</string>
+    <string name="backend_error_event_date_in_past">Event date cannot be in the past</string>
+    <string name="backend_error_application_deadline_passed">The application deadline has passed</string>
+    <string name="backend_error_already_applied">You have already applied to this event</string>
+    <string name="backend_error_only_workers_apply">Only workers can apply to events</string>
+    <string name="backend_error_only_clients_publish_events">Only clients can publish events</string>
+    <string name="backend_error_booking_not_found">Booking not found</string>
+    <string name="backend_error_only_completed_bookings_reviewed">Only completed bookings can be reviewed</string>
+    <string name="backend_error_booking_already_reviewed">This booking has already been reviewed</string>
+    <string name="backend_error_rating_out_of_range">Rating must be between 1 and 5</string>
+    <string name="backend_error_cannot_message_yourself">Cannot send a message to yourself.</string>
+    <string name="backend_error_message_empty">Message content cannot be empty.</string>
+    <string name="backend_error_profile_not_found">Profile not found</string>
+    <string name="backend_error_unsupported_role">Unsupported role</string>
+    <string name="backend_error_invalid_claim_type">Invalid claim type</string>
+    <string name="backend_error_consumer_identity_required">Consumer name and email are required</string>
+    <string name="backend_error_description_required">Description is required</string>
+    <string name="backend_error_claim_not_found">Claim not found</string>
+    <string name="backend_error_only_workers_have_profile">Only workers have a worker profile</string>
+    <string name="backend_error_only_workers_have_stats">Only workers have dashboard stats</string>
+    <string name="backend_error_current_terms_required">You must accept the current terms and conditions</string>
+    <string name="ui_error_invalid_credentials">Incorrect email or password.</string>
+    <string name="ui_error_auth_challenge">The information is invalid or the authentication challenge expired.</string>
+    <string name="ui_error_auth_incomplete">The server returned an incomplete authentication response.</string>
+    <string name="ui_error_auth_expired">The authentication challenge expired. Sign in again.</string>
+    <string name="ui_error_auth_setup">Two-step verification could not be configured.</string>
+    <string name="ui_error_auth_code">The verification code is invalid.</string>
+    <string name="ui_error_auth_enable">Two-step verification could not be enabled.</string>
+    <string name="ui_error_auth_verify">Two-step verification could not be verified.</string>
+    <string name="ui_error_auth_unknown">The server returned an unexpected authentication response.</string>
+    <string name="ui_error_login_fields">Enter your email and password.</string>
+    <string name="ui_error_totp_required">Enter a 6-digit TOTP code.</string>
+    <string name="ui_error_unknown_role">The server returned an unknown user role.</string>
+    <string name="ui_error_session_save">The session could not be saved securely.</string>
+    <string name="ui_booking_cancelled">Booking cancelled.</string>
+    <string name="ui_booking_status_updated">Status updated successfully.</string>
+    <string name="ui_booking_service_required">Select one of the services offered by the worker.</string>
+    <string name="ui_booking_date_invalid">Enter a valid date in yyyy-MM-dd format that is not in the past.</string>
+    <string name="ui_time_range_invalid">Use HH:mm times with an end time later than the start time.</string>
+    <string name="ui_address_required">Address is required.</string>
+    <string name="ui_event_title_required">Title is required.</string>
+    <string name="ui_event_service_required">Enter at least one service type.</string>
+    <string name="ui_zone_required">Zone is required.</string>
+    <string name="ui_event_date_invalid">Use a valid date that is not in the past.</string>
+    <string name="ui_event_workers_required">At least 1 worker is required.</string>
+    <string name="ui_event_rate_invalid">Enter a valid hourly rate.</string>
+    <string name="ui_event_deadline_invalid">Use an ISO-8601 UTC deadline, for example 2026-09-10T18:00:00Z.</string>
+    <string name="ui_event_deadline_order">The deadline must be before the event starts.</string>
+    <string name="ui_application_submitted">Application submitted.</string>
+    <string name="ui_event_cancelled">Event cancelled.</string>
+    <string name="ui_event_completed">Event completed.</string>
+    <string name="ui_profile_fields_invalid">Complete the name and numeric fields correctly.</string>
+    <string name="ui_review_completed_only">Only completed bookings can be reviewed.</string>
+    <string name="ui_review_already_exists">This booking already has a review.</string>
+    <string name="ui_review_rating_invalid">Select a rating from 1 to 5.</string>
+    <string name="ui_message_empty">The message cannot be empty.</string>
+    <string name="ui_availability_invalid">Use days from 0 to 6 and times in HH:mm format.</string>
+    <string name="ui_availability_saved">Availability saved.</string>
 
     <!-- Canonical backend values: presentation only -->
     <string name="service_general_cleaning">General cleaning</string>
@@ -84,7 +234,7 @@
     <string name="gender_male">Male</string>
     <string name="gender_other">Other</string>
     <string name="role_client">Client</string>
-    <string name="role_worker">Worker/a</string>
+    <string name="role_worker">Worker</string>
     <string name="status_pending">Pending</string>
     <string name="status_accepted">Accepted</string>
     <string name="status_rejected">Rejected</string>
@@ -93,7 +243,11 @@
     <string name="status_open">Open</string>
     <string name="status_staffed">Fully staffed</string>
     <string name="status_in_progress">In progress</string>
-    <string name="status_withdrawn">Retirada</string>
+    <string name="status_withdrawn">Withdrawn</string>
+    <string name="status_registered">Registered</string>
+    <string name="status_in_review">In review</string>
+    <string name="status_resolved">Resolved</string>
+    <string name="claim_status_rejected">Rejected</string>
     <string name="availability_available">Available</string>
     <string name="availability_unavailable">Unavailable</string>
 
@@ -108,16 +262,16 @@
     <string name="label_address">Address: %1$s</string>
     <string name="label_notes">Notes: %1$s</string>
     <string name="label_duration_hours">Duration: %1$s hours</string>
-    <string name="label_hourly_rate">%1$s por hora</string>
+
     <string name="label_hourly_rate_named">Hourly rate: %1$s</string>
     <string name="label_reference_amount">Reference amount: %1$s</string>
-    <string name="label_schedule">Horario: %1$s</string>
+
     <string name="label_date">Date: %1$s</string>
     <string name="label_rating">Rating: %1$s</string>
     <string name="label_phone">Phone: %1$s</string>
     <string name="label_age">Age: %1$d</string>
-    <string name="label_experience">Experience: %1$d years</string>
-    <string name="label_bio">Bio: %1$s</string>
+    <plurals name="label_experience"><item quantity="one">Experience: %1$d year</item><item quantity="other">Experience: %1$d years</item></plurals>
+
     <string name="label_bio_title">Bio</string>
     <string name="label_services_completed">Services completed: %1$d</string>
 
@@ -126,107 +280,107 @@
     <string name="title_booking_requests">Requests</string>
     <string name="title_booking_detail">Request details</string>
     <string name="title_new_booking">New booking</string>
-    <string name="empty_bookings">You do not have reservas\nCuando reserves un servicio, aparecerá aquí.</string>
-    <string name="bookings_subtitle">Consulta y gestiona los servicios que has reservado.</string>
-    <string name="empty_booking_requests">Not yet has recibido solicitudes.</string>
-    <string name="booking_reviewed">Service calificado</string>
+    <string name="empty_bookings">You do not have any bookings\nWhen you book a service, it will appear here.</string>
+    <string name="bookings_subtitle">View and manage the services you have booked.</string>
+    <string name="empty_booking_requests">You have not received any requests yet.</string>
+    <string name="booking_reviewed">Service reviewed</string>
     <string name="booking_rate_service">Rate service</string>
-    <string name="booking_cancel">Cancel reserva</string>
-    <string name="booking_cancel_question">¿Deseas cancelar esta reserva?</string>
+    <string name="booking_cancel">Cancel booking</string>
+    <string name="booking_cancel_question">Do you want to cancel this booking?</string>
     <string name="booking_mark_completed">Mark as completed</string>
-    <string name="booking_created">Reserva creada successfully</string>
-    <string name="booking_view_mine">Ver My bookings</string>
-    <string name="booking_worker">Worker: %1$s</string>
-    <string name="booking_choose_service">Selecciona un servicio ofrecido por este trabajador:</string>
-    <string name="booking_no_worker_services">Este trabajador no tiene servicios registrados.</string>
-    <string name="booking_confirm">Confirm reserva</string>
+    <string name="booking_created">Booking created successfully</string>
+    <string name="booking_view_mine">View my bookings</string>
+
+    
+    <string name="booking_no_worker_services">This worker has no registered services.</string>
+    <string name="booking_confirm">Confirm booking</string>
 
     <!-- Events and applications -->
-    <string name="title_my_events">Mis eventos</string>
+    <string name="title_my_events">My events</string>
     <string name="title_available_events">Available events</string>
-    <string name="title_create_event">Crear evento</string>
+    <string name="title_create_event">Create event</string>
     <string name="title_event_detail">Event details</string>
-    <string name="title_applications">Postulaciones</string>
+    <string name="title_applications">Applications</string>
     <string name="title_my_applications">My applications</string>
-    <string name="empty_my_events">Not yet has creado eventos.</string>
+    <string name="empty_my_events">You have not created any events yet.</string>
     <string name="empty_available_events">No events available at the moment.</string>
-    <string name="empty_applications">Este evento todavía no tiene postulaciones.</string>
-    <string name="empty_my_applications">Not yet tienes postulaciones.</string>
-    <string name="event_created">Evento creado successfully</string>
+    <string name="empty_applications">This event has no applications yet.</string>
+    <string name="empty_my_applications">You have no applications yet.</string>
+    <string name="event_created">Event created successfully</string>
     <string name="event_publish">Publish event</string>
     <string name="event_apply">Apply</string>
-    <string name="event_no_applications_allowed">Este evento no admite nuevas postulaciones.</string>
+    <string name="event_no_applications_allowed">This event is not accepting new applications.</string>
     <string name="event_view_applications">View applications</string>
-    <string name="event_cancel">Cancel evento</string>
+    <string name="event_cancel">Cancel event</string>
     <string name="event_application_status">Your application status: %1$s</string>
     <string name="event_withdraw_application">Withdraw application</string>
     <string name="event_published_by">Posted by: %1$s</string>
-    <string name="event_workers">Personal: %1$d/%2$d</string>
+    <string name="event_workers">Workers: %1$d/%2$d</string>
     <string name="event_workers_accepted">Accepted workers: %1$d/%2$d</string>
     <string name="event_deadline">Applications until: %1$s</string>
-    <string name="event_message">Mensaje: %1$s</string>
+    <string name="event_message">Message: %1$s</string>
 
     <!-- Messaging -->
     <string name="title_conversations">Conversations</string>
     <string name="conversations_subtitle">Stay in touch with clients and workers.</string>
-    <string name="action_refresh_conversation">Refresh conversación</string>
-    <string name="empty_conversations">No tienes conversaciones todavía\nCuando contactes a alguien, aparecerán aquí.</string>
-    <string name="empty_messages">Not yet hay mensajes en esta conversación. Envía el primero cuando quieras.</string>
-    <string name="label_message">Mensaje</string>
+    <string name="action_refresh_conversation">Refresh conversation</string>
+    <string name="empty_conversations">You have no conversations yet\nWhen you contact someone, they will appear here.</string>
+    <string name="empty_messages">There are no messages in this conversation yet. Send the first one when you are ready.</string>
+
     <string name="message_placeholder">Type a message…</string>
     <string name="message_character_count">%1$d/%2$d</string>
     <string name="action_send">Send</string>
-    <plurals name="unread_messages"><item quantity="one">%d sin leer</item><item quantity="other">%d sin leer</item></plurals>
+    <plurals name="unread_messages"><item quantity="one">%d unread</item><item quantity="other">%d unread</item></plurals>
 
     <!-- Reviews -->
     <string name="title_rate_service">Rate service</string>
     <string name="title_my_reviews">My reviews</string>
-    <string name="review_sent">Reseña enviada successfully</string>
-    <string name="review_choose_rating">Selecciona una calificación de 1 a 5:</string>
-    <string name="review_comment_optional">Comentario (optional)</string>
-    <string name="review_send">Send reseña</string>
-    <string name="empty_reviews">Not yet hay reseñas para mostrar.</string>
+    <string name="review_sent">Review submitted successfully</string>
+    <string name="review_choose_rating">Select a rating from 1 to 5:</string>
+    <string name="review_comment_optional">Comment (optional)</string>
+    <string name="review_send">Submit review</string>
+    <string name="empty_reviews">There are no reviews to display yet.</string>
 
     <!-- Search, profiles, availability and statistics -->
-    <string name="title_search_workers">Search trabajadores</string>
-    <string name="search_marketplace_title">Search personal</string>
-    <string name="search_marketplace_subtitle">Encuentra a la persona ideal para tu hogar</string>
-    <string name="search_filters">Filtros de búsqueda</string>
-    <string name="search_results">Resultados</string>
-    <string name="search_view_profile">Ver perfil</string>
+
+    <string name="search_marketplace_title">Search for help</string>
+    <string name="search_marketplace_subtitle">Find the right person for your home</string>
+    <string name="search_filters">Search filters</string>
+    <string name="search_results">Results</string>
+    <string name="search_view_profile">View profile</string>
     <string name="search_more_items"> · +%1$d</string>
-    <plurals name="services_completed_short"><item quantity="one">%1$d servicio</item><item quantity="other">%1$d servicios</item></plurals>
-    <plurals name="services_completed"><item quantity="one">%1$d servicio realizado</item><item quantity="other">%1$d servicios realizados</item></plurals>
+    <plurals name="services_completed_short"><item quantity="one">%1$d service</item><item quantity="other">%1$d services</item></plurals>
+    <plurals name="services_completed"><item quantity="one">%1$d service completed</item><item quantity="other">%1$d services completed</item></plurals>
     <string name="worker_profile_title">Profile</string>
-    <string name="worker_about">Sobre mí</string>
-    <string name="worker_work_zones">Zones de trabajo</string>
-    <string name="worker_information">Information profesional</string>
+    <string name="worker_about">About me</string>
+    <string name="worker_work_zones">Work zones</string>
+
     <string name="worker_availability">Availability</string>
     <string name="worker_reviews">Reviews</string>
-    <string name="worker_book_service">Reservar servicio</string>
-    <string name="worker_rate_value">%1$s por hora</string>
-    <string name="worker_experience_value">%1$d años de experiencia</string>
-    <string name="worker_age_value">%1$d años</string>
+    <string name="worker_book_service">Book service</string>
+    <string name="worker_rate_value">%1$s per hour</string>
+    <plurals name="worker_experience_value"><item quantity="one">%1$d year of experience</item><item quantity="other">%1$d years of experience</item></plurals>
+    <plurals name="worker_age_value"><item quantity="one">%1$d year old</item><item quantity="other">%1$d years old</item></plurals>
     <string name="availability_time_range">%1$s – %2$s</string>
     <string name="booking_worker_section">Worker</string>
     <string name="booking_service_section">Service</string>
-    <string name="booking_schedule_section">Date y horario</string>
+    <string name="booking_schedule_section">Date and time</string>
     <string name="booking_address_section">Address</string>
-    <string name="booking_summary">Resumen de reserva</string>
+    <string name="booking_summary">Booking summary</string>
     <string name="booking_summary_service">Service</string>
-    <string name="booking_summary_schedule">Date y horario</string>
-    <string name="booking_summary_rate">Tarifa disponible</string>
-    <string name="empty_search_results">No encontramos trabajadores con esos filtros.</string>
-    <string name="field_service_type">Tipo de servicio</string>
-    <string name="all_services">Todos los servicios</string>
+    <string name="booking_summary_schedule">Date and time</string>
+    <string name="booking_summary_rate">Available rate</string>
+    <string name="empty_search_results">We could not find workers matching those filters.</string>
+    <string name="field_service_type">Service type</string>
+    <string name="all_services">All services</string>
     <string name="field_zone">Zone</string>
-    <string name="title_worker_detail">Detalle del trabajador</string>
-    <string name="action_contact">Contactar</string>
-    <string name="action_book">Reservar</string>
-    <string name="title_availability">Availability</string>
+
+    <string name="action_contact">Contact</string>
+
+    
     <string name="title_my_availability">My availability</string>
-    <string name="empty_worker_availability">Este trabajador todavía no registró disponibilidad.</string>
-    <string name="empty_my_availability">Not yet tienes horarios de disponibilidad. Agrega uno para comenzar.</string>
+    <string name="empty_worker_availability">This worker has not added availability yet.</string>
+    <string name="empty_my_availability">You have no availability schedules yet. Add one to get started.</string>
     <string name="availability_help">Enter the day (0 Sunday to 6 Saturday) and use HH:mm format for times.</string>
     <string name="field_day_of_week">Day of week (0–6)</string>
     <string name="field_start_time">Start time (HH:mm)</string>
@@ -238,8 +392,8 @@
     <string name="title_my_profile">My profile</string>
     <string name="title_edit_profile">Edit profile</string>
     <string name="action_edit_profile">Edit profile</string>
-    <string name="stats_completed_services">Services completados: %1$d</string>
-    <string name="stats_average_rating">Rating promedio: %1$s</string>
+
+    
     <string name="stats_completed_services_title">Services completed</string>
     <string name="stats_average_rating_title">Average rating</string>
     <string name="stats_services_by_month">Services per month</string>
@@ -256,34 +410,135 @@
     <string name="field_notes_optional">Notes (optional)</string>
     <string name="field_title">Title</string>
     <string name="field_description_optional">Description (optional)</string>
-    <string name="field_services_csv">Tipos de servicio separados por coma</string>
+
     <string name="field_workers_count">Number of workers</string>
-    <string name="field_hourly_rate_offered">Hourly rate ofrecida</string>
+    <string name="field_hourly_rate_offered">Hourly rate offered</string>
     <string name="field_deadline_iso">Application deadline (ISO-8601 UTC)</string>
-    <string name="field_application_message_optional">Mensaje de postulación (optional)</string>
+    <string name="field_application_message_optional">Application message (optional)</string>
     <string name="field_gender">Gender</string>
-    <string name="home_welcome">Bienvenido</string>
-    <string name="home_role">Rol: %1$s</string>
-    <string name="home_messages">Messages</string>
+
+    
+
     <string name="home_logout">Sign out</string>
     <string name="home_brand">InCleanHome</string>
-    <string name="home_hello">Hola</string>
+    <string name="home_hello">Hello</string>
     <string name="home_hello_named">Hello, %1$s</string>
-    <string name="home_client_prompt">¿Qué necesitas hoy?</string>
+    <string name="home_client_prompt">What do you need today?</string>
     <string name="home_worker_prompt">Manage your services</string>
     <string name="home_quick_actions">Quick actions</string>
     <string name="home_more_options">More options</string>
-    <string name="home_search_staff">Search personal</string>
+    <string name="home_search_staff">Search for help</string>
     <string name="home_view_requests">View requests</string>
     <string name="home_reviews">My reviews</string>
     <string name="home_applications">My applications</string>
     <string name="nav_home">Home</string>
     <string name="nav_search">Search</string>
-    <string name="nav_bookings">Reservas</string>
+    <string name="nav_bookings">Bookings</string>
     <string name="nav_messages">Messages</string>
     <string name="nav_profile">Profile</string>
     <string name="nav_requests">Requests</string>
     <string name="nav_events">Events</string>
+
+    <!-- To-Be (TB2): estimated amount, US41 -->
+    <string name="booking_estimate_title">Estimated total</string>
+    <string name="booking_estimate_duration">Duration</string>
+    <string name="booking_estimate_hours">%1$s h</string>
+    <string name="booking_estimate_note">Hourly rate × duration. It is a reference amount; payment is coordinated outside the platform.</string>
+    <string name="booking_estimate_invalid">Enter a valid schedule to see the estimated total.</string>
+    <string name="booking_amount_matches">The registered amount matches the estimate shown before confirming.</string>
+    <string name="booking_amount_differs">The registered amount differs from the estimate shown. Check the booking details.</string>
+
+    <!-- To-Be (TB2): suggestions, US33 -->
+    <string name="suggestions_title">Suggested workers</string>
+    <string name="suggestions_subtitle">We suggest up to five workers who offer the selected service in your district and are available at that time.</string>
+    <string name="suggestions_action">Suggest workers</string>
+    <string name="suggestions_results">Suggestions</string>
+    <string name="suggestions_empty">There are no suggestions for that schedule. You can keep searching with the filters.</string>
+    <string name="suggestions_badge">Suggested · available at the requested time</string>
+    <string name="ui_suggestion_service_required">Select a service type to get suggestions.</string>
+    <string name="ui_suggestion_district_required">Enter the service district to get suggestions.</string>
+
+    <!-- To-Be (TB2): verified reviews, US34 -->
+    <string name="verified_reviews_empty">This worker has no verified reviews yet.</string>
+    <string name="reviews_sort_newest">Most recent</string>
+    <string name="reviews_sort_oldest">Oldest</string>
+    <string name="verified_reviews_average">Average rating</string>
+    <plurals name="verified_reviews_count"><item quantity="one">%1$d verified review</item><item quantity="other">%1$d verified reviews</item></plurals>
+    <string name="reviews_stars_label">%1$d ★</string>
+    <string name="verified_review_badge">Verified review · completed service</string>
+    <string name="verified_review_service">%1$s · %2$s</string>
+    <string name="verified_review_published">Published: %1$s</string>
+
+    <!-- To-Be (TB2): rating reminder, US35 -->
+    <string name="reminder_title">How was your service?</string>
+    <string name="reminder_body">Rate %1$s for %2$s on %3$s while you remember the experience.</string>
+    <string name="reminder_action">Rate now</string>
+    <string name="reminder_dismiss">Not now</string>
+
+    <!-- To-Be (TB2): frequent problems, US38 -->
+    <string name="support_title">Help and frequent questions</string>
+    <string name="support_intro">Check whether your problem has a quick solution before registering a claim.</string>
+    <string name="support_question_solved">Did this solve your problem?</string>
+    <string name="support_yes_solved">Yes, it is solved</string>
+    <string name="support_not_solved">No, register a claim</string>
+    <string name="support_resolved_thanks">Done, we registered that your problem was solved.</string>
+    <string name="support_direct_claim">Go directly to the complaints book</string>
+    <string name="support_entry_title">Before registering a claim</string>
+    <string name="support_entry_body">Many frequent problems have an immediate answer.</string>
+    <string name="support_entry_action">See frequent questions</string>
+    <string name="faq_category_bookings">Bookings</string>
+    <string name="faq_category_account">Account and access</string>
+    <string name="faq_category_workers">Workers</string>
+    <string name="faq_category_memberships">Memberships</string>
+    <string name="faq_bookings_amount_q">How is the booking amount calculated?</string>
+    <string name="faq_bookings_amount_a">The reference amount is the hourly rate of the worker multiplied by the booked duration. Payment is coordinated outside the platform.</string>
+    <string name="faq_bookings_cancel_q">How do I cancel a booking?</string>
+    <string name="faq_bookings_cancel_a">In My bookings, use Cancel on a pending or accepted booking.</string>
+    <string name="faq_bookings_review_q">When can I rate a service?</string>
+    <string name="faq_bookings_review_a">When the booking is completed, from My bookings. Each booking can be rated once.</string>
+    <string name="faq_account_code_q">My verification code is rejected</string>
+    <string name="faq_account_code_a">The six-digit code is generated by your authenticator app. Check that the date and time of your phone are set automatically and use the newest code.</string>
+    <string name="faq_account_attempts_q">I see a message about too many attempts</string>
+    <string name="faq_account_attempts_a">For security, the platform limits sign-in attempts and verification codes per minute. Wait one minute and try again.</string>
+    <string name="faq_workers_contact_q">How do I contact a worker?</string>
+    <string name="faq_workers_contact_a">Open the worker profile and choose Contact to start a conversation in Messages.</string>
+    <string name="faq_workers_verified_q">What is a verified review?</string>
+    <string name="faq_workers_verified_a">A review that comes from a booking completed on the platform.</string>
+    <string name="faq_memberships_pending_q">My worker application is still pending</string>
+    <string name="faq_memberships_pending_a">The InCleanHome team reviews each worker application. The status screen shown when you sign in tells you the result and the next steps.</string>
+
+    <!-- To-Be (TB2): access protection, US39 -->
+    <string name="ui_error_rate_limited">Too many attempts. Wait one minute before trying again.</string>
+
+    <!-- To-Be (TB2): service area, US32 -->
+    <string name="service_area_title">Service area</string>
+    <string name="service_area_intro">Register your approximate base location (district) and the radius in which you work to receive nearby requests.</string>
+    <string name="service_area_district">Base district</string>
+    <string name="service_area_no_zones">Add work zones to your profile first.</string>
+    <string name="service_area_radius">Radius in km (%1$d–%2$d)</string>
+    <string name="service_area_range">Allowed range: %1$d to %2$d km.</string>
+    <string name="service_area_privacy">Clients only see your district and an approximate distance, never an exact location.</string>
+    <string name="service_area_unavailable">The server does not offer this service yet. Your data was not saved.</string>
+    <string name="service_area_saved">Service area saved.</string>
+    <string name="ui_service_area_radius_invalid">The service radius must be within the allowed range.</string>
+    <string name="ui_service_area_district_required">Select the district of your base location.</string>
+
+    <!-- To-Be (TB2): testing environment diagnostics -->
+    <string name="diagnostics_title">Testing diagnostics</string>
+    <string name="diagnostics_environment">Environment: %1$s</string>
+    <string name="diagnostics_version">Version %1$s (%2$d)</string>
+    <string name="diagnostics_api">API: %1$s</string>
+    <string name="diagnostics_endpoints">Remote configuration: %1$s · Event upload: %2$s</string>
+    <string name="diagnostics_assignment">Config: %1$s %2$d%% · variant: %3$s · active: %4$s</string>
+    <string name="diagnostics_override_base">Base</string>
+    <string name="diagnostics_override_off">Off</string>
+    <string name="diagnostics_override_treatment">Treatment</string>
+    <string name="diagnostics_override_control">Control</string>
+    <string name="diagnostics_override_half">50/50</string>
+    <string name="diagnostics_events">Recorded events: %1$d</string>
+    <string name="diagnostics_export">Export events (JSON)</string>
+    <string name="diagnostics_send">Send events to the API</string>
+    <string name="diagnostics_sent">Events sent: %1$d</string>
 </resources>
 
 

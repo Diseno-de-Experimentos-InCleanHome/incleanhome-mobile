@@ -15,5 +15,8 @@ data class Review(
     val clientName: String,
     val rating: Int,
     val comment: String,
-    val createdAt: String?
+    val createdAt: String?,
+    /** Service type and date of the reviewed booking (US34). Not yet sent by the API; optional. */
+    val serviceType: String? = null,
+    val serviceDate: String? = null
 )

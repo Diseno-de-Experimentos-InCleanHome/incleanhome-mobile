@@ -11,6 +11,13 @@ import com.incleanhome.mobile.reviews.data.CreateReviewRequest
 import com.incleanhome.mobile.reviews.data.Review
 import com.incleanhome.mobile.reviews.data.ReviewResult
 import com.incleanhome.mobile.reviews.data.ReviewsRepository
+import com.incleanhome.mobile.experiments.Experiment
+import com.incleanhome.mobile.experiments.ExperimentService
+import com.incleanhome.mobile.experiments.Experimentation
+import com.incleanhome.mobile.experiments.tracking.EventTracker
+import com.incleanhome.mobile.experiments.tracking.TrackingPlan
+import com.incleanhome.mobile.reviews.domain.ReviewHistory
+import com.incleanhome.mobile.reviews.domain.ReviewSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,8 +36,11 @@ data class CreateReviewUiState(
 
 class CreateReviewViewModel(
     private val bookingId: Int,
+    private val source: String = ReviewSource.DIRECT,
     private val bookingRepository: BookingRepository = BookingRepository(),
-    private val reviewsRepository: ReviewsRepository = ReviewsRepository()
+    private val reviewsRepository: ReviewsRepository = ReviewsRepository(),
+    private val experiments: ExperimentService? = Experimentation.experimentsOrNull(),
+    private val tracker: EventTracker? = Experimentation.trackerOrNull()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateReviewUiState())
     val uiState: StateFlow<CreateReviewUiState> = _uiState.asStateFlow()
@@ -92,8 +102,21 @@ class CreateReviewViewModel(
                 comment = state.comment.trim().takeIf(String::isNotEmpty)
             )
             when (val result = reviewsRepository.createReview(request)) {
-                is ReviewResult.Success -> _uiState.update {
-                    it.copy(isSubmitting = false, createdReview = result.data)
+                is ReviewResult.Success -> {
+                    _uiState.update { it.copy(isSubmitting = false, createdReview = result.data) }
+                    // Measurement of US35/EC-BLQ03: the origin tells direct ratings from reminders.
+                    tracker?.track(
+                        TrackingPlan.REVIEW_SUBMITTED,
+                        mapOf(
+                            "bookingId" to booking.id,
+                            "rating" to result.data.rating,
+                            "source" to source,
+                            "isVerified" to ReviewHistory.isVerified(result.data),
+                            "capturedBy" to "client"
+                        ),
+                        operationKey = "review:${booking.id}",
+                        assignment = experiments?.assignment(Experiment.REVIEW_REMINDER)
+                    )
                 }
                 is ReviewResult.Error -> _uiState.update {
                     it.copy(isSubmitting = false, errorMessage = result.message)
@@ -107,11 +130,11 @@ class CreateReviewViewModel(
         const val MAX_RATING = 5
         const val MAX_COMMENT_LENGTH = 1000
 
-        fun Factory(bookingId: Int): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        fun Factory(bookingId: Int, source: String = ReviewSource.DIRECT): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(CreateReviewViewModel::class.java)) {
-                    return CreateReviewViewModel(bookingId) as T
+                    return CreateReviewViewModel(bookingId, source) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }

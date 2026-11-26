@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Event
@@ -38,7 +38,21 @@ import com.incleanhome.mobile.booking.presentation.CreateBookingViewModel
 import com.incleanhome.mobile.booking.presentation.MyBookingsScreen
 import com.incleanhome.mobile.booking.presentation.WorkerBookingDetailScreen
 import com.incleanhome.mobile.booking.presentation.WorkerRequestsScreen
+import com.incleanhome.mobile.BuildConfig
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.experiments.Experiment
+import com.incleanhome.mobile.experiments.Experimentation
+import com.incleanhome.mobile.experiments.presentation.DiagnosticsScreen
+import com.incleanhome.mobile.reviews.domain.ReviewSource
+import com.incleanhome.mobile.support.SupportScreen
+import com.incleanhome.mobile.support.SupportViewModel
+import com.incleanhome.mobile.worker.presentation.ServiceAreaScreen
+import com.incleanhome.mobile.worker.presentation.ServiceAreaViewModel
+import com.incleanhome.mobile.claims.presentation.ClaimTrackScreen
+import com.incleanhome.mobile.claims.presentation.ClaimTrackViewModel
+import com.incleanhome.mobile.claims.presentation.ClaimsBookScreen
+import com.incleanhome.mobile.claims.presentation.CreateClaimScreen
+import com.incleanhome.mobile.claims.presentation.CreateClaimViewModel
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
@@ -48,11 +62,14 @@ import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
 import com.incleanhome.mobile.iam.presentation.AccountTypeScreen
+import com.incleanhome.mobile.iam.presentation.AdministrativeAccessScreen
 import com.incleanhome.mobile.iam.presentation.ClientRegistrationScreen
+import com.incleanhome.mobile.iam.presentation.MembershipStatusScreen
 import com.incleanhome.mobile.iam.presentation.WorkerRegistrationScreen
 import com.incleanhome.mobile.iam.presentation.TermsAcceptanceScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorVerifyScreen
+import com.incleanhome.mobile.legal.presentation.LegalDocumentScreen
 import com.incleanhome.mobile.messaging.presentation.ChatScreen
 import com.incleanhome.mobile.messaging.presentation.ChatViewModel
 import com.incleanhome.mobile.messaging.presentation.ConversationsScreen
@@ -74,30 +91,43 @@ import com.incleanhome.mobile.ui.components.BottomNavigationItem
 import com.incleanhome.mobile.ui.components.InCleanHomeNavigationBar
 import kotlinx.coroutines.launch
 
+internal const val TERMS_DOCUMENT_ROUTE = "terms_document"
+internal const val PRIVACY_DOCUMENT_ROUTE = "privacy_document"
+
 private object Routes {
     const val LOGIN = "login"
     const val TWO_FACTOR_SETUP = "two_factor_setup"
     const val TWO_FACTOR_VERIFY = "two_factor_verify"
     const val TERMS = "terms"
+    const val TERMS_DOCUMENT = TERMS_DOCUMENT_ROUTE
+    const val PRIVACY_DOCUMENT = PRIVACY_DOCUMENT_ROUTE
+    const val MEMBERSHIP_STATUS = "membership_status"
+    const val ADMIN_ACCESS = "admin_access"
+    const val CLAIMS_BOOK = "claims_book"
+    const val CLAIM_CREATE = "claim_create?related={related}"
+    const val SUPPORT = "support"
+    const val SERVICE_AREA = "service_area"
+    const val DIAGNOSTICS = "diagnostics"
+    const val CLAIM_TRACK = "claim_track?code={code}"
     const val ACCOUNT_TYPE = "account_type"
     const val REGISTER_CLIENT = "register_client"
     const val REGISTER_WORKER = "register_worker"
     const val CLIENT_HOME = "client_home"
     const val WORKER_HOME = "worker_home"
     const val WORKER_SEARCH = "worker_search"
-    const val WORKER_DETAIL = "worker_detail/{workerId}"
+    const val WORKER_DETAIL = "worker_detail/{workerId}?source={source}&searchId={searchId}"
     const val WORKER_PROFILE = "worker_profile"
     const val CLIENT_PROFILE = "client_profile"
     const val WORKER_PROFILE_EDIT = "worker_profile_edit"
     const val WORKER_STATS = "worker_stats"
     const val WORKER_AVAILABILITY = "worker_availability"
-    const val CREATE_BOOKING = "create_booking/{workerId}"
+    const val CREATE_BOOKING = "create_booking/{workerId}?origin={origin}&searchId={searchId}"
     const val CLIENT_BOOKINGS = "client_bookings"
     const val WORKER_REQUESTS = "worker_requests"
     const val WORKER_BOOKING_DETAIL = "worker_booking_detail/{bookingId}"
     const val CONVERSATIONS = "conversations"
     const val CHAT = "chat/{userId}?userName={userName}"
-    const val CREATE_REVIEW = "create_review/{bookingId}"
+    const val CREATE_REVIEW = "create_review/{bookingId}?source={source}"
     const val WORKER_REVIEWS = "worker_reviews"
     const val CLIENT_EVENTS = "client_events"
     const val CREATE_EVENT = "create_event"
@@ -107,15 +137,20 @@ private object Routes {
     const val WORKER_EVENT_DETAIL = "worker_event_detail/{eventId}"
     const val WORKER_APPLICATIONS = "worker_applications"
 
-    fun workerDetail(workerId: Int): String = "worker_detail/$workerId"
-    fun createBooking(workerId: Int): String = "create_booking/$workerId"
+    fun workerDetail(workerId: Int, source: String = "direct", searchId: String? = null): String =
+        "worker_detail/$workerId?source=${Uri.encode(source)}&searchId=${Uri.encode(searchId.orEmpty())}"
+    fun createBooking(workerId: Int, origin: String = "direct", searchId: String? = null): String =
+        "create_booking/$workerId?origin=${Uri.encode(origin)}&searchId=${Uri.encode(searchId.orEmpty())}"
+    fun claimCreate(related: String = "") = "claim_create?related=${Uri.encode(related)}"
     fun workerBookingDetail(bookingId: Int): String = "worker_booking_detail/$bookingId"
     fun chat(userId: Int, userName: String): String =
         "chat/$userId?userName=${Uri.encode(userName)}"
-    fun createReview(bookingId: Int): String = "create_review/$bookingId"
+    fun createReview(bookingId: Int, source: String = ReviewSource.DIRECT): String =
+        "create_review/$bookingId?source=${Uri.encode(source)}"
     fun clientEventDetail(id:Int) = "client_event_detail/$id"
     fun eventApplications(id:Int) = "event_applications/$id"
     fun workerEventDetail(id:Int) = "worker_event_detail/$id"
+    fun claimTrack(code: String = "") = "claim_track?code=${Uri.encode(code)}"
 }
 
 @Composable
@@ -149,27 +184,28 @@ fun AppNavigation(
         destinationForSession(sessionState)
     }
     val authenticatedSession = (sessionState as? SessionState.Authenticated)?.session
-    val homeRoute = if (authenticatedSession?.role.equals(SessionManager.WORKER_ROLE, true)) {
-        Routes.WORKER_HOME
-    } else {
-        Routes.CLIENT_HOME
+    val homeRoute = when (mobileAccessForRole(authenticatedSession?.role)) {
+        MobileAccess.WORKER -> Routes.WORKER_HOME
+        MobileAccess.CLIENT -> Routes.CLIENT_HOME
+        MobileAccess.ADMIN -> Routes.ADMIN_ACCESS
+        MobileAccess.NONE -> Routes.LOGIN
     }
-    val mainDestinations = if (homeRoute == Routes.WORKER_HOME) {
-        listOf(
+    val mainDestinations = when (homeRoute) {
+        Routes.WORKER_HOME -> listOf(
             BottomNavigationItem(Routes.WORKER_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
-            BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.Default.Assignment),
+            BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.AutoMirrored.Filled.Assignment),
             BottomNavigationItem(Routes.WORKER_EVENTS, stringResource(R.string.nav_events), Icons.Default.Event),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.WORKER_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
         )
-    } else {
-        listOf(
+        Routes.CLIENT_HOME -> listOf(
             BottomNavigationItem(Routes.CLIENT_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
             BottomNavigationItem(Routes.WORKER_SEARCH, stringResource(R.string.nav_search), Icons.Default.Search),
             BottomNavigationItem(Routes.CLIENT_BOOKINGS, stringResource(R.string.nav_bookings), Icons.Default.DateRange),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.CLIENT_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
         )
+        else -> emptyList()
     }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -189,6 +225,12 @@ fun AppNavigation(
             }
 
             null -> Unit
+        }
+    }
+
+    LaunchedEffect(loginUiState.membershipStatus) {
+        if (loginUiState.membershipStatus != null) {
+            navController.navigateAndClearBackStack(Routes.MEMBERSHIP_STATUS)
         }
     }
 
@@ -226,11 +268,85 @@ fun AppNavigation(
         composable(Routes.LOGIN) {
             LoginScreen(
                 loginViewModel = loginViewModel,
-                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) }
+                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) }
             )
         }
+        composable(Routes.CLAIMS_BOOK) {
+            val faqEnabled = remember {
+                Experimentation.experimentsOrNull()?.assignment(Experiment.SUPPORT_FAQ)?.featureActive == true
+            }
+            ClaimsBookScreen(
+                onCreate = { navController.navigate(Routes.claimCreate()) },
+                onTrack = { navController.navigate(Routes.claimTrack()) },
+                onBack = navController::popBackStack,
+                onFaq = if (faqEnabled) ({ navController.navigate(Routes.SUPPORT) }) else null
+            )
+        }
+        composable(Routes.SUPPORT) {
+            val supportViewModel: SupportViewModel = viewModel(factory = SupportViewModel.Factory)
+            SupportScreen(
+                viewModel = supportViewModel,
+                onRegisterClaim = { category -> navController.navigate(Routes.claimCreate(category)) },
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.DIAGNOSTICS) {
+            DiagnosticsScreen(onBack = navController::popBackStack)
+        }
+        composable(Routes.SERVICE_AREA) {
+            val serviceAreaViewModel: ServiceAreaViewModel = viewModel(factory = ServiceAreaViewModel.Factory)
+            ServiceAreaScreen(serviceAreaViewModel, navController::popBackStack)
+        }
+        composable(
+            route = Routes.CLAIM_CREATE,
+            arguments = listOf(navArgument("related") {
+                type = NavType.StringType
+                defaultValue = ""
+            })
+        ) { backStackEntry ->
+            val related = backStackEntry.arguments?.getString("related").orEmpty()
+            val claimsViewModel: CreateClaimViewModel = viewModel(factory = CreateClaimViewModel.Factory(related))
+            CreateClaimScreen(
+                viewModel = claimsViewModel,
+                onTrackCode = { navController.navigate(Routes.claimTrack(it)) },
+                onBack = navController::popBackStack
+            )
+        }
+        composable(
+            route = Routes.CLAIM_TRACK,
+            arguments = listOf(navArgument("code") {
+                type = NavType.StringType
+                defaultValue = ""
+            })
+        ) { backStackEntry ->
+            val code = backStackEntry.arguments?.getString("code").orEmpty()
+            val claimTrackViewModel: ClaimTrackViewModel = viewModel(
+                factory = ClaimTrackViewModel.Factory(code)
+            )
+            ClaimTrackScreen(claimTrackViewModel, navController::popBackStack)
+        }
         composable(Routes.TERMS) {
-            TermsAcceptanceScreen(loginViewModel, onBack = { navController.popBackStack() })
+            TermsAcceptanceScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
+        }
+        composable(Routes.TERMS_DOCUMENT) {
+            LegalDocumentScreen(
+                title = stringResource(R.string.auth_terms_title),
+                documentResource = R.raw.terms_v3,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.PRIVACY_DOCUMENT) {
+            LegalDocumentScreen(
+                title = stringResource(R.string.legal_privacy_title),
+                documentResource = R.raw.privacy_v3,
+                onBack = navController::popBackStack
+            )
         }
         composable(Routes.ACCOUNT_TYPE) {
             AccountTypeScreen(
@@ -240,16 +356,40 @@ fun AppNavigation(
             )
         }
         composable(Routes.REGISTER_CLIENT) {
-            ClientRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+            ClientRegistrationScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
         }
         composable(Routes.REGISTER_WORKER) {
-            WorkerRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+            WorkerRegistrationScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
         }
         composable(Routes.TWO_FACTOR_SETUP) {
             TwoFactorSetupScreen(loginViewModel = loginViewModel)
         }
         composable(Routes.TWO_FACTOR_VERIFY) {
             TwoFactorVerifyScreen(loginViewModel = loginViewModel)
+        }
+        composable(Routes.MEMBERSHIP_STATUS) {
+            MembershipStatusScreen(
+                status = loginUiState.membershipStatus.orEmpty(),
+                backendMessage = loginUiState.membershipMessage,
+                whatsappLink = loginUiState.membershipWhatsappLink,
+                onBackToLogin = {
+                    loginViewModel.clearAuthenticationState()
+                    navController.navigateAndClearBackStack(Routes.LOGIN)
+                }
+            )
+        }
+        composable(Routes.ADMIN_ACCESS) {
+            AdministrativeAccessScreen(onSignOut = logout)
         }
         composable(Routes.CLIENT_HOME) {
             ClientHomeScreen(
@@ -259,10 +399,15 @@ fun AppNavigation(
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onEvents = { navController.navigate(Routes.CLIENT_EVENTS) },
                 onProfile = { navController.navigate(Routes.CLIENT_PROFILE) },
-                onLogout = logout
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) },
+                onLogout = logout,
+                onDiagnostics = diagnosticsEntry(navController)
             )
         }
         composable(Routes.WORKER_HOME) {
+            val serviceAreaEnabled = remember {
+                Experimentation.experimentsOrNull()?.assignment(Experiment.SERVICE_AREA)?.featureActive == true
+            }
             WorkerHomeScreen(
                 userName = authenticatedSession?.name,
                 onProfile = { navController.navigate(Routes.WORKER_PROFILE) },
@@ -273,7 +418,10 @@ fun AppNavigation(
                 onEvents = { navController.navigate(Routes.WORKER_EVENTS) },
                 onEventApplications = { navController.navigate(Routes.WORKER_APPLICATIONS) },
                 onStats = { navController.navigate(Routes.WORKER_STATS) },
-                onLogout = logout
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) },
+                onLogout = logout,
+                onServiceArea = if (serviceAreaEnabled) ({ navController.navigate(Routes.SERVICE_AREA) }) else null,
+                onDiagnostics = diagnosticsEntry(navController)
             )
         }
         composable(Routes.WORKER_SEARCH) {
@@ -283,35 +431,45 @@ fun AppNavigation(
             WorkerSearchScreen(
                 viewModel = workerSearchViewModel,
                 onBack = navController::popBackStack,
-                onWorkerClick = { workerId ->
-                    navController.navigate(Routes.workerDetail(workerId))
+                onWorkerClick = { workerId, source, searchId ->
+                    navController.navigate(Routes.workerDetail(workerId, source, searchId))
                 }
             )
         }
         composable(
             route = Routes.WORKER_DETAIL,
             arguments = listOf(
-                navArgument("workerId") { type = NavType.IntType }
+                navArgument("workerId") { type = NavType.IntType },
+                navArgument("source") { type = NavType.StringType; defaultValue = "direct" },
+                navArgument("searchId") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
             val workerId = backStackEntry.arguments?.getInt("workerId") ?: return@composable
+            val source = backStackEntry.arguments?.getString("source") ?: "direct"
+            val searchId = backStackEntry.arguments?.getString("searchId")?.takeIf(String::isNotBlank)
             val workerDetailViewModel: WorkerDetailViewModel = viewModel(
-                factory = WorkerDetailViewModel.Factory(workerId)
+                factory = WorkerDetailViewModel.Factory(workerId, source, searchId)
             )
             WorkerDetailScreen(
                 viewModel = workerDetailViewModel,
                 onBack = navController::popBackStack,
-                onBook = { id -> navController.navigate(Routes.createBooking(id)) },
+                onBook = { id -> navController.navigate(Routes.createBooking(id, source, searchId)) },
                 onContact = { id, name -> navController.navigate(Routes.chat(id, name)) }
             )
         }
         composable(
             route = Routes.CREATE_BOOKING,
-            arguments = listOf(navArgument("workerId") { type = NavType.IntType })
+            arguments = listOf(
+                navArgument("workerId") { type = NavType.IntType },
+                navArgument("origin") { type = NavType.StringType; defaultValue = "direct" },
+                navArgument("searchId") { type = NavType.StringType; defaultValue = "" }
+            )
         ) { backStackEntry ->
             val workerId = backStackEntry.arguments?.getInt("workerId") ?: return@composable
+            val origin = backStackEntry.arguments?.getString("origin") ?: "direct"
+            val searchId = backStackEntry.arguments?.getString("searchId")?.takeIf(String::isNotBlank)
             val bookingViewModel: CreateBookingViewModel = viewModel(
-                factory = CreateBookingViewModel.Factory(workerId)
+                factory = CreateBookingViewModel.Factory(workerId, origin, searchId)
             )
             CreateBookingScreen(
                 viewModel = bookingViewModel,
@@ -342,16 +500,23 @@ fun AppNavigation(
                 onReviewClick = { bookingId ->
                     navController.navigate(Routes.createReview(bookingId))
                 },
-                onCancelClick = { bookingId -> bookingsViewModel.cancel(bookingId) }
+                onCancelClick = { bookingId -> bookingsViewModel.cancel(bookingId) },
+                onReminderReviewClick = { bookingId ->
+                    navController.navigate(Routes.createReview(bookingId, ReviewSource.REMINDER))
+                }
             )
         }
         composable(
             route = Routes.CREATE_REVIEW,
-            arguments = listOf(navArgument("bookingId") { type = NavType.IntType })
+            arguments = listOf(
+                navArgument("bookingId") { type = NavType.IntType },
+                navArgument("source") { type = NavType.StringType; defaultValue = ReviewSource.DIRECT }
+            )
         ) { backStackEntry ->
             val bookingId = backStackEntry.arguments?.getInt("bookingId") ?: return@composable
+            val source = backStackEntry.arguments?.getString("source") ?: ReviewSource.DIRECT
             val reviewViewModel: CreateReviewViewModel = viewModel(
-                factory = CreateReviewViewModel.Factory(bookingId)
+                factory = CreateReviewViewModel.Factory(bookingId, source)
             )
             CreateReviewScreen(
                 viewModel = reviewViewModel,
@@ -528,10 +693,20 @@ fun AppNavigation(
             WorkerProfileScreen(
                 viewModel = workerProfileViewModel,
                 onBack = navController::popBackStack,
-                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) }
+                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) },
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
             )
         }
-        composable(Routes.CLIENT_PROFILE) { val vm: ClientProfileViewModel = viewModel(factory=ClientProfileViewModel.Factory); ClientProfileScreen(vm, navController::popBackStack) }
+        composable(Routes.CLIENT_PROFILE) {
+            val vm: ClientProfileViewModel = viewModel(factory = ClientProfileViewModel.Factory)
+            ClientProfileScreen(
+                vm = vm,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
+        }
         composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, { navController.previousBackStackEntry?.savedStateHandle?.set("worker_profile_updated", true); navController.popBackStack() }) }
         composable(Routes.WORKER_STATS) { val vm: WorkerStatsViewModel = viewModel(factory=WorkerStatsViewModel.Factory); WorkerStatsScreen(vm, navController::popBackStack) }
         composable(Routes.WORKER_AVAILABILITY) {
@@ -553,21 +728,29 @@ fun AppNavigation(
 
 private fun destinationForSession(sessionState: SessionState): String {
     return when (sessionState) {
-        is SessionState.Authenticated -> when {
-            sessionState.session.role.equals(SessionManager.CLIENT_ROLE, ignoreCase = true) -> {
-                Routes.CLIENT_HOME
-            }
-
-            sessionState.session.role.equals(SessionManager.WORKER_ROLE, ignoreCase = true) -> {
-                Routes.WORKER_HOME
-            }
-
-            else -> Routes.LOGIN
+        is SessionState.Authenticated -> when (mobileAccessForRole(sessionState.session.role)) {
+            MobileAccess.CLIENT -> Routes.CLIENT_HOME
+            MobileAccess.WORKER -> Routes.WORKER_HOME
+            MobileAccess.ADMIN -> Routes.ADMIN_ACCESS
+            MobileAccess.NONE -> Routes.LOGIN
         }
 
         SessionState.Loading, SessionState.LoggedOut -> Routes.LOGIN
     }
 }
+
+internal enum class MobileAccess { CLIENT, WORKER, ADMIN, NONE }
+
+internal fun mobileAccessForRole(role: String?): MobileAccess = when {
+    role.equals(SessionManager.CLIENT_ROLE, ignoreCase = true) -> MobileAccess.CLIENT
+    role.equals(SessionManager.WORKER_ROLE, ignoreCase = true) -> MobileAccess.WORKER
+    role.equals(SessionManager.ADMIN_ROLE, ignoreCase = true) -> MobileAccess.ADMIN
+    else -> MobileAccess.NONE
+}
+
+/** The diagnostics screen exists only in the testing build (staging flavor). */
+private fun diagnosticsEntry(navController: NavHostController): (() -> Unit)? =
+    if (BuildConfig.DIAGNOSTICS_ENABLED) ({ navController.navigate(Routes.DIAGNOSTICS) }) else null
 
 private fun NavHostController.navigateAndClearBackStack(route: String) {
     navigate(route) {

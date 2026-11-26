@@ -36,6 +36,7 @@ import com.incleanhome.mobile.ui.format.formatDateRange
 import com.incleanhome.mobile.ui.format.formatDateTime
 import com.incleanhome.mobile.ui.format.presentationValue
 import com.incleanhome.mobile.ui.format.presentationValues
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -77,7 +78,7 @@ fun CreateEventScreen(viewModel:CreateEventViewModel,onBack:()->Unit,onDone:()->
         Field(s.end,viewModel::end,stringResource(R.string.field_end_time),s.submitting);Field(s.workers,viewModel::workers,stringResource(R.string.field_workers_count),s.submitting,keyboard=KeyboardType.Number)
         Field(s.rate,viewModel::rate,stringResource(R.string.field_hourly_rate_offered),s.submitting,keyboard=KeyboardType.Decimal)
         Field(s.deadline,viewModel::deadline,stringResource(R.string.field_deadline_iso),s.submitting)
-        s.error?.let{Text(it,color=MaterialTheme.colorScheme.error)}
+        s.error?.let{Text(localizedUiMessage(it),color=MaterialTheme.colorScheme.error)}
         Button(onClick=viewModel::submit,modifier=Modifier.fillMaxWidth(),enabled=!s.submitting){if(s.submitting)CircularProgressIndicator(strokeWidth=2.dp)else Text(stringResource(R.string.event_publish))}
     }
 }
@@ -101,7 +102,7 @@ fun EventDetailScreen(viewModel:EventDetailViewModel,workerView:Boolean,onBack:(
                     val eventDate = runCatching { LocalDate.parse(e.date) }.getOrNull()
                     if(e.status==EventStatus.STAFFED && eventDate != null && !eventDate.isAfter(LocalDate.now(ZoneOffset.UTC)))Button(onClick=viewModel::complete,modifier=Modifier.fillMaxWidth(),enabled=!s.applying){Text(stringResource(R.string.booking_mark_completed))}
                 }
-                if(s.applying)CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally));s.error?.let{Text(it,color=MaterialTheme.colorScheme.error)};s.success?.let{Text(it,color=MaterialTheme.colorScheme.primary)}
+                if(s.applying)CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally));s.error?.let{Text(localizedUiMessage(it),color=MaterialTheme.colorScheme.error)};s.success?.let{Text(localizedUiMessage(it),color=MaterialTheme.colorScheme.primary)}
             }
         }
     }

@@ -39,6 +39,7 @@ import com.incleanhome.mobile.ui.theme.Navy
 fun LoginScreen(
     loginViewModel: LoginViewModel,
     onCreateAccount: () -> Unit,
+    onClaims: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by loginViewModel.uiState.collectAsState()
@@ -121,6 +122,14 @@ fun LoginScreen(
             ) {
                 Text(stringResource(R.string.auth_create_account))
             }
+        }
+        Spacer(Modifier.height(8.dp))
+        TextButton(
+            onClick = onClaims,
+            enabled = !uiState.isLoading,
+            modifier = Modifier.fillMaxWidth().height(48.dp)
+        ) {
+            Text(stringResource(R.string.claims_book_title))
         }
     }
 }

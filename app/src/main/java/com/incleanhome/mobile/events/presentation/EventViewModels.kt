@@ -40,7 +40,7 @@ class CreateEventViewModel(private val repo: EventsRepository = EventsRepository
     private val _state = MutableStateFlow(CreateEventUiState()); val state: StateFlow<CreateEventUiState> = _state.asStateFlow()
     fun title(v:String)=edit{it.copy(title=v.take(120))}; fun description(v:String)=edit{it.copy(description=v.take(1000))}
     fun services(v:String)=edit{it.copy(services=v)}; fun zone(v:String)=edit{it.copy(zone=v.take(60))}
-    fun address(v:String)=edit{it.copy(address=v.take(300))}; fun date(v:String)=edit{it.copy(date=v.take(10))}
+    fun address(v:String)=edit{it.copy(address=v.take(250))}; fun date(v:String)=edit{it.copy(date=v.take(10))}
     fun start(v:String)=edit{it.copy(start=v.take(5))}; fun end(v:String)=edit{it.copy(end=v.take(5))}
     fun workers(v:String)=edit{it.copy(workers=v.filter(Char::isDigit))}; fun rate(v:String)=edit{it.copy(rate=v)}
     fun deadline(v:String)=edit{it.copy(deadline=v)}
@@ -53,14 +53,14 @@ class CreateEventViewModel(private val repo: EventsRepository = EventsRepository
         val workers=s.workers.toIntOrNull(); val rate=s.rate.toBigDecimalOrNull()
         val serviceList=s.services.split(',').map(String::trim).filter(String::isNotEmpty).distinct()
         val error=when {
-            s.title.isBlank() -> "El título es obligatorio."
+            s.title.trim().length !in 3..120 -> "El título debe tener entre 3 y 120 caracteres."
             serviceList.isEmpty() -> "Ingresa al menos un tipo de servicio."
             s.zone.isBlank() -> "La zona es obligatoria."
-            s.address.isBlank() -> "La dirección es obligatoria."
+            s.address.trim().length !in 5..250 -> "La dirección debe tener entre 5 y 250 caracteres."
             eventDate==null || eventDate.isBefore(LocalDate.now(ZoneOffset.UTC)) -> "Usa una fecha válida que no esté en el pasado."
             start==null || end==null || !end.isAfter(start) -> "Usa horas HH:mm y una hora final posterior."
-            workers==null || workers<1 -> "Se necesita al menos 1 worker."
-            rate==null -> "Ingresa una tarifa por hora válida."
+            workers==null || workers !in 1..100 -> "La cantidad de trabajadores debe estar entre 1 y 100."
+            rate==null || rate < BigDecimal.TEN || rate > BigDecimal("500") -> "La tarifa por hora debe estar entre 10 y 500."
             deadline==null -> "Usa un deadline ISO-8601 UTC, por ejemplo 2026-09-10T18:00:00Z."
             deadline >= eventDate.atTime(start).toInstant(ZoneOffset.UTC) -> "El deadline debe ser anterior al inicio del evento."
             else -> null

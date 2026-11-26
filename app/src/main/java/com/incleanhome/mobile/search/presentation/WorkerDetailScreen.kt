@@ -28,11 +28,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.AvailabilitySlot
 import com.incleanhome.mobile.search.data.Worker
 import com.incleanhome.mobile.reviews.presentation.ReviewsColumn
+import com.incleanhome.mobile.reviews.presentation.VerifiedReviewsSection
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.InCleanHomeCard
@@ -42,7 +44,7 @@ import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.format.formatCurrency
-import com.incleanhome.mobile.ui.format.formatDayOfWeek
+import com.incleanhome.mobile.ui.format.localizedDayOfWeek
 import com.incleanhome.mobile.ui.format.formatRating
 import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.humanizeIdentifier
@@ -100,12 +102,26 @@ fun WorkerDetailScreen(
                     SectionDivider()
                     SectionTitle(stringResource(R.string.worker_reviews))
                     Spacer(Modifier.height(12.dp))
-                    ReviewsColumn(
-                        reviews = uiState.reviews,
-                        isLoading = uiState.isReviewsLoading,
-                        errorMessage = uiState.reviewsErrorMessage,
-                        onRetry = viewModel::loadWorker
-                    )
+                    if (uiState.verifiedReviewsEnabled) {
+                        VerifiedReviewsSection(
+                            history = uiState.reviewHistory,
+                            arrangedReviews = uiState.arrangedReviews,
+                            sort = uiState.reviewSort,
+                            serviceFilter = uiState.reviewServiceFilter,
+                            isLoading = uiState.isReviewsLoading,
+                            errorMessage = uiState.reviewsErrorMessage,
+                            onRetry = viewModel::loadWorker,
+                            onSortChange = viewModel::sortReviews,
+                            onServiceFilterChange = viewModel::filterReviews
+                        )
+                    } else {
+                        ReviewsColumn(
+                            reviews = uiState.reviews,
+                            isLoading = uiState.isReviewsLoading,
+                            errorMessage = uiState.reviewsErrorMessage,
+                            onRetry = viewModel::loadWorker
+                        )
+                    }
                     Spacer(Modifier.height(24.dp))
                     PrimaryButton(
                         text = stringResource(R.string.worker_book_service),
@@ -154,9 +170,9 @@ private fun WorkerProfile(worker: Worker) {
                 color = Navy
             )
             Spacer(Modifier.height(4.dp))
-            Text(stringResource(R.string.worker_experience_value, worker.experienceYears))
+            Text(pluralStringResource(R.plurals.worker_experience_value, worker.experienceYears, worker.experienceYears))
             Text(
-                text = "${stringResource(R.string.worker_age_value, worker.age)} · ${presentationValue(worker.gender)}",
+                text = "${pluralStringResource(R.plurals.worker_age_value, worker.age, worker.age)} · ${presentationValue(worker.gender)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -182,7 +198,7 @@ private fun AvailabilityCard(slot: AvailabilitySlot) {
     InCleanHomeCard {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(formatDayOfWeek(slot.dayOfWeek), style = MaterialTheme.typography.titleMedium, color = Navy)
+                Text(localizedDayOfWeek(slot.dayOfWeek), style = MaterialTheme.typography.titleMedium, color = Navy)
                 Text(
                     stringResource(
                         R.string.availability_time_range,

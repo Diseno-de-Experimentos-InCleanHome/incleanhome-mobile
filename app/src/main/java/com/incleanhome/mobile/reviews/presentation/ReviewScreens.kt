@@ -37,6 +37,7 @@ import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.components.RefreshButton
 import com.incleanhome.mobile.ui.format.formatDateTime
 import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 
 @Composable
 fun CreateReviewScreen(
@@ -94,7 +95,7 @@ fun CreateReviewScreen(
                     enabled = !state.isSubmitting
                 )
                 state.errorMessage?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error)
+                    Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error)
                 }
                 PrimaryButton(
                     text = stringResource(R.string.review_send),
