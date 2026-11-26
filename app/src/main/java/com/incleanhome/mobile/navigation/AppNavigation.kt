@@ -39,6 +39,11 @@ import com.incleanhome.mobile.booking.presentation.MyBookingsScreen
 import com.incleanhome.mobile.booking.presentation.WorkerBookingDetailScreen
 import com.incleanhome.mobile.booking.presentation.WorkerRequestsScreen
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.claims.presentation.ClaimTrackScreen
+import com.incleanhome.mobile.claims.presentation.ClaimTrackViewModel
+import com.incleanhome.mobile.claims.presentation.ClaimsBookScreen
+import com.incleanhome.mobile.claims.presentation.CreateClaimScreen
+import com.incleanhome.mobile.claims.presentation.CreateClaimViewModel
 import com.incleanhome.mobile.core.session.SessionManager
 import com.incleanhome.mobile.core.session.SessionState
 import com.incleanhome.mobile.home.presentation.ClientHomeScreen
@@ -48,11 +53,14 @@ import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
 import com.incleanhome.mobile.iam.presentation.AccountTypeScreen
+import com.incleanhome.mobile.iam.presentation.AdministrativeAccessScreen
 import com.incleanhome.mobile.iam.presentation.ClientRegistrationScreen
+import com.incleanhome.mobile.iam.presentation.MembershipStatusScreen
 import com.incleanhome.mobile.iam.presentation.WorkerRegistrationScreen
 import com.incleanhome.mobile.iam.presentation.TermsAcceptanceScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorSetupScreen
 import com.incleanhome.mobile.iam.presentation.TwoFactorVerifyScreen
+import com.incleanhome.mobile.legal.presentation.LegalDocumentScreen
 import com.incleanhome.mobile.messaging.presentation.ChatScreen
 import com.incleanhome.mobile.messaging.presentation.ChatViewModel
 import com.incleanhome.mobile.messaging.presentation.ConversationsScreen
@@ -74,11 +82,21 @@ import com.incleanhome.mobile.ui.components.BottomNavigationItem
 import com.incleanhome.mobile.ui.components.InCleanHomeNavigationBar
 import kotlinx.coroutines.launch
 
+internal const val TERMS_DOCUMENT_ROUTE = "terms_document"
+internal const val PRIVACY_DOCUMENT_ROUTE = "privacy_document"
+
 private object Routes {
     const val LOGIN = "login"
     const val TWO_FACTOR_SETUP = "two_factor_setup"
     const val TWO_FACTOR_VERIFY = "two_factor_verify"
     const val TERMS = "terms"
+    const val TERMS_DOCUMENT = TERMS_DOCUMENT_ROUTE
+    const val PRIVACY_DOCUMENT = PRIVACY_DOCUMENT_ROUTE
+    const val MEMBERSHIP_STATUS = "membership_status"
+    const val ADMIN_ACCESS = "admin_access"
+    const val CLAIMS_BOOK = "claims_book"
+    const val CLAIM_CREATE = "claim_create"
+    const val CLAIM_TRACK = "claim_track?code={code}"
     const val ACCOUNT_TYPE = "account_type"
     const val REGISTER_CLIENT = "register_client"
     const val REGISTER_WORKER = "register_worker"
@@ -116,6 +134,7 @@ private object Routes {
     fun clientEventDetail(id:Int) = "client_event_detail/$id"
     fun eventApplications(id:Int) = "event_applications/$id"
     fun workerEventDetail(id:Int) = "worker_event_detail/$id"
+    fun claimTrack(code: String = "") = "claim_track?code=${Uri.encode(code)}"
 }
 
 @Composable
@@ -149,27 +168,28 @@ fun AppNavigation(
         destinationForSession(sessionState)
     }
     val authenticatedSession = (sessionState as? SessionState.Authenticated)?.session
-    val homeRoute = if (authenticatedSession?.role.equals(SessionManager.WORKER_ROLE, true)) {
-        Routes.WORKER_HOME
-    } else {
-        Routes.CLIENT_HOME
+    val homeRoute = when (mobileAccessForRole(authenticatedSession?.role)) {
+        MobileAccess.WORKER -> Routes.WORKER_HOME
+        MobileAccess.CLIENT -> Routes.CLIENT_HOME
+        MobileAccess.ADMIN -> Routes.ADMIN_ACCESS
+        MobileAccess.NONE -> Routes.LOGIN
     }
-    val mainDestinations = if (homeRoute == Routes.WORKER_HOME) {
-        listOf(
+    val mainDestinations = when (homeRoute) {
+        Routes.WORKER_HOME -> listOf(
             BottomNavigationItem(Routes.WORKER_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
             BottomNavigationItem(Routes.WORKER_REQUESTS, stringResource(R.string.nav_requests), Icons.AutoMirrored.Filled.Assignment),
             BottomNavigationItem(Routes.WORKER_EVENTS, stringResource(R.string.nav_events), Icons.Default.Event),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.WORKER_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
         )
-    } else {
-        listOf(
+        Routes.CLIENT_HOME -> listOf(
             BottomNavigationItem(Routes.CLIENT_HOME, stringResource(R.string.nav_home), Icons.Default.Home),
             BottomNavigationItem(Routes.WORKER_SEARCH, stringResource(R.string.nav_search), Icons.Default.Search),
             BottomNavigationItem(Routes.CLIENT_BOOKINGS, stringResource(R.string.nav_bookings), Icons.Default.DateRange),
             BottomNavigationItem(Routes.CONVERSATIONS, stringResource(R.string.nav_messages), Icons.Default.Email),
             BottomNavigationItem(Routes.CLIENT_PROFILE, stringResource(R.string.nav_profile), Icons.Default.Person)
         )
+        else -> emptyList()
     }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -189,6 +209,12 @@ fun AppNavigation(
             }
 
             null -> Unit
+        }
+    }
+
+    LaunchedEffect(loginUiState.membershipStatus) {
+        if (loginUiState.membershipStatus != null) {
+            navController.navigateAndClearBackStack(Routes.MEMBERSHIP_STATUS)
         }
     }
 
@@ -226,11 +252,59 @@ fun AppNavigation(
         composable(Routes.LOGIN) {
             LoginScreen(
                 loginViewModel = loginViewModel,
-                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) }
+                onCreateAccount = { navController.navigate(Routes.ACCOUNT_TYPE) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) }
             )
         }
+        composable(Routes.CLAIMS_BOOK) {
+            ClaimsBookScreen(
+                onCreate = { navController.navigate(Routes.CLAIM_CREATE) },
+                onTrack = { navController.navigate(Routes.claimTrack()) },
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.CLAIM_CREATE) {
+            val claimsViewModel: CreateClaimViewModel = viewModel(factory = CreateClaimViewModel.Factory)
+            CreateClaimScreen(
+                viewModel = claimsViewModel,
+                onTrackCode = { navController.navigate(Routes.claimTrack(it)) },
+                onBack = navController::popBackStack
+            )
+        }
+        composable(
+            route = Routes.CLAIM_TRACK,
+            arguments = listOf(navArgument("code") {
+                type = NavType.StringType
+                defaultValue = ""
+            })
+        ) { backStackEntry ->
+            val code = backStackEntry.arguments?.getString("code").orEmpty()
+            val claimTrackViewModel: ClaimTrackViewModel = viewModel(
+                factory = ClaimTrackViewModel.Factory(code)
+            )
+            ClaimTrackScreen(claimTrackViewModel, navController::popBackStack)
+        }
         composable(Routes.TERMS) {
-            TermsAcceptanceScreen(loginViewModel, onBack = { navController.popBackStack() })
+            TermsAcceptanceScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
+        }
+        composable(Routes.TERMS_DOCUMENT) {
+            LegalDocumentScreen(
+                title = stringResource(R.string.auth_terms_title),
+                documentResource = R.raw.terms_v3,
+                onBack = navController::popBackStack
+            )
+        }
+        composable(Routes.PRIVACY_DOCUMENT) {
+            LegalDocumentScreen(
+                title = stringResource(R.string.legal_privacy_title),
+                documentResource = R.raw.privacy_v3,
+                onBack = navController::popBackStack
+            )
         }
         composable(Routes.ACCOUNT_TYPE) {
             AccountTypeScreen(
@@ -240,16 +314,40 @@ fun AppNavigation(
             )
         }
         composable(Routes.REGISTER_CLIENT) {
-            ClientRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+            ClientRegistrationScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
         }
         composable(Routes.REGISTER_WORKER) {
-            WorkerRegistrationScreen(loginViewModel, onBack = { navController.popBackStack() })
+            WorkerRegistrationScreen(
+                viewModel = loginViewModel,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
         }
         composable(Routes.TWO_FACTOR_SETUP) {
             TwoFactorSetupScreen(loginViewModel = loginViewModel)
         }
         composable(Routes.TWO_FACTOR_VERIFY) {
             TwoFactorVerifyScreen(loginViewModel = loginViewModel)
+        }
+        composable(Routes.MEMBERSHIP_STATUS) {
+            MembershipStatusScreen(
+                status = loginUiState.membershipStatus.orEmpty(),
+                backendMessage = loginUiState.membershipMessage,
+                whatsappLink = loginUiState.membershipWhatsappLink,
+                onBackToLogin = {
+                    loginViewModel.clearAuthenticationState()
+                    navController.navigateAndClearBackStack(Routes.LOGIN)
+                }
+            )
+        }
+        composable(Routes.ADMIN_ACCESS) {
+            AdministrativeAccessScreen(onSignOut = logout)
         }
         composable(Routes.CLIENT_HOME) {
             ClientHomeScreen(
@@ -259,6 +357,7 @@ fun AppNavigation(
                 onMessages = { navController.navigate(Routes.CONVERSATIONS) },
                 onEvents = { navController.navigate(Routes.CLIENT_EVENTS) },
                 onProfile = { navController.navigate(Routes.CLIENT_PROFILE) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) },
                 onLogout = logout
             )
         }
@@ -273,6 +372,7 @@ fun AppNavigation(
                 onEvents = { navController.navigate(Routes.WORKER_EVENTS) },
                 onEventApplications = { navController.navigate(Routes.WORKER_APPLICATIONS) },
                 onStats = { navController.navigate(Routes.WORKER_STATS) },
+                onClaims = { navController.navigate(Routes.CLAIMS_BOOK) },
                 onLogout = logout
             )
         }
@@ -528,10 +628,20 @@ fun AppNavigation(
             WorkerProfileScreen(
                 viewModel = workerProfileViewModel,
                 onBack = navController::popBackStack,
-                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) }
+                onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) },
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
             )
         }
-        composable(Routes.CLIENT_PROFILE) { val vm: ClientProfileViewModel = viewModel(factory=ClientProfileViewModel.Factory); ClientProfileScreen(vm, navController::popBackStack) }
+        composable(Routes.CLIENT_PROFILE) {
+            val vm: ClientProfileViewModel = viewModel(factory = ClientProfileViewModel.Factory)
+            ClientProfileScreen(
+                vm = vm,
+                onBack = navController::popBackStack,
+                onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+            )
+        }
         composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, { navController.previousBackStackEntry?.savedStateHandle?.set("worker_profile_updated", true); navController.popBackStack() }) }
         composable(Routes.WORKER_STATS) { val vm: WorkerStatsViewModel = viewModel(factory=WorkerStatsViewModel.Factory); WorkerStatsScreen(vm, navController::popBackStack) }
         composable(Routes.WORKER_AVAILABILITY) {
@@ -553,20 +663,24 @@ fun AppNavigation(
 
 private fun destinationForSession(sessionState: SessionState): String {
     return when (sessionState) {
-        is SessionState.Authenticated -> when {
-            sessionState.session.role.equals(SessionManager.CLIENT_ROLE, ignoreCase = true) -> {
-                Routes.CLIENT_HOME
-            }
-
-            sessionState.session.role.equals(SessionManager.WORKER_ROLE, ignoreCase = true) -> {
-                Routes.WORKER_HOME
-            }
-
-            else -> Routes.LOGIN
+        is SessionState.Authenticated -> when (mobileAccessForRole(sessionState.session.role)) {
+            MobileAccess.CLIENT -> Routes.CLIENT_HOME
+            MobileAccess.WORKER -> Routes.WORKER_HOME
+            MobileAccess.ADMIN -> Routes.ADMIN_ACCESS
+            MobileAccess.NONE -> Routes.LOGIN
         }
 
         SessionState.Loading, SessionState.LoggedOut -> Routes.LOGIN
     }
+}
+
+internal enum class MobileAccess { CLIENT, WORKER, ADMIN, NONE }
+
+internal fun mobileAccessForRole(role: String?): MobileAccess = when {
+    role.equals(SessionManager.CLIENT_ROLE, ignoreCase = true) -> MobileAccess.CLIENT
+    role.equals(SessionManager.WORKER_ROLE, ignoreCase = true) -> MobileAccess.WORKER
+    role.equals(SessionManager.ADMIN_ROLE, ignoreCase = true) -> MobileAccess.ADMIN
+    else -> MobileAccess.NONE
 }
 
 private fun NavHostController.navigateAndClearBackStack(route: String) {

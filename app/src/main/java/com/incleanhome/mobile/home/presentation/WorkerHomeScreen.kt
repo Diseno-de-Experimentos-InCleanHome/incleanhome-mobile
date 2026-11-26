@@ -39,6 +39,7 @@ fun WorkerHomeScreen(
     onEvents: () -> Unit,
     onEventApplications: () -> Unit,
     onStats: () -> Unit,
+    onClaims: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -85,6 +86,12 @@ fun WorkerHomeScreen(
                 HomeActionCard(stringResource(R.string.home_applications), Icons.Default.HowToReg, onEventApplications, Modifier.weight(1f))
             }
             Spacer(Modifier.height(28.dp))
+            SecondaryButton(
+                text = stringResource(R.string.claims_book_title),
+                onClick = onClaims,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
             SecondaryButton(
                 text = stringResource(R.string.home_logout),
                 onClick = onLogout,

@@ -40,6 +40,7 @@ import com.incleanhome.mobile.ui.format.formatDate
 import com.incleanhome.mobile.ui.format.formatDateRange
 import com.incleanhome.mobile.ui.format.formatTime
 import com.incleanhome.mobile.ui.format.presentationValue
+import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.ui.theme.Navy
 
 @Composable
@@ -185,7 +186,7 @@ fun CreateBookingScreen(
 
             state.errorMessage?.let {
                 Text(
-                    text = it,
+                    text = localizedUiMessage(it),
                     modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Assertive },
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall

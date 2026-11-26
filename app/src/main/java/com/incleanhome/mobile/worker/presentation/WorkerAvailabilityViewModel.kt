@@ -95,6 +95,13 @@ class WorkerAvailabilityViewModel(
         val state = _uiState.value
         if (state.isSaving || state.isLoading) return
 
+        if (state.slots.any { TIME_PATTERN.matches(it.startTime) && TIME_PATTERN.matches(it.endTime) && it.endTime <= it.startTime }) {
+            _uiState.update {
+                it.copy(errorMessage = "La hora de fin debe ser posterior a la hora de inicio.")
+            }
+            return
+        }
+
         val slots = state.slots.mapNotNull(::toRequestSlot)
         if (slots.size != state.slots.size) {
             _uiState.update {

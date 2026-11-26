@@ -106,8 +106,13 @@ class CreateBookingViewModel(
             showValidation("Usa horas HH:mm y una hora de fin posterior a la de inicio.")
             return null
         }
-        if (state.address.isBlank()) {
-            showValidation("La dirección es obligatoria.")
+        val address = state.address.trim()
+        if (address.length !in 5..250) {
+            showValidation("La dirección debe tener entre 5 y 250 caracteres.")
+            return null
+        }
+        if (state.notes.trim().length > 1000) {
+            showValidation("Las notas no pueden superar 1000 caracteres.")
             return null
         }
         val minutes = java.time.Duration.between(start, end).toMinutes()
@@ -119,7 +124,7 @@ class CreateBookingViewModel(
             startTime = state.startTime,
             endTime = state.endTime,
             hours = hours,
-            address = state.address.trim(),
+            address = address,
             notes = state.notes.trim().takeIf(String::isNotEmpty)
         )
     }
