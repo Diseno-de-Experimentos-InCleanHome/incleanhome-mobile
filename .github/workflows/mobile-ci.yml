@@ -46,26 +46,27 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
+      # The app has production and staging flavors; both are tested and built.
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
+        run: ./gradlew testProductionDebugUnitTest testStagingDebugUnitTest --stacktrace
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Build debug APKs
+        run: ./gradlew assembleProductionDebug assembleStagingDebug --stacktrace
 
       - name: Upload unit test results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: mobile-unit-test-results
-          path: app/build/test-results/testDebugUnitTest/**
+          path: app/build/test-results/test*DebugUnitTest/**
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload debug APK
+      - name: Upload debug APKs
         if: success()
         uses: actions/upload-artifact@v7
         with:
           name: InCleanHome-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/*/debug/*.apk
           if-no-files-found: error
           retention-days: 14
