@@ -71,7 +71,8 @@ object Experimentation {
             userProvider = { userProvider() },
             baseConfig = { ExperimentConfig.parse(BuildConfig.EXPERIMENTS) },
             tracker = tracker,
-            allowLocalOverrides = BuildConfig.DIAGNOSTICS_ENABLED
+            allowLocalOverrides = BuildConfig.DIAGNOSTICS_ENABLED,
+            useRemoteConfig = BuildConfig.REMOTE_EXPERIMENTS_ENABLED
         )
         sharedStore = store
         initialized = service to tracker

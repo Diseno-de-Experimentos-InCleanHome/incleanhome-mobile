@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.incleanhome.mobile.booking.data.Booking
 import com.incleanhome.mobile.booking.data.BookingEstimateRequest
+import com.incleanhome.mobile.booking.data.BookingEstimateResponse
 import com.incleanhome.mobile.booking.data.BookingRepository
 import com.incleanhome.mobile.booking.data.BookingResult
 import com.incleanhome.mobile.booking.data.CreateBookingRequest
@@ -24,6 +25,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.time.format.ResolverStyle
 import java.util.UUID
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -124,7 +126,7 @@ class CreateBookingViewModel(
 
     fun submit() {
         val state = _uiState.value
-        if (state.isSubmitting || state.createdBooking != null) return
+        if (state.isSubmitting || state.isEstimating || state.createdBooking != null) return
         val request = buildRequest(state) ?: return
         val shownAmount = state.estimate?.totalAmount?.takeIf { state.showEstimate }
         _uiState.update { it.copy(isSubmitting = true, errorMessage = null, confirmedEstimate = shownAmount) }
@@ -172,6 +174,7 @@ class CreateBookingViewModel(
     }
 
     private var estimateJob: Job? = null
+    private var estimateGeneration = 0
 
     /**
      * US41 treatment: replaces the local value with POST bookings/estimate, which uses the worker's
@@ -180,8 +183,9 @@ class CreateBookingViewModel(
      */
     private fun requestApiEstimate() {
         estimateJob?.cancel()
+        val generation = ++estimateGeneration
         val state = _uiState.value
-        val request = estimateRequestFor(state)
+        val request = estimateRequestFor(workerId, state)
         if (!state.showEstimate || request == null) {
             _uiState.update { it.copy(isEstimating = false) }
             return
@@ -191,28 +195,9 @@ class CreateBookingViewModel(
             delay(ESTIMATE_DEBOUNCE_MILLIS)
             val result = bookingRepository.estimate(request)
             _uiState.update { current ->
-                if (estimateRequestFor(current) != request) return@update current
-                when (result) {
-                    is BookingResult.Success -> current.copy(
-                        isEstimating = false,
-                        estimate = BookingEstimator.fromApi(result.data),
-                        estimateErrorMessage = null
-                    )
-                    is BookingResult.Error -> if (result.errorType == "http_400") {
-                        current.copy(isEstimating = false, estimate = null, estimateErrorMessage = result.message)
-                    } else {
-                        current.copy(isEstimating = false)
-                    }
-                }
+                applyEstimateResult(current, workerId, request, generation == estimateGeneration, result)
             }
         }
-    }
-
-    private fun estimateRequestFor(state: CreateBookingUiState): BookingEstimateRequest? {
-        if (state.estimate == null || state.selectedService.isBlank()) return null
-        val date = try { LocalDate.parse(state.date, DATE_FORMAT) } catch (_: DateTimeParseException) { null }
-        if (date == null || date.isBefore(BookingEstimator.todayInPeru())) return null
-        return BookingEstimateRequest(workerId, state.selectedService, state.date, state.startTime, state.endTime)
     }
 
     private fun trackEstimateViewed(state: CreateBookingUiState) {
@@ -290,7 +275,49 @@ class CreateBookingViewModel(
     companion object {
         const val MIN_DURATION_MESSAGE = "La duración mínima de una reserva es de 30 minutos."
         private const val ESTIMATE_DEBOUNCE_MILLIS = 350L
-        private val DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd")
+        // STRICT rejects dates such as 2026-02-30, which SMART would silently move to 2026-02-28.
+        private val DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT)
+
+        /** Schedule sent to POST bookings/estimate, or null while the form cannot be estimated. */
+        internal fun estimateRequestFor(
+            workerId: Int,
+            state: CreateBookingUiState,
+            today: LocalDate = BookingEstimator.todayInPeru()
+        ): BookingEstimateRequest? {
+            if (state.estimate == null || state.selectedService.isBlank()) return null
+            val date = try { LocalDate.parse(state.date, DATE_FORMAT) } catch (_: DateTimeParseException) { null }
+            if (date == null || date.isBefore(today)) return null
+            return BookingEstimateRequest(workerId, state.selectedService, state.date, state.startTime, state.endTime)
+        }
+
+        /**
+         * Applies the API estimate to the current form. A response from a superseded request
+         * ([isLatest] false) changes nothing; one for a schedule that no longer matches only ends
+         * the loading state. A 400 shows the API's reason; other failures keep the local value.
+         */
+        internal fun applyEstimateResult(
+            current: CreateBookingUiState,
+            workerId: Int,
+            sent: BookingEstimateRequest,
+            isLatest: Boolean,
+            result: BookingResult<BookingEstimateResponse>,
+            today: LocalDate = BookingEstimator.todayInPeru()
+        ): CreateBookingUiState {
+            if (!isLatest) return current
+            if (estimateRequestFor(workerId, current, today) != sent) return current.copy(isEstimating = false)
+            return when (result) {
+                is BookingResult.Success -> current.copy(
+                    isEstimating = false,
+                    estimate = BookingEstimator.fromApi(result.data),
+                    estimateErrorMessage = null
+                )
+                is BookingResult.Error -> if (result.errorType == "http_400") {
+                    current.copy(isEstimating = false, estimate = null, estimateErrorMessage = result.message)
+                } else {
+                    current.copy(isEstimating = false)
+                }
+            }
+        }
         private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 
         fun Factory(

@@ -55,7 +55,7 @@ Se pasan con `-P` o en `~/.gradle/gradle.properties`. Ninguna contiene secretos.
 | `incleanhome.trackingUpload` | Envía los eventos registrados a `POST /api/tracking/events` (US42) | `staging`: `true`; `production`: `false` |
 | `incleanhome.serviceAreaApi` | Activa el área de atención del prestador (US32) | `false` |
 
-En `production`, la configuración remota y el envío de eventos se activan solo con autorización del equipo. El área de atención depende de un endpoint que el Backend todavía no publica. Los contratos están en [docs/backend-endpoints.md](docs/backend-endpoints.md).
+En `production`, la configuración remota y el envío de eventos se activan solo con autorización del equipo. En `staging`, la configuración descargada reemplaza a la de la variante. La API usa por defecto todos los experimentos desactivados, así que la API de pruebas debe publicar los que se quieran probar (por ejemplo, `Experiments__EC_BLQ06__Enabled=true`). Si se compila con `-Pincleanhome.remoteExperiments=false`, la app ignora la configuración remota que haya guardado antes. El área de atención depende de un endpoint que el Backend todavía no publica. Los contratos están en [docs/backend-endpoints.md](docs/backend-endpoints.md).
 
 ## Datos locales y respaldo
 

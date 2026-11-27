@@ -269,7 +269,8 @@ fun CreateBookingScreen(
             PrimaryButton(
                 text = stringResource(R.string.booking_confirm),
                 onClick = viewModel::submit,
-                enabled = worker.serviceTypes.isNotEmpty() && !state.isSubmitting,
+                // The amount confirmed must be the API estimate, not the provisional local value.
+                enabled = worker.serviceTypes.isNotEmpty() && !state.isSubmitting && !state.isEstimating,
                 loading = state.isSubmitting
             )
             Spacer(Modifier.height(8.dp))

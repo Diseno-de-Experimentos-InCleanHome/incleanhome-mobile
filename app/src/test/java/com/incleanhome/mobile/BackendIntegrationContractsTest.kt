@@ -10,6 +10,8 @@ import com.incleanhome.mobile.booking.data.BookingResult
 import com.incleanhome.mobile.booking.data.CreateBookingRequest
 import com.incleanhome.mobile.booking.data.UpdateBookingStatusRequest
 import com.incleanhome.mobile.booking.domain.BookingEstimator
+import com.incleanhome.mobile.booking.presentation.CreateBookingUiState
+import com.incleanhome.mobile.booking.presentation.CreateBookingViewModel
 import com.incleanhome.mobile.experiments.Experiment
 import com.incleanhome.mobile.experiments.InMemoryStore
 import com.incleanhome.mobile.experiments.RemoteExperimentConfig
@@ -164,6 +166,72 @@ class BackendIntegrationContractsTest {
         val clock = Clock.fixed(Instant.parse("2026-11-28T02:00:00Z"), ZoneOffset.UTC)
 
         assertEquals(LocalDate.of(2026, 11, 27), BookingEstimator.todayInPeru(clock))
+    }
+
+    /* USER STORY 41 - Escenarios 1 y 2: la estimación de la API reemplaza la local solo si sigue vigente */
+    @Test
+    fun testEstimate_RespuestaVigenteObsoletaYRechazo() {
+        //Arrange
+        val today = LocalDate.of(2026, 11, 27)
+        val form = estimateForm(endTime = "10:40")
+        val sent = CreateBookingViewModel.estimateRequestFor(2, form, today)!!
+        val api = BookingResult.Success(BookingEstimateResponse(BigDecimal("33.33"), BigDecimal("1.67"), BigDecimal("55.66")))
+
+        //Act
+        val applied = CreateBookingViewModel.applyEstimateResult(form, 2, sent, true, api, today)
+        val superseded = CreateBookingViewModel.applyEstimateResult(form, 2, sent, false, api, today)
+        val changed = CreateBookingViewModel.applyEstimateResult(estimateForm(endTime = "11:30"), 2, sent, true, api, today)
+        val rejected = CreateBookingViewModel.applyEstimateResult(
+            form, 2, sent, true, BookingResult.Error("El trabajador no ofrece ese servicio", "http_400"), today
+        )
+        val offline = CreateBookingViewModel.applyEstimateResult(form, 2, sent, true, BookingResult.Error("Sin red", "network"), today)
+
+        //Assert
+        assertTrue(applied.estimate!!.fromApi)
+        assertEquals(BigDecimal("55.66"), applied.estimate!!.totalAmount)
+        assertFalse(applied.isEstimating)
+        assertEquals(form, superseded)
+        assertFalse(changed.isEstimating)
+        assertFalse(changed.estimate!!.fromApi)
+        assertNull(rejected.estimate)
+        assertEquals("El trabajador no ofrece ese servicio", rejected.estimateErrorMessage)
+        assertFalse(offline.isEstimating)
+        assertEquals(form.estimate, offline.estimate)
+    }
+
+    /* USER STORY 41 - No se estima una fecha pasada en Perú ni una fecha inexistente */
+    @Test
+    fun testEstimate_SoloFechasValidas() {
+        val today = LocalDate.of(2026, 11, 27)
+
+        assertNull(CreateBookingViewModel.estimateRequestFor(2, estimateForm(date = "2026-11-26"), today))
+        assertNull(CreateBookingViewModel.estimateRequestFor(2, estimateForm(date = "2026-02-30"), today))
+        assertEquals("2026-11-27", CreateBookingViewModel.estimateRequestFor(2, estimateForm(date = "2026-11-27"), today)?.date)
+    }
+
+    /* USER STORY 43 - Sin configuración remota se ignora la copia guardada por una versión anterior */
+    @Test
+    fun testRemoteConfig_DesactivadaIgnoraCache() {
+        val store = InMemoryStore()
+        val user = TrackingUser(5, "client")
+        val tracker = EventTracker(store, { user }, "1.0", "staging")
+        val base = { com.incleanhome.mobile.experiments.ExperimentConfig.parse("EC-BLQ06=on:100") }
+        com.incleanhome.mobile.experiments.ExperimentService(store, { user }, base, tracker)
+            .cacheRemoteConfig(com.incleanhome.mobile.experiments.ExperimentConfig.ALL_OFF)
+
+        val remote = com.incleanhome.mobile.experiments.ExperimentService(store, { user }, base, tracker)
+        val local = com.incleanhome.mobile.experiments.ExperimentService(store, { user }, base, tracker, useRemoteConfig = false)
+
+        assertFalse(remote.config().settingFor(Experiment.BOOKING_ESTIMATE).enabled)
+        assertTrue(local.config().settingFor(Experiment.BOOKING_ESTIMATE).enabled)
+    }
+
+    private fun estimateForm(date: String = "2026-12-03", endTime: String = "10:40"): CreateBookingUiState {
+        val estimate = BookingEstimator.estimate(BigDecimal("33.33"), LocalTime.of(9, 0), LocalTime.parse(endTime))
+        return CreateBookingUiState(
+            isLoadingWorker = false, selectedService = "limpieza_general", date = date,
+            startTime = "09:00", endTime = endTime, showEstimate = true, estimate = estimate, isEstimating = true
+        )
     }
 
     /* USER STORY 39 - Escenarios 1, 2 y 4: el 429 informa el tiempo de espera de la API */
