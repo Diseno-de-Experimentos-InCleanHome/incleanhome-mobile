@@ -2,6 +2,7 @@
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.incleanhome.mobile.R
 import java.math.BigDecimal
@@ -99,6 +100,10 @@ private val backendUiMessageResources = mapOf(
 )
 
 private val emailAlreadyTakenPattern = Regex("^Email (.+) is already taken$")
+private val rateLimitedSecondsPattern = Regex("^Demasiados intentos\\. Espera (\\d+) segundos antes de volver a intentarlo\\.$")
+
+internal fun rateLimitedSeconds(message: String): Int? =
+    rateLimitedSecondsPattern.matchEntire(message)?.groupValues?.get(1)?.toIntOrNull()
 
 val CanonicalServiceTypes = listOf(
     "limpieza_general",
@@ -156,6 +161,9 @@ internal fun fixedUiMessageResource(message: String): Int? = backendUiMessageRes
     "Solo se pueden calificar reservas completadas." -> R.string.ui_review_completed_only
     "Esta reserva ya tiene una reseña." -> R.string.ui_review_already_exists
     "Selecciona una calificación entre 1 y 5." -> R.string.ui_review_rating_invalid
+    "El comentario es obligatorio.",
+    "El comentario es obligatorio" -> R.string.ui_review_comment_required
+    "La duración mínima de una reserva es de 30 minutos." -> R.string.ui_booking_min_duration
     "El mensaje no puede estar vacío." -> R.string.ui_message_empty
     "Usa días del 0 al 6 y horarios en formato HH:mm." -> R.string.ui_availability_invalid
     "Disponibilidad guardada." -> R.string.ui_availability_saved
@@ -186,6 +194,9 @@ internal fun emailAlreadyTakenAddress(message: String): String? =
 fun localizedUiMessage(message: String): String {
     emailAlreadyTakenAddress(message)?.let { email ->
         return stringResource(R.string.backend_error_email_taken, email)
+    }
+    rateLimitedSeconds(message)?.let { seconds ->
+        return pluralStringResource(R.plurals.ui_error_rate_limited_seconds, seconds, seconds)
     }
     return fixedUiMessageResource(message)?.let { stringResource(it) } ?: message
 }

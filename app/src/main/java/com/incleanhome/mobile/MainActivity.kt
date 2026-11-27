@@ -48,4 +48,10 @@ class MainActivity : ComponentActivity() {
         // US43/US42: pick up remote experiment settings and upload the event outbox when enabled.
         lifecycleScope.launch { Experimentation.synchronize() }
     }
+
+    override fun onStop() {
+        super.onStop()
+        // US42: send what was recorded during the visit; failures keep the events for the next start.
+        lifecycleScope.launch { Experimentation.trackerOrNull()?.flush() }
+    }
 }

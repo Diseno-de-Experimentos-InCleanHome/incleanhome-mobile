@@ -2,6 +2,8 @@ package com.incleanhome.mobile
 
 import com.incleanhome.mobile.booking.data.Booking
 import com.incleanhome.mobile.booking.data.BookingApi
+import com.incleanhome.mobile.booking.data.BookingEstimateRequest
+import com.incleanhome.mobile.booking.data.BookingEstimateResponse
 import com.incleanhome.mobile.booking.data.BookingRepository
 import com.incleanhome.mobile.booking.data.BookingResult
 import com.incleanhome.mobile.booking.data.BookingStatus
@@ -118,6 +120,9 @@ class BookingRepositoryTest {
             lastCreateRequest = request
             return booking
         }
+
+        override suspend fun estimate(request: BookingEstimateRequest): BookingEstimateResponse =
+            BookingEstimateResponse(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
 
         override suspend fun getMyBookings(): List<Booking> = listOf(booking)
 

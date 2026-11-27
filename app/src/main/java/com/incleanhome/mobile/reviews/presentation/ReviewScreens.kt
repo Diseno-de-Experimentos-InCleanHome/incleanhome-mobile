@@ -86,7 +86,7 @@ fun CreateReviewScreen(
                     value = state.comment,
                     onValueChange = viewModel::updateComment,
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(R.string.review_comment_optional),
+                    label = stringResource(R.string.review_comment),
                     supportingText = {
                         Text("${state.comment.length}/${CreateReviewViewModel.MAX_COMMENT_LENGTH}")
                     },
@@ -100,7 +100,7 @@ fun CreateReviewScreen(
                 PrimaryButton(
                     text = stringResource(R.string.review_send),
                     onClick = viewModel::submit,
-                    enabled = state.rating in 1..5,
+                    enabled = state.rating in 1..5 && state.comment.isNotBlank(),
                     loading = state.isSubmitting
                 )
             }
@@ -172,7 +172,7 @@ fun ReviewCard(review: Review) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("${review.rating}/5", style = MaterialTheme.typography.titleLarge)
             Text(review.clientName, style = MaterialTheme.typography.titleMedium)
-            if (review.comment.isNotBlank()) Text(review.comment)
+            review.comment?.takeIf(String::isNotBlank)?.let { Text(it) }
             review.createdAt?.let {
                 Text(formatDateTime(it), style = MaterialTheme.typography.bodySmall)
             }

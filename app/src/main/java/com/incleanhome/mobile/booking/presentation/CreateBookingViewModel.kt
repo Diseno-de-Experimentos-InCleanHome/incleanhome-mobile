@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.incleanhome.mobile.booking.data.Booking
+import com.incleanhome.mobile.booking.data.BookingEstimateRequest
 import com.incleanhome.mobile.booking.data.BookingRepository
 import com.incleanhome.mobile.booking.data.BookingResult
 import com.incleanhome.mobile.booking.data.CreateBookingRequest
@@ -21,10 +22,11 @@ import com.incleanhome.mobile.search.data.WorkerResult
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.UUID
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +38,7 @@ data class CreateBookingUiState(
     val isSubmitting: Boolean = false,
     val worker: Worker? = null,
     val selectedService: String = "",
-    val date: String = LocalDate.now(ZoneOffset.UTC).plusDays(1).toString(),
+    val date: String = BookingEstimator.todayInPeru().plusDays(1).toString(),
     val startTime: String = "09:00",
     val endTime: String = "11:00",
     val address: String = "",
@@ -46,6 +48,10 @@ data class CreateBookingUiState(
     /** US41: true when the estimated amount is shown before confirming (treatment of EC-BLQ06). */
     val showEstimate: Boolean = false,
     val estimate: BookingEstimate? = null,
+    /** POST bookings/estimate in flight for the current schedule. */
+    val isEstimating: Boolean = false,
+    /** Reason given by the API when it cannot estimate the current data (for example a service not offered). */
+    val estimateErrorMessage: String? = null,
     /** Amount shown before confirming, kept to verify it against the registered amount (M28). */
     val confirmedEstimate: BigDecimal? = null
 )
@@ -100,6 +106,7 @@ class CreateBookingViewModel(
                         assignment = estimateAssignment
                     )
                     trackEstimateViewed(_uiState.value)
+                    requestApiEstimate()
                 }
                 is WorkerResult.Error -> _uiState.update {
                     it.copy(isLoadingWorker = false, worker = null, errorMessage = result.message)
@@ -161,7 +168,51 @@ class CreateBookingViewModel(
         val start = parseTime(state.startTime)
         val end = parseTime(state.endTime)
         val estimate = if (start != null && end != null) BookingEstimator.estimate(worker.hourlyRate, start, end) else null
-        return state.copy(estimate = estimate)
+        return state.copy(estimate = estimate, estimateErrorMessage = null)
+    }
+
+    private var estimateJob: Job? = null
+
+    /**
+     * US41 treatment: replaces the local value with POST bookings/estimate, which uses the worker's
+     * current rate and the same validations as the booking. A response that arrives after the client
+     * changed the schedule is discarded; without connection the local value (same rule) stays.
+     */
+    private fun requestApiEstimate() {
+        estimateJob?.cancel()
+        val state = _uiState.value
+        val request = estimateRequestFor(state)
+        if (!state.showEstimate || request == null) {
+            _uiState.update { it.copy(isEstimating = false) }
+            return
+        }
+        _uiState.update { it.copy(isEstimating = true) }
+        estimateJob = viewModelScope.launch {
+            delay(ESTIMATE_DEBOUNCE_MILLIS)
+            val result = bookingRepository.estimate(request)
+            _uiState.update { current ->
+                if (estimateRequestFor(current) != request) return@update current
+                when (result) {
+                    is BookingResult.Success -> current.copy(
+                        isEstimating = false,
+                        estimate = BookingEstimator.fromApi(result.data),
+                        estimateErrorMessage = null
+                    )
+                    is BookingResult.Error -> if (result.errorType == "http_400") {
+                        current.copy(isEstimating = false, estimate = null, estimateErrorMessage = result.message)
+                    } else {
+                        current.copy(isEstimating = false)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun estimateRequestFor(state: CreateBookingUiState): BookingEstimateRequest? {
+        if (state.estimate == null || state.selectedService.isBlank()) return null
+        val date = try { LocalDate.parse(state.date, DATE_FORMAT) } catch (_: DateTimeParseException) { null }
+        if (date == null || date.isBefore(BookingEstimator.todayInPeru())) return null
+        return BookingEstimateRequest(workerId, state.selectedService, state.date, state.startTime, state.endTime)
     }
 
     private fun trackEstimateViewed(state: CreateBookingUiState) {
@@ -181,7 +232,7 @@ class CreateBookingViewModel(
             return null
         }
         val date = try { LocalDate.parse(state.date, DATE_FORMAT) } catch (_: DateTimeParseException) { null }
-        if (date == null || date.isBefore(LocalDate.now(ZoneOffset.UTC))) {
+        if (date == null || date.isBefore(BookingEstimator.todayInPeru())) {
             showValidation("Ingresa una fecha válida en formato yyyy-MM-dd que no esté en el pasado.")
             return null
         }
@@ -190,6 +241,10 @@ class CreateBookingViewModel(
         val hours = if (start != null && end != null) BookingEstimator.hoursBetween(start, end) else null
         if (hours == null) {
             showValidation("Usa horas HH:mm y una hora de fin posterior a la de inicio.")
+            return null
+        }
+        if (start != null && end != null && !BookingEstimator.meetsMinimumDuration(start, end)) {
+            showValidation(MIN_DURATION_MESSAGE)
             return null
         }
         val address = state.address.trim()
@@ -219,11 +274,22 @@ class CreateBookingViewModel(
 
     private fun showValidation(message: String) = _uiState.update { it.copy(errorMessage = message) }
     private fun edit(transform: (CreateBookingUiState) -> CreateBookingUiState) {
-        _uiState.update { recalculate(transform(it).copy(errorMessage = null)) }
+        val scheduleChanged = scheduleOf(_uiState.value) != scheduleOf(transform(_uiState.value))
+        _uiState.update {
+            val next = transform(it).copy(errorMessage = null)
+            if (scheduleChanged) recalculate(next) else next
+        }
         trackEstimateViewed(_uiState.value)
+        // Address and notes do not change the amount: only the service and schedule are estimated again.
+        if (scheduleChanged) requestApiEstimate()
     }
 
+    private fun scheduleOf(state: CreateBookingUiState) =
+        listOf(state.selectedService, state.date, state.startTime, state.endTime)
+
     companion object {
+        const val MIN_DURATION_MESSAGE = "La duración mínima de una reserva es de 30 minutos."
+        private const val ESTIMATE_DEBOUNCE_MILLIS = 350L
         private val DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd")
         private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 

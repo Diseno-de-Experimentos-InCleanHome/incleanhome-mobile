@@ -224,6 +224,8 @@
     <string name="ui_review_completed_only">Solo se pueden calificar reservas completadas.</string>
     <string name="ui_review_already_exists">Esta reserva ya tiene una reseña.</string>
     <string name="ui_review_rating_invalid">Selecciona una calificación entre 1 y 5.</string>
+    <string name="ui_review_comment_required">El comentario es obligatorio.</string>
+    <string name="ui_booking_min_duration">La duración mínima de una reserva es de 30 minutos.</string>
     <string name="ui_message_empty">El mensaje no puede estar vacío.</string>
     <string name="ui_availability_invalid">Usa días del 0 al 6 y horarios en formato HH:mm.</string>
     <string name="ui_availability_saved">Disponibilidad guardada.</string>
@@ -344,7 +346,7 @@
     <string name="title_my_reviews">Mis reseñas</string>
     <string name="review_sent">Reseña enviada correctamente</string>
     <string name="review_choose_rating">Selecciona una calificación de 1 a 5:</string>
-    <string name="review_comment_optional">Comentario (opcional)</string>
+    <string name="review_comment">Comentario</string>
     <string name="review_send">Enviar reseña</string>
     <string name="empty_reviews">Todavía no hay reseñas para mostrar.</string>
 
@@ -452,7 +454,10 @@
     <string name="booking_estimate_duration">Duración</string>
     <string name="booking_estimate_hours">%1$s h</string>
     <string name="booking_estimate_note">Tarifa por hora × duración. Es un monto referencial; el pago se coordina fuera de la plataforma.</string>
-    <string name="booking_estimate_invalid">Ingresa un horario válido para ver el monto estimado.</string>
+    <string name="booking_estimate_invalid">Ingresa un horario válido de al menos 30 minutos para ver el monto estimado.</string>
+    <string name="booking_estimate_updating">Actualizando el monto con la tarifa vigente…</string>
+    <string name="booking_estimate_confirmed">Monto calculado por InCleanHome con la tarifa vigente del trabajador.</string>
+    <string name="booking_estimate_local">Monto calculado en el dispositivo; se confirmará al registrar la reserva.</string>
     <string name="booking_amount_matches">El monto registrado coincide con el estimado mostrado antes de confirmar.</string>
     <string name="booking_amount_differs">El monto registrado difiere del estimado mostrado. Revisa el detalle de la reserva.</string>
 
@@ -517,6 +522,7 @@
 
     <!-- To-Be (TB2): protección del acceso, US39 -->
     <string name="ui_error_rate_limited">Demasiados intentos. Espera un minuto antes de volver a intentarlo.</string>
+    <plurals name="ui_error_rate_limited_seconds"><item quantity="one">Demasiados intentos. Espera %d segundo antes de volver a intentarlo.</item><item quantity="many">Demasiados intentos. Espera %d segundos antes de volver a intentarlo.</item><item quantity="other">Demasiados intentos. Espera %d segundos antes de volver a intentarlo.</item></plurals>
 
     <!-- To-Be (TB2): área de atención, US32 -->
     <string name="service_area_title">Área de atención</string>

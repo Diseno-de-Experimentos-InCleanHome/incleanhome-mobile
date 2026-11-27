@@ -92,6 +92,11 @@ class CreateReviewViewModel(
             _uiState.update { it.copy(errorMessage = "Selecciona una calificación entre 1 y 5.") }
             return
         }
+        // The API requires the comment since US34 (400 "El comentario es obligatorio").
+        if (state.comment.isBlank()) {
+            _uiState.update { it.copy(errorMessage = COMMENT_REQUIRED_MESSAGE) }
+            return
+        }
 
         _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
         viewModelScope.launch {
@@ -99,7 +104,7 @@ class CreateReviewViewModel(
                 bookingId = booking.id,
                 workerId = booking.workerId,
                 rating = state.rating,
-                comment = state.comment.trim().takeIf(String::isNotEmpty)
+                comment = state.comment.trim()
             )
             when (val result = reviewsRepository.createReview(request)) {
                 is ReviewResult.Success -> {
@@ -129,6 +134,7 @@ class CreateReviewViewModel(
         const val MIN_RATING = 1
         const val MAX_RATING = 5
         const val MAX_COMMENT_LENGTH = 1000
+        const val COMMENT_REQUIRED_MESSAGE = "El comentario es obligatorio."
 
         fun Factory(bookingId: Int, source: String = ReviewSource.DIRECT): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

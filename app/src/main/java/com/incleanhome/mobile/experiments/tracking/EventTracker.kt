@@ -102,10 +102,15 @@ class EventTracker(
 
     fun exportJson(): String = synchronized(lock) { gson.toJson(readOutbox()) }
 
-    /** Sends the outbox; events stay stored when there is no uploader or the API rejects them. */
+    /**
+     * Sends the outbox; events stay stored when there is no uploader or the API rejects them, and the
+     * same eventId is sent again on the next attempt (the API ignores repeated ids).
+     * Events without a user (for example the FAQ before signing in) stay on the device: the API
+     * requires a session and would attribute them to the account that sends them.
+     */
     suspend fun flush(): Int {
         val sender = uploader ?: return 0
-        val batch = pendingEvents()
+        val batch = pendingEvents().filter { it.userRef != null }.take(MAX_BATCH)
         if (batch.isEmpty()) return 0
         val sent = runCatching { sender.upload(batch) }.getOrDefault(false)
         if (!sent) return 0
@@ -149,6 +154,8 @@ class EventTracker(
         private const val KEYS_KEY = "tracking.operationKeys"
         private const val MAX_OUTBOX = 1000
         private const val MAX_KEYS = 2000
+        /** POST tracking/events accepts up to 1000 events per batch. */
+        private const val MAX_BATCH = 500
 
         /** Internal pseudonymous identifier: the analysis never needs the raw account id. */
         fun pseudonymize(userId: Int): String = MessageDigest.getInstance("SHA-256")

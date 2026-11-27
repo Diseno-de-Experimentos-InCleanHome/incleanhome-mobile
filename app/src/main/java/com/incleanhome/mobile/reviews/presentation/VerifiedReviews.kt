@@ -106,11 +106,13 @@ private fun ReviewSummaryCard(history: ReviewHistory) {
                     pluralStringResource(R.plurals.verified_reviews_count, history.verifiedCount, history.verifiedCount),
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
-                    pluralStringResource(R.plurals.services_completed, history.completedServices, history.completedServices),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                history.completedServices?.let { completed ->
+                    Text(
+                        pluralStringResource(R.plurals.services_completed, completed, completed),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -155,7 +157,7 @@ private fun VerifiedReviewCard(review: Review) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            if (review.comment.isNotBlank()) Text(review.comment)
+            review.comment?.takeIf(String::isNotBlank)?.let { Text(it) }
             review.createdAt?.let {
                 Text(stringResource(R.string.verified_review_published, formatDateTime(it)), style = MaterialTheme.typography.bodySmall)
             }

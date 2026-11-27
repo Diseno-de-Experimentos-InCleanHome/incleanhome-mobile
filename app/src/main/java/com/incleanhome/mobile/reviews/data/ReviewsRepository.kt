@@ -21,6 +21,9 @@ class ReviewsRepository(
     suspend fun getWorkerReviews(workerId: Int): ReviewResult<List<Review>> =
         execute { api.getWorkerReviews(workerId) }
 
+    suspend fun getWorkerReviewSummary(workerId: Int): ReviewResult<WorkerReviewSummary> =
+        execute { api.getWorkerReviewSummary(workerId) }
+
     private suspend fun <T> execute(block: suspend () -> T): ReviewResult<T> {
         return try {
             ReviewResult.Success(block())

@@ -195,15 +195,24 @@ fun CreateBookingScreen(
                 )
                 BookingSummaryRow(
                     stringResource(R.string.booking_summary_rate),
-                    stringResource(R.string.worker_rate_value, formatCurrency(worker.hourlyRate))
+                    // The API estimate carries the current rate, which is the one the booking will use.
+                    stringResource(
+                        R.string.worker_rate_value,
+                        formatCurrency(state.estimate?.takeIf { state.showEstimate && it.fromApi }?.hourlyRate ?: worker.hourlyRate)
+                    )
                 )
                 if (state.showEstimate) {
                     val estimate = state.estimate
                     if (estimate == null) {
                         Text(
-                            stringResource(R.string.booking_estimate_invalid),
+                            state.estimateErrorMessage?.let { localizedUiMessage(it) }
+                                ?: stringResource(R.string.booking_estimate_invalid),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = if (state.estimateErrorMessage != null) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
                         )
                     } else {
                         BookingSummaryRow(
@@ -229,6 +238,17 @@ fun CreateBookingScreen(
                             )
                         }
                         Spacer(Modifier.height(6.dp))
+                        Text(
+                            stringResource(
+                                when {
+                                    state.isEstimating -> R.string.booking_estimate_updating
+                                    estimate.fromApi -> R.string.booking_estimate_confirmed
+                                    else -> R.string.booking_estimate_local
+                                }
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         Text(
                             stringResource(R.string.booking_estimate_note),
                             style = MaterialTheme.typography.bodySmall,
