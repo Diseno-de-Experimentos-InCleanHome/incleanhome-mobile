@@ -35,4 +35,4 @@ Notas de la integración:
 | 1 | Recordatorio por push (FCM) | US35 | La API solo envía correo (Brevo); sin proveedor configurado, el envío queda simulado. El enlace del correo abre la web: la app no tiene enlace profundo |
 | 2 | `Security:EnforcePasswordChange` | US40 | Desactivado por defecto en la API. La app ya tiene la pantalla de cambio con sesión; el flujo con `challengeToken` de cambio obligatorio no está implementado en la app |
 | 3 | Ambiente de pruebas desplegado (URL HTTPS) | Todas | `staging` usa la API local (`http://10.0.2.2:5000/api/`); se cambia con `-Pincleanhome.stagingApiUrl=https://…/api/` |
-| 4 | Despliegue de producción | Todas | El 2026-11-27, `https://incleanhome-api-e4tv.onrender.com` respondía 404 con `x-render-routing: no-server` |
+| 4 | Despliegue de producción | Todas | Resuelto: la API está desplegada en `https://incleanhomebackend-q8za.onrender.com` (la misma URL de la web) y `production` la usa desde la versión 1.1.0. La URL anterior, `https://incleanhome-api-e4tv.onrender.com`, ya no tiene servidor. En el plan gratuito de Render el servicio se suspende sin tráfico y la primera solicitud puede tardar en responder |
