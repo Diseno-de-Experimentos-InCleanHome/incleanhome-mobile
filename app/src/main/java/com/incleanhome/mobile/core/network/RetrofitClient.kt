@@ -15,7 +15,10 @@ object RetrofitClient {
     @Volatile
     private var tokenProvider: () -> String? = { null }
 
-    private val authInterceptor = AuthInterceptor { tokenProvider() }
+    @Volatile
+    private var sessionRejectedHandler: (String) -> Unit = {}
+
+    private val authInterceptor = AuthInterceptor({ tokenProvider() }, { token -> sessionRejectedHandler(token) })
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
@@ -24,6 +27,11 @@ object RetrofitClient {
 
     fun setTokenProvider(provider: () -> String?) {
         tokenProvider = provider
+    }
+
+    /** US40: a closed session (401) returns the app to the sign-in screen. Runs on an OkHttp thread. */
+    fun setSessionRejectedHandler(handler: (rejectedToken: String) -> Unit) {
+        sessionRejectedHandler = handler
     }
 
     val retrofit: Retrofit = Retrofit.Builder()

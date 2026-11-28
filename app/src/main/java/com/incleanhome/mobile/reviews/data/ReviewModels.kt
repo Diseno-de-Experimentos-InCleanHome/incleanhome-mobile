@@ -6,7 +6,9 @@ data class CreateReviewRequest(
     val bookingId: Int,
     val workerId: Int,
     val rating: Int,
-    val comment: String?
+    val comment: String?,
+    /** reminder or direct: only measured in review_submitted, never stored (US35, Escenario 4). */
+    val source: String? = null
 )
 
 data class Review(

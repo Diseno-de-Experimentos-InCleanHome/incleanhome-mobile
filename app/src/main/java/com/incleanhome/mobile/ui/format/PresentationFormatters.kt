@@ -177,8 +177,12 @@ internal fun fixedUiMessageResource(message: String): Int? = backendUiMessageRes
     "Ingresa el distrito del servicio para recibir sugerencias." -> R.string.ui_suggestion_district_required
     "El radio de atención debe estar dentro del rango permitido." -> R.string.ui_service_area_radius_invalid
     "Selecciona el distrito de tu ubicación base." -> R.string.ui_service_area_district_required
+    "Ingresa tu contraseña actual y la nueva contraseña." -> R.string.ui_password_fields_required
+    "La confirmación no coincide con la nueva contraseña." -> R.string.ui_password_confirmation_mismatch
+    "La nueva contraseña debe ser distinta de la actual." -> R.string.ui_password_must_differ
+    "Reportamos el acceso. Cerramos tus otras sesiones; cambia tu contraseña." -> R.string.ui_access_reported
     else -> when {
-        message.startsWith("La sesión no es válida") -> R.string.ui_error_invalid_session
+        message.startsWith("La sesión no es válida") || message.startsWith("Tu sesión se cerró") -> R.string.ui_error_invalid_session
         message.startsWith("No tienes permiso") -> R.string.ui_error_forbidden
         message.startsWith("No se encontró") -> R.string.ui_error_not_found
         message.startsWith("No se pudo completar") || message.startsWith("No se pudo obtener") ||
@@ -243,6 +247,10 @@ fun formatDateTime(value: String): String = runCatching {
 fun formatCurrency(amount: BigDecimal): String = "S/ ${amount.setScale(2, RoundingMode.HALF_UP).toPlainString()}"
 
 fun formatRating(rating: BigDecimal): String = rating.setScale(1, RoundingMode.HALF_UP).toPlainString()
+
+/** Approximate distance of the API (one decimal, 0 inside the same district). */
+fun formatDistanceKm(distanceKm: Double): String =
+    BigDecimal.valueOf(distanceKm).setScale(1, RoundingMode.HALF_UP).toPlainString()
 
 fun humanizeIdentifier(value: String): String = value
     .trim()

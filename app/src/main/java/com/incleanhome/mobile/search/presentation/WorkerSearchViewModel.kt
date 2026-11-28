@@ -3,6 +3,9 @@ package com.incleanhome.mobile.search.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.incleanhome.mobile.booking.domain.BookingEstimator
+import com.incleanhome.mobile.core.location.District
+import com.incleanhome.mobile.core.location.Districts
 import com.incleanhome.mobile.experiments.Assignment
 import com.incleanhome.mobile.experiments.Experiment
 import com.incleanhome.mobile.experiments.ExperimentService
@@ -13,10 +16,10 @@ import com.incleanhome.mobile.search.data.Worker
 import com.incleanhome.mobile.search.data.WorkerRepository
 import com.incleanhome.mobile.search.data.WorkerResult
 import com.incleanhome.mobile.search.domain.SuggestionRequest
+import com.incleanhome.mobile.search.domain.SuggestionResult
 import com.incleanhome.mobile.search.domain.WorkerSuggestionService
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
 import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +38,10 @@ data class WorkerSearchUiState(
     val searchId: String? = null,
     /** US33 is available only for clients in the treatment group of EC-BLQ01. */
     val suggestionsEnabled: Boolean = false,
-    val suggestionDate: String = LocalDate.now(ZoneOffset.UTC).plusDays(1).toString(),
+    val suggestionDate: String = BookingEstimator.todayInPeru().plusDays(1).toString(),
+    /** Canonical key of the district of the service, chosen from the closed list (US32). */
+    val suggestionDistrict: String = "",
+    val districts: List<District> = Districts.ALL,
     val suggestionStart: String = "09:00",
     val suggestionEnd: String = "11:00",
     val isSuggesting: Boolean = false,
@@ -46,7 +52,7 @@ data class WorkerSearchUiState(
 
 class WorkerSearchViewModel(
     private val repository: WorkerRepository = WorkerRepository(),
-    private val suggestionService: WorkerSuggestionService = WorkerSuggestionService(repository),
+    private val suggestionService: WorkerSuggestionService = WorkerSuggestionService(),
     private val experiments: ExperimentService? = Experimentation.experimentsOrNull(),
     private val tracker: EventTracker? = Experimentation.trackerOrNull()
 ) : ViewModel() {
@@ -69,6 +75,7 @@ class WorkerSearchViewModel(
         _uiState.update { it.copy(zone = zone, errorMessage = null, suggestionError = null) }
     }
 
+    fun onSuggestionDistrictChange(value: String) = _uiState.update { it.copy(suggestionDistrict = value, suggestionError = null) }
     fun onSuggestionDateChange(value: String) = _uiState.update { it.copy(suggestionDate = value.take(10), suggestionError = null) }
     fun onSuggestionStartChange(value: String) = _uiState.update { it.copy(suggestionStart = value.take(5), suggestionError = null) }
     fun onSuggestionEndChange(value: String) = _uiState.update { it.copy(suggestionEnd = value.take(5), suggestionError = null) }
@@ -132,9 +139,9 @@ class WorkerSearchViewModel(
         _uiState.update { it.copy(isSuggesting = true, suggestionError = null) }
         viewModelScope.launch {
             when (val result = suggestionService.suggest(request)) {
-                is WorkerResult.Success -> {
+                is SuggestionResult.Success -> {
                     _uiState.update {
-                        it.copy(isSuggesting = false, suggestions = result.data, suggestionSearchId = searchId)
+                        it.copy(isSuggesting = false, suggestions = result.workers, suggestionSearchId = searchId)
                     }
                     tracker?.track(
                         TrackingPlan.WORKER_SEARCH_PERFORMED,
@@ -144,20 +151,29 @@ class WorkerSearchViewModel(
                             "serviceCategory" to request.serviceType,
                             "district" to request.district,
                             "filtersApplied" to 2,
-                            "resultsCount" to result.data.size
+                            "resultsCount" to result.workers.size
                         ),
                         operationKey = searchId,
                         assignment = suggestionAssignment
                     )
                     tracker?.track(
                         TrackingPlan.WORKER_SUGGESTIONS_SHOWN,
-                        mapOf("searchId" to searchId, "suggestionCount" to result.data.size),
+                        mapOf("searchId" to searchId, "suggestionCount" to result.workers.size),
                         operationKey = searchId,
                         assignment = suggestionAssignment
                     )
                 }
-                is WorkerResult.Error -> _uiState.update {
-                    it.copy(isSuggesting = false, suggestionError = result.message, suggestions = null)
+                // Escenario 3: the API decides; without the feature only the filter search remains.
+                SuggestionResult.NotActive -> _uiState.update {
+                    it.copy(isSuggesting = false, suggestionsEnabled = false, suggestions = null)
+                }
+                is SuggestionResult.Error -> _uiState.update {
+                    it.copy(
+                        isSuggesting = false,
+                        suggestionError = result.message,
+                        suggestions = null,
+                        districts = if (result.validDistricts.isEmpty()) it.districts else Districts.fromApi(result.validDistricts)
+                    )
                 }
             }
         }
@@ -169,18 +185,20 @@ class WorkerSearchViewModel(
         val end = parseTime(state.suggestionEnd)
         val message = when {
             state.serviceType.isBlank() -> "Selecciona un tipo de servicio para recibir sugerencias."
-            state.zone.isBlank() -> "Ingresa el distrito del servicio para recibir sugerencias."
-            date == null || date.isBefore(LocalDate.now(ZoneOffset.UTC)) ->
+            state.suggestionDistrict.isBlank() -> "Ingresa el distrito del servicio para recibir sugerencias."
+            // Same rules as the API: today or later in Peru and at least 30 minutes.
+            date == null || date.isBefore(BookingEstimator.todayInPeru()) ->
                 "Ingresa una fecha válida en formato yyyy-MM-dd que no esté en el pasado."
             start == null || end == null || !end.isAfter(start) ->
                 "Usa horas HH:mm y una hora de fin posterior a la de inicio."
+            !BookingEstimator.meetsMinimumDuration(start, end) -> "La duración mínima de una reserva es de 30 minutos."
             else -> null
         }
         if (message != null) {
             _uiState.update { it.copy(suggestionError = message) }
             return null
         }
-        return SuggestionRequest(state.serviceType, date!!, start!!, end!!, state.zone.trim())
+        return SuggestionRequest(state.serviceType, date!!, start!!, end!!, state.suggestionDistrict)
     }
 
     private fun parseTime(value: String): LocalTime? = try {

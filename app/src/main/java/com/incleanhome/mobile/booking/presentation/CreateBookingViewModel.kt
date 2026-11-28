@@ -249,7 +249,8 @@ class CreateBookingViewModel(
             endTime = state.endTime,
             hours = hours,
             address = address,
-            notes = state.notes.trim().takeIf(String::isNotEmpty)
+            notes = state.notes.trim().takeIf(String::isNotEmpty),
+            origin = origin
         )
     }
 

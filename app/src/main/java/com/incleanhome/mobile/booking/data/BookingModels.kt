@@ -10,7 +10,9 @@ data class CreateBookingRequest(
     val endTime: String,
     val hours: BigDecimal,
     val address: String,
-    val notes: String?
+    val notes: String?,
+    /** suggestion, filters or direct: only measured by the API, never stored (US33, Escenario 4). */
+    val origin: String? = null
 )
 
 data class UpdateBookingStatusRequest(val status: String)

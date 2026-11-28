@@ -15,6 +15,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.legal.presentation.LegalDocumentLinks
+import com.incleanhome.mobile.profile.presentation.AccountSecurityCard
 import com.incleanhome.mobile.worker.data.WorkerProfile
 import com.incleanhome.mobile.ui.components.*
 import com.incleanhome.mobile.ui.format.*
@@ -28,6 +29,7 @@ fun WorkerProfileScreen(
     onEdit: () -> Unit,
     onTerms: () -> Unit,
     onPrivacy: () -> Unit,
+    onAccessActivity: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -57,6 +59,8 @@ fun WorkerProfileScreen(
                     Spacer(Modifier.height(16.dp)); PrimaryButton(stringResource(R.string.action_edit_profile), onEdit)
                 }
             }
+            Spacer(Modifier.height(12.dp))
+            AccountSecurityCard(onAccessActivity)
             Spacer(Modifier.height(12.dp))
             InCleanHomeCard {
                 Text(

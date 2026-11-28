@@ -14,7 +14,11 @@ data class Worker(
     val experienceYears: Int,
     val bio: String,
     val averageRating: BigDecimal,
-    val totalServices: Int
+    val totalServices: Int,
+    /** Base district of the service area (US32); null when unknown or the feature is off. */
+    val serviceDistrict: String? = null,
+    /** Approximate distance from the API (US32/US33), one decimal; never computed by the app. */
+    val approxDistanceKm: Double? = null
 )
 
 data class AvailabilitySlot(
