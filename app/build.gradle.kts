@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+/** Boolean BuildConfig value from a -P Gradle property; anything other than "true" counts as false. */
+fun gradleFlag(name: String, default: Boolean): String =
+    providers.gradleProperty(name).orElse(default.toString()).get().trim().equals("true", ignoreCase = true).toString()
+
 android {
     namespace = "com.incleanhome.mobile"
     compileSdk {
@@ -39,6 +43,10 @@ android {
             buildConfigField("int", "REVIEW_REMINDER_DELAY_HOURS", "24")
             buildConfigField("boolean", "DIAGNOSTICS_ENABLED", "false")
             buildConfigField("boolean", "TRACKING_LOGCAT", "false")
+            // US43/US42 endpoints exist since incleanhome-backend v1.1.0, but production keeps them
+            // off until the team authorises it (-Pincleanhome.remoteExperiments / trackingUpload).
+            buildConfigField("boolean", "REMOTE_EXPERIMENTS_ENABLED", gradleFlag("incleanhome.remoteExperiments", false))
+            buildConfigField("boolean", "TRACKING_UPLOAD_ENABLED", gradleFlag("incleanhome.trackingUpload", false))
         }
         create("staging") {
             dimension = "environment"
@@ -58,24 +66,16 @@ android {
             buildConfigField("int", "REVIEW_REMINDER_DELAY_HOURS", "0")
             buildConfigField("boolean", "DIAGNOSTICS_ENABLED", "true")
             buildConfigField("boolean", "TRACKING_LOGCAT", "true")
+            // The testing API publishes GET experiments/config and POST tracking/events (backend v1.1.0).
+            buildConfigField("boolean", "REMOTE_EXPERIMENTS_ENABLED", gradleFlag("incleanhome.remoteExperiments", true))
+            buildConfigField("boolean", "TRACKING_UPLOAD_ENABLED", gradleFlag("incleanhome.trackingUpload", true))
         }
     }
 
     buildTypes {
         all {
-            // Endpoints still missing in incleanhome-backend (docs/backend-endpoints.md); enable once deployed.
-            buildConfigField(
-                "boolean", "REMOTE_EXPERIMENTS_ENABLED",
-                providers.gradleProperty("incleanhome.remoteExperiments").orElse("false").get()
-            )
-            buildConfigField(
-                "boolean", "TRACKING_UPLOAD_ENABLED",
-                providers.gradleProperty("incleanhome.trackingUpload").orElse("false").get()
-            )
-            buildConfigField(
-                "boolean", "SERVICE_AREA_API_ENABLED",
-                providers.gradleProperty("incleanhome.serviceAreaApi").orElse("false").get()
-            )
+            // US32 endpoint still missing in incleanhome-backend (docs/backend-endpoints.md); enable once deployed.
+            buildConfigField("boolean", "SERVICE_AREA_API_ENABLED", gradleFlag("incleanhome.serviceAreaApi", false))
         }
         release {
             optimization {

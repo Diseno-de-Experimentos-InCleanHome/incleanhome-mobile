@@ -18,11 +18,13 @@ class ExperimentService(
     private val userProvider: () -> TrackingUser?,
     private val baseConfig: () -> ExperimentConfig,
     private val tracker: EventTracker,
-    private val allowLocalOverrides: Boolean = false
+    private val allowLocalOverrides: Boolean = false,
+    /** When the remote configuration is off, a copy cached by an earlier build is ignored. */
+    private val useRemoteConfig: Boolean = true
 ) {
 
     fun config(): ExperimentConfig {
-        var config = cachedRemoteConfig() ?: baseConfig()
+        var config = cachedRemoteConfig()?.takeIf { useRemoteConfig } ?: baseConfig()
         if (allowLocalOverrides) {
             Experiment.entries.forEach { experiment ->
                 localOverride(experiment)?.let { config = config.withOverride(experiment, it) }

@@ -15,6 +15,22 @@ data class CreateBookingRequest(
 
 data class UpdateBookingStatusRequest(val status: String)
 
+/** Body of POST bookings/estimate (US41): the same schedule fields as the booking. */
+data class BookingEstimateRequest(
+    val workerId: Int,
+    val serviceType: String,
+    val date: String,
+    val startTime: String,
+    val endTime: String
+)
+
+/** Estimate computed by the API with the worker's current rate; nothing is stored. */
+data class BookingEstimateResponse(
+    val hourlyRate: BigDecimal,
+    val hours: BigDecimal,
+    val totalAmount: BigDecimal
+)
+
 data class Booking(
     val id: Int,
     val clientId: Int,

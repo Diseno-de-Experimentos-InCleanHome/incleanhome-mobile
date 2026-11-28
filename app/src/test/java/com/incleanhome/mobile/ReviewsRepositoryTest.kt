@@ -5,6 +5,7 @@ import com.incleanhome.mobile.reviews.data.Review
 import com.incleanhome.mobile.reviews.data.ReviewResult
 import com.incleanhome.mobile.reviews.data.ReviewsApi
 import com.incleanhome.mobile.reviews.data.ReviewsRepository
+import com.incleanhome.mobile.reviews.data.WorkerReviewSummary
 import com.incleanhome.mobile.reviews.presentation.CreateReviewViewModel
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -74,5 +75,8 @@ class ReviewsRepositoryTest {
         }
 
         override suspend fun getWorkerReviews(workerId: Int): List<Review> = listOf(review)
+
+        override suspend fun getWorkerReviewSummary(workerId: Int): WorkerReviewSummary =
+            WorkerReviewSummary(workerId, 0, null, emptyMap(), 0, null)
     }
 }

@@ -217,6 +217,8 @@
     <string name="ui_review_completed_only">Only completed bookings can be reviewed.</string>
     <string name="ui_review_already_exists">This booking already has a review.</string>
     <string name="ui_review_rating_invalid">Select a rating from 1 to 5.</string>
+    <string name="ui_review_comment_required">The comment is required.</string>
+    <string name="ui_booking_min_duration">A booking must last at least 30 minutes.</string>
     <string name="ui_message_empty">The message cannot be empty.</string>
     <string name="ui_availability_invalid">Use days from 0 to 6 and times in HH:mm format.</string>
     <string name="ui_availability_saved">Availability saved.</string>
@@ -337,7 +339,7 @@
     <string name="title_my_reviews">My reviews</string>
     <string name="review_sent">Review submitted successfully</string>
     <string name="review_choose_rating">Select a rating from 1 to 5:</string>
-    <string name="review_comment_optional">Comment (optional)</string>
+    <string name="review_comment">Comment</string>
     <string name="review_send">Submit review</string>
     <string name="empty_reviews">There are no reviews to display yet.</string>
 
@@ -444,7 +446,10 @@
     <string name="booking_estimate_duration">Duration</string>
     <string name="booking_estimate_hours">%1$s h</string>
     <string name="booking_estimate_note">Hourly rate × duration. It is a reference amount; payment is coordinated outside the platform.</string>
-    <string name="booking_estimate_invalid">Enter a valid schedule to see the estimated total.</string>
+    <string name="booking_estimate_invalid">Enter a valid schedule of at least 30 minutes to see the estimated total.</string>
+    <string name="booking_estimate_updating">Updating the amount with the current rate…</string>
+    <string name="booking_estimate_confirmed">Amount calculated by InCleanHome with the worker\'s current rate.</string>
+    <string name="booking_estimate_local">Amount calculated on the device; it is confirmed when the booking is registered.</string>
     <string name="booking_amount_matches">The registered amount matches the estimate shown before confirming.</string>
     <string name="booking_amount_differs">The registered amount differs from the estimate shown. Check the booking details.</string>
 
@@ -509,6 +514,7 @@
 
     <!-- To-Be (TB2): access protection, US39 -->
     <string name="ui_error_rate_limited">Too many attempts. Wait one minute before trying again.</string>
+    <plurals name="ui_error_rate_limited_seconds"><item quantity="one">Too many attempts. Wait %d second before trying again.</item><item quantity="other">Too many attempts. Wait %d seconds before trying again.</item></plurals>
 
     <!-- To-Be (TB2): service area, US32 -->
     <string name="service_area_title">Service area</string>

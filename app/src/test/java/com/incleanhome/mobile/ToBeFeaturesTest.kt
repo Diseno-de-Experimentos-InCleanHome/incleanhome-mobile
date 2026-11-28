@@ -134,13 +134,13 @@ class ToBeFeaturesTest {
         val reviews = listOf(review(1, 10, 5, "2026-11-01T10:00:00+00:00"), review(2, 11, 4, "2026-11-10T10:00:00+00:00"), review(3, 12, 4, "2026-10-01T10:00:00+00:00"))
 
         //Act
-        val history = ReviewHistory.from(reviews, completedServices = 6)
+        val history = ReviewHistory.from(reviews, summary = null)
 
-        //Assert
+        //Assert: sin resumen de la API se usan las cifras locales (2 decimales, como la API)
         assertEquals(3, history.verifiedCount)
-        assertEquals(BigDecimal("4.3"), history.averageRating)
+        assertEquals(BigDecimal("4.33"), history.averageRating)
         assertEquals(mapOf(5 to 1, 4 to 2, 3 to 0, 2 to 0, 1 to 0), history.distribution)
-        assertEquals(6, history.completedServices)
+        assertNull(history.completedServices)
         assertEquals(listOf(2, 1, 3), ReviewHistory.arrange(reviews, ReviewSort.NEWEST, null).map(Review::id))
         assertEquals(listOf(3, 1, 2), ReviewHistory.arrange(reviews, ReviewSort.OLDEST, null).map(Review::id))
     }
@@ -148,7 +148,7 @@ class ToBeFeaturesTest {
     /* USER STORY 34 - Escenario 3: sin reseñas no presenta promedio */
     @Test
     fun testReviewHistory_SinResenas() {
-        val history = ReviewHistory.from(emptyList(), completedServices = 0)
+        val history = ReviewHistory.from(emptyList(), summary = null)
 
         assertEquals(0, history.verifiedCount)
         assertNull(history.averageRating)
@@ -160,7 +160,7 @@ class ToBeFeaturesTest {
         val reviews = listOf(review(1, 10, 5, "a", "limpieza_general"), review(2, 11, 3, "b", "lavanderia"))
 
         assertEquals(listOf(2), ReviewHistory.arrange(reviews, ReviewSort.NEWEST, "lavanderia").map(Review::id))
-        assertEquals(listOf("lavanderia", "limpieza_general"), ReviewHistory.from(reviews, 2).serviceTypes)
+        assertEquals(listOf("lavanderia", "limpieza_general"), ReviewHistory.from(reviews, null).serviceTypes)
     }
 
     /* USER STORY 35 - Escenario 1: recordatorio tras el plazo configurado */

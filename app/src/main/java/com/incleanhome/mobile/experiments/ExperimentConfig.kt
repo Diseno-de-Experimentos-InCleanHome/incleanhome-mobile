@@ -2,7 +2,7 @@ package com.incleanhome.mobile.experiments
 
 /**
  * Experiment configuration. Each build variant embeds a default (BuildConfig.EXPERIMENTS) and the
- * API can replace it at runtime through [RemoteExperimentConfig] once the endpoint exists, so an
+ * API replaces it at runtime through [RemoteExperimentConfig], so an
  * experiment starts or stops without publishing a new version (US43).
  *
  * Text format: "EC-BLQ01=on:50;EC-BLQ02=off:50" (id=state:treatmentPercent).
@@ -45,7 +45,7 @@ data class ExperimentConfig(val settings: Map<Experiment, ExperimentSetting>) {
     }
 }
 
-/** Response of GET experiments/config (dependency documented for the backend; see docs/backend-endpoints.md). */
+/** Response of GET experiments/config (backend v1.1.0). An experiment missing from the list stays off. */
 data class RemoteExperimentConfig(val experiments: List<RemoteExperimentSetting>?) {
     fun toConfig(): ExperimentConfig {
         val settings = experiments.orEmpty().mapNotNull { remote ->

@@ -10,6 +10,7 @@ import com.incleanhome.mobile.search.data.WorkerResult
 import com.incleanhome.mobile.reviews.data.Review
 import com.incleanhome.mobile.reviews.data.ReviewResult
 import com.incleanhome.mobile.reviews.data.ReviewsRepository
+import com.incleanhome.mobile.reviews.data.WorkerReviewSummary
 import com.incleanhome.mobile.experiments.Assignment
 import com.incleanhome.mobile.experiments.Experiment
 import com.incleanhome.mobile.experiments.ExperimentService
@@ -38,10 +39,12 @@ data class WorkerDetailUiState(
     val reviews: List<Review> = emptyList(),
     /** US34 presentation (treatment of EC-BLQ02); the control keeps the current review list. */
     val verifiedReviewsEnabled: Boolean = false,
+    /** GET reviews/worker/{id}/summary, loaded only for the treatment; null if it could not be read. */
+    val reviewSummary: WorkerReviewSummary? = null,
     val reviewSort: ReviewSort = ReviewSort.NEWEST,
     val reviewServiceFilter: String? = null
 ) {
-    val reviewHistory: ReviewHistory get() = ReviewHistory.from(reviews, worker?.totalServices ?: 0)
+    val reviewHistory: ReviewHistory get() = ReviewHistory.from(reviews, reviewSummary)
     val arrangedReviews: List<Review>
         get() = ReviewHistory.arrange(reviewHistory.verifiedReviews, reviewSort, reviewServiceFilter)
 }
@@ -87,6 +90,11 @@ class WorkerDetailViewModel(
             val workerRequest = async { repository.getWorker(workerId) }
             val availabilityRequest = async { repository.getAvailability(workerId) }
             val reviewsRequest = async { reviewsRepository.getWorkerReviews(workerId) }
+            val summaryRequest = if (reviewsAssignment.featureActive) {
+                async { reviewsRepository.getWorkerReviewSummary(workerId) }
+            } else {
+                null
+            }
 
             when (val result = workerRequest.await()) {
                 is WorkerResult.Success -> {
@@ -133,9 +141,12 @@ class WorkerDetailViewModel(
                 }
             }
 
+            // Without the summary the section keeps the local figures and hides completed services.
+            val summary = (summaryRequest?.await() as? ReviewResult.Success)?.data
+
             when (val result = reviewsRequest.await()) {
                 is ReviewResult.Success -> {
-                    _uiState.update { it.copy(isReviewsLoading = false, reviews = result.data) }
+                    _uiState.update { it.copy(isReviewsLoading = false, reviews = result.data, reviewSummary = summary) }
                     tracker?.track(
                         TrackingPlan.WORKER_REVIEWS_VIEWED,
                         mapOf(

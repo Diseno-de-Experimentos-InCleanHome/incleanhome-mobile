@@ -50,12 +50,12 @@ Se pasan con `-P` o en `~/.gradle/gradle.properties`. Ninguna contiene secretos.
 | Propiedad | Uso | Por defecto |
 |---|---|---|
 | `incleanhome.stagingApiUrl` | URL de la API de pruebas para `staging` | `http://10.0.2.2:5000/api/` |
-| `incleanhome.stagingExperiments` | Experimentos de `staging` con el formato `ID=on\|off:porcentaje;…` | BLQ03 desactivado y el resto activos |
-| `incleanhome.remoteExperiments` | Descarga la configuración de experimentos (US43) | `false` |
-| `incleanhome.trackingUpload` | Envía los eventos registrados a la API (US42) | `false` |
+| `incleanhome.stagingExperiments` | Experimentos de `staging` con el formato `ID=on\|off:porcentaje;…`. La configuración remota los reemplaza cuando se descarga | BLQ03 desactivado y el resto activos |
+| `incleanhome.remoteExperiments` | Descarga la configuración de experimentos de `GET /api/experiments/config` (US43) | `staging`: `true`; `production`: `false` |
+| `incleanhome.trackingUpload` | Envía los eventos registrados a `POST /api/tracking/events` (US42) | `staging`: `true`; `production`: `false` |
 | `incleanhome.serviceAreaApi` | Activa el área de atención del prestador (US32) | `false` |
 
-Las tres últimas dependen de endpoints que el Backend aún no publica. El contrato esperado está en [docs/backend-endpoints.md](docs/backend-endpoints.md).
+En `production`, la configuración remota y el envío de eventos se activan solo con autorización del equipo. En `staging`, la configuración descargada reemplaza a la de la variante. La API usa por defecto todos los experimentos desactivados, así que la API de pruebas debe publicar los que se quieran probar (por ejemplo, `Experiments__EC_BLQ06__Enabled=true`). Si se compila con `-Pincleanhome.remoteExperiments=false`, la app ignora la configuración remota que haya guardado antes. El área de atención depende de un endpoint que el Backend todavía no publica. Los contratos están en [docs/backend-endpoints.md](docs/backend-endpoints.md).
 
 ## Datos locales y respaldo
 

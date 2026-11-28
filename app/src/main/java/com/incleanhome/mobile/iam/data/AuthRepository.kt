@@ -9,6 +9,23 @@ import retrofit2.HttpException
 /** US39: the API rejects with 429 after 5 logins or 10 TOTP checks per minute from one origin. */
 const val RATE_LIMITED_MESSAGE = "Demasiados intentos. Espera un minuto antes de volver a intentarlo."
 
+fun rateLimitedMessage(seconds: Int): String =
+    if (seconds == 60) RATE_LIMITED_MESSAGE
+    else "Demasiados intentos. Espera $seconds segundos antes de volver a intentarlo."
+
+/**
+ * Waiting time of a 429: the Retry-After header or retryAfterSeconds of the body (US39). The fixed
+ * one-minute message stays when the API gives no value, as with the limiter before US39.
+ */
+internal fun rateLimitedMessage(exception: HttpException, errorBody: String): String {
+    val header = exception.response()?.headers()?.get("Retry-After")?.trim()?.toIntOrNull()
+    val body = runCatching {
+        com.google.gson.JsonParser.parseString(errorBody).asJsonObject.get("retryAfterSeconds")?.asInt
+    }.getOrNull()
+    val seconds = (header ?: body)?.takeIf { it in 1..3600 } ?: return RATE_LIMITED_MESSAGE
+    return rateLimitedMessage(seconds)
+}
+
 enum class LoginNextStep(val label: String) {
     TERMS("TERMS"),
     TWO_FA_SETUP("2FA_SETUP"),
@@ -65,9 +82,10 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            exception.membershipResultFromErrorBody() ?: run {
+            val errorBody = exception.errorBodyText()
+            membershipResultFromJson(errorBody) ?: run {
                 val message = when (exception.code()) {
-                    429 -> RATE_LIMITED_MESSAGE
+                    429 -> rateLimitedMessage(exception, errorBody)
                     400, 401 -> "Email o contraseña incorrectos."
                     else -> "No se pudo iniciar sesión. Inténtalo nuevamente."
                 }
@@ -147,9 +165,10 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            exception.membershipResultFromErrorBody() ?: run {
+            val errorBody = exception.errorBodyText()
+            membershipResultFromJson(errorBody) ?: run {
                 val message = when (exception.code()) {
-                    429 -> RATE_LIMITED_MESSAGE
+                    429 -> rateLimitedMessage(exception, errorBody)
                     400 -> "El código de verificación no es válido."
                     401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
                     else -> "No se pudo habilitar la autenticación en dos pasos."
@@ -176,9 +195,10 @@ class AuthRepository(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: HttpException) {
-            exception.membershipResultFromErrorBody() ?: run {
+            val errorBody = exception.errorBodyText()
+            membershipResultFromJson(errorBody) ?: run {
                 val message = when (exception.code()) {
-                    429 -> RATE_LIMITED_MESSAGE
+                    429 -> rateLimitedMessage(exception, errorBody)
                     400 -> "El código de verificación no es válido."
                     401 -> "El desafío de autenticación expiró. Inicia sesión nuevamente."
                     else -> "No se pudo verificar la autenticación en dos pasos."

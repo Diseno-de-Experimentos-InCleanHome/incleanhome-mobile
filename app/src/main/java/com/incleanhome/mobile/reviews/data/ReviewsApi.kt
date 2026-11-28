@@ -11,4 +11,8 @@ interface ReviewsApi {
 
     @GET("reviews/worker/{id}")
     suspend fun getWorkerReviews(@Path("id") workerId: Int): List<Review>
+
+    /** US34: average, distribution and completed services computed by the API from verified reviews. */
+    @GET("reviews/worker/{id}/summary")
+    suspend fun getWorkerReviewSummary(@Path("id") workerId: Int): WorkerReviewSummary
 }

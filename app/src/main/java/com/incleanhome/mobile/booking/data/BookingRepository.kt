@@ -19,6 +19,9 @@ class BookingRepository(
     suspend fun create(request: CreateBookingRequest): BookingResult<Booking> =
         execute { api.createBooking(request) }
 
+    suspend fun estimate(request: BookingEstimateRequest): BookingResult<BookingEstimateResponse> =
+        execute { api.estimate(request) }
+
     suspend fun getMine(): BookingResult<List<Booking>> = execute { api.getMyBookings() }
 
     suspend fun updateStatus(bookingId: Int, status: String): BookingResult<Booking> =
