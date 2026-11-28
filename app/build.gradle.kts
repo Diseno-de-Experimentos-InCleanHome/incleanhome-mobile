@@ -7,6 +7,20 @@ plugins {
 fun gradleFlag(name: String, default: Boolean): String =
     providers.gradleProperty(name).orElse(default.toString()).get().trim().equals("true", ignoreCase = true).toString()
 
+/**
+ * Release signing data, read only from ~/.gradle/gradle.properties, -P properties or environment
+ * variables. Nothing is stored in the repository; without all four values the release APK is unsigned.
+ */
+fun signingValue(property: String, environment: String): String? =
+    providers.gradleProperty(property).orElse(providers.environmentVariable(environment)).orNull?.takeIf(String::isNotBlank)
+
+val releaseKeystore = signingValue("incleanhome.signing.storeFile", "INCLEANHOME_SIGNING_STORE_FILE")
+val releaseStorePassword = signingValue("incleanhome.signing.storePassword", "INCLEANHOME_SIGNING_STORE_PASSWORD")
+val releaseKeyAlias = signingValue("incleanhome.signing.keyAlias", "INCLEANHOME_SIGNING_KEY_ALIAS")
+val releaseKeyPassword = signingValue("incleanhome.signing.keyPassword", "INCLEANHOME_SIGNING_KEY_PASSWORD")
+val releaseSigningConfigured =
+    listOf(releaseKeystore, releaseStorePassword, releaseKeyAlias, releaseKeyPassword).all { it != null }
+
 android {
     namespace = "com.incleanhome.mobile"
     compileSdk {
@@ -17,8 +31,9 @@ android {
         applicationId = "com.incleanhome.mobile"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        // v1.0.0 was published with versionCode 1; 1.1.0 is the To-Be release (US32–US43).
+        versionCode = 2
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -34,7 +49,12 @@ android {
         create("production") {
             dimension = "environment"
             buildConfigField("String", "ENVIRONMENT", "\"production\"")
-            buildConfigField("String", "BASE_URL", "\"https://incleanhome-api-e4tv.onrender.com/api/\"")
+            // Public API deployed by the backend team (the same one the web uses); HTTPS only.
+            val productionApiUrl = providers.gradleProperty("incleanhome.productionApiUrl")
+                .orElse("https://incleanhomebackend-q8za.onrender.com/api/")
+                .get()
+            require(productionApiUrl.startsWith("https://")) { "The production API must use HTTPS" }
+            buildConfigField("String", "BASE_URL", "\"$productionApiUrl\"")
             // Experiments stay off for real users until the configuration endpoint enables them.
             buildConfigField(
                 "String", "EXPERIMENTS",
@@ -72,8 +92,20 @@ android {
         }
     }
 
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            create("release") {
+                storeFile = file(releaseKeystore!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (releaseSigningConfigured) signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = false
             }

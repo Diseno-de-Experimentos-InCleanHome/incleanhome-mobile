@@ -2,7 +2,7 @@
 
 App Android de InCleanHome (Kotlin, Jetpack Compose, Retrofit). Conecta a clientes con prestadores de limpieza: búsqueda, reservas, mensajería, reseñas, reclamos y autenticación con 2FA.
 
-La versión estable es `v1.0.0` (etiqueta y APK publicados). Sobre ella se añadieron las funcionalidades To-Be y los experimentos (US32–US43).
+La versión `v1.0.0` corresponde al As-Is. La versión `1.1.0` (versionCode 2) incorpora las funcionalidades To-Be y los experimentos (US32–US43) y se conecta a la API desplegada. Los APK se publican en [GitHub Releases](https://github.com/Diseno-de-Experimentos-InCleanHome/incleanhome-mobile/releases).
 
 ## Requisitos
 
@@ -17,7 +17,7 @@ La dimensión `environment` define dos flavors. Combinados con `debug` y `releas
 | | `production` | `staging` |
 |---|---|---|
 | Application ID | `com.incleanhome.mobile` | `com.incleanhome.mobile.staging` (se instala junto a producción) |
-| API | `https://incleanhome-api-e4tv.onrender.com/api/` | `http://10.0.2.2:5000/api/` (API local vista desde el emulador) o la URL de `incleanhome.stagingApiUrl` |
+| API | `https://incleanhomebackend-q8za.onrender.com/api/` (la misma de la web; solo HTTPS) o la URL de `incleanhome.productionApiUrl` | `http://10.0.2.2:5000/api/` (API local vista desde el emulador) o la URL de `incleanhome.stagingApiUrl` |
 | Experimentos | Todos desactivados | Activados según `incleanhome.stagingExperiments` |
 | Pantalla de diagnóstico y log de eventos | No | Sí |
 | Recordatorio para calificar | 24 h | Inmediato, para poder probarlo |
@@ -29,10 +29,23 @@ La dimensión `environment` define dos flavors. Combinados con `debug` y `releas
 ```bash
 ./gradlew assembleStagingDebug        # APK de pruebas
 ./gradlew assembleProductionDebug     # APK de producción, depuración
-./gradlew assembleProductionRelease   # APK de producción sin firmar
+./gradlew assembleProductionRelease   # APK de producción (firmado si hay datos de firma)
 ```
 
-En Windows usa `gradlew.bat`. Los APK quedan en `app/build/outputs/apk/<flavor>/<buildType>/`. El APK release sale sin firmar: el repositorio no guarda keystores ni credenciales.
+En Windows usa `gradlew.bat`. Los APK quedan en `app/build/outputs/apk/<flavor>/<buildType>/`.
+
+### Firma del APK de producción
+
+El repositorio no guarda keystores ni contraseñas. El APK release se firma solo si existen los cuatro valores siguientes, como propiedades en `~/.gradle/gradle.properties` (fuera del repositorio) o como variables de entorno. Sin ellos, el APK release sale sin firmar.
+
+| Propiedad de Gradle | Variable de entorno |
+|---|---|
+| `incleanhome.signing.storeFile` (ruta absoluta del keystore) | `INCLEANHOME_SIGNING_STORE_FILE` |
+| `incleanhome.signing.storePassword` | `INCLEANHOME_SIGNING_STORE_PASSWORD` |
+| `incleanhome.signing.keyAlias` | `INCLEANHOME_SIGNING_KEY_ALIAS` |
+| `incleanhome.signing.keyPassword` | `INCLEANHOME_SIGNING_KEY_PASSWORD` |
+
+Para que un APK nuevo se instale como actualización de uno anterior, debe firmarse con la misma clave. El keystore y sus contraseñas deben respaldarse fuera del repositorio. Para comprobar la firma: `apksigner verify --print-certs app-production-release.apk`.
 
 ## Pruebas y Lint
 
@@ -49,6 +62,7 @@ Se pasan con `-P` o en `~/.gradle/gradle.properties`. Ninguna contiene secretos.
 
 | Propiedad | Uso | Por defecto |
 |---|---|---|
+| `incleanhome.productionApiUrl` | URL de la API para `production`; debe usar HTTPS | `https://incleanhomebackend-q8za.onrender.com/api/` |
 | `incleanhome.stagingApiUrl` | URL de la API de pruebas para `staging` | `http://10.0.2.2:5000/api/` |
 | `incleanhome.stagingExperiments` | Experimentos de `staging` con el formato `ID=on\|off:porcentaje;…`. La configuración remota los reemplaza cuando se descarga | BLQ03 desactivado y el resto activos |
 | `incleanhome.remoteExperiments` | Descarga la configuración de experimentos de `GET /api/experiments/config` (US43) | `staging`: `true`; `production`: `false` |

@@ -20,5 +20,11 @@ local.properties
 *.apk
 *.aab
 *.dm
+# Signing keys and their passwords never enter the repository
+*.jks
+*.keystore
+*.p12
+keystore.properties
+signing.properties
 # Local tool caches
 /Microsoft/
