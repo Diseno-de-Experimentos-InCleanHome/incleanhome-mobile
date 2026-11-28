@@ -32,6 +32,7 @@ import com.incleanhome.mobile.ui.format.localizedUiMessage
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
 import com.incleanhome.mobile.search.data.Worker
+import com.incleanhome.mobile.ui.components.DistrictSelector
 import com.incleanhome.mobile.ui.components.EmptyState
 import com.incleanhome.mobile.ui.components.ErrorRetryState
 import com.incleanhome.mobile.ui.components.InCleanHomeCard
@@ -42,6 +43,7 @@ import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SingleServiceTypeSelector
 import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.formatDistanceKm
 import com.incleanhome.mobile.ui.format.formatRating
 import com.incleanhome.mobile.ui.format.humanizeIdentifier
 import com.incleanhome.mobile.ui.format.presentationValues
@@ -52,7 +54,7 @@ import com.incleanhome.mobile.ui.theme.PrimaryGreen
 fun WorkerSearchScreen(
     viewModel: WorkerSearchViewModel,
     onBack: () -> Unit,
-    onWorkerClick: (workerId: Int, source: String, searchId: String?) -> Unit,
+    onWorkerClick: (workerId: Int, source: String, searchId: String?, district: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -133,7 +135,9 @@ fun WorkerSearchScreen(
                             WorkerResultCard(
                                 worker = worker,
                                 suggested = true,
-                                onClick = { onWorkerClick(worker.id, "suggestion", uiState.suggestionSearchId) }
+                                onClick = {
+                                    onWorkerClick(worker.id, "suggestion", uiState.suggestionSearchId, uiState.suggestionDistrict)
+                                }
                             )
                         }
                     }
@@ -155,7 +159,7 @@ fun WorkerSearchScreen(
                     EmptyState(stringResource(R.string.empty_search_results), Modifier.padding(vertical = 32.dp))
                 }
                 else -> items(uiState.workers, key = Worker::id) { worker ->
-                    WorkerResultCard(worker = worker, onClick = { onWorkerClick(worker.id, "filters", uiState.searchId) })
+                    WorkerResultCard(worker = worker, onClick = { onWorkerClick(worker.id, "filters", uiState.searchId, null) })
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }
@@ -176,6 +180,14 @@ private fun SuggestionCard(uiState: WorkerSearchUiState, viewModel: WorkerSearch
             text = stringResource(R.string.suggestions_subtitle),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(12.dp))
+        DistrictSelector(
+            districts = uiState.districts,
+            selectedKey = uiState.suggestionDistrict,
+            placeholder = stringResource(R.string.suggestions_district),
+            onSelect = viewModel::onSuggestionDistrictChange,
+            enabled = !uiState.isSuggesting
         )
         Spacer(Modifier.height(12.dp))
         InCleanHomeTextField(
@@ -233,6 +245,13 @@ private fun WorkerResultCard(
                 )
             }
             Text(worker.name, style = MaterialTheme.typography.titleLarge, color = Navy)
+            worker.approxDistanceKm?.takeIf { suggested }?.let { distance ->
+                Text(
+                    text = stringResource(R.string.worker_approx_distance, formatDistanceKm(distance)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PrimaryGreen
+                )
+            }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(Icons.Rounded.Star, contentDescription = null, tint = PrimaryGreen)
                 Text(

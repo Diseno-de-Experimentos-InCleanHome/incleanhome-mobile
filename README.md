@@ -53,9 +53,8 @@ Se pasan con `-P` o en `~/.gradle/gradle.properties`. Ninguna contiene secretos.
 | `incleanhome.stagingExperiments` | Experimentos de `staging` con el formato `ID=on\|off:porcentaje;…`. La configuración remota los reemplaza cuando se descarga | BLQ03 desactivado y el resto activos |
 | `incleanhome.remoteExperiments` | Descarga la configuración de experimentos de `GET /api/experiments/config` (US43) | `staging`: `true`; `production`: `false` |
 | `incleanhome.trackingUpload` | Envía los eventos registrados a `POST /api/tracking/events` (US42) | `staging`: `true`; `production`: `false` |
-| `incleanhome.serviceAreaApi` | Activa el área de atención del prestador (US32) | `false` |
 
-En `production`, la configuración remota y el envío de eventos se activan solo con autorización del equipo. En `staging`, la configuración descargada reemplaza a la de la variante. La API usa por defecto todos los experimentos desactivados, así que la API de pruebas debe publicar los que se quieran probar (por ejemplo, `Experiments__EC_BLQ06__Enabled=true`). Si se compila con `-Pincleanhome.remoteExperiments=false`, la app ignora la configuración remota que haya guardado antes. El área de atención depende de un endpoint que el Backend todavía no publica. Los contratos están en [docs/backend-endpoints.md](docs/backend-endpoints.md).
+En `production`, la configuración remota y el envío de eventos se activan solo con autorización del equipo. En `staging`, la configuración descargada reemplaza a la de la variante. La API usa por defecto todos los experimentos desactivados, así que la API de pruebas debe publicar los que se quieran probar (por ejemplo, `Experiments__EC_BLQ06__Enabled=true`). Si se compila con `-Pincleanhome.remoteExperiments=false`, la app ignora la configuración remota que haya guardado antes. El área de atención (US32) y las sugerencias (US33) dependen de `EC-BLQ01-SA` y `EC-BLQ01` en la API: si la API responde `403`, la app conserva el comportamiento de control. La actividad de acceso (US40) no depende de un experimento. Los contratos están en [docs/backend-endpoints.md](docs/backend-endpoints.md).
 
 ## Datos locales y respaldo
 

@@ -61,7 +61,11 @@ import com.incleanhome.mobile.events.presentation.*
 import com.incleanhome.mobile.iam.data.LoginNextStep
 import com.incleanhome.mobile.iam.presentation.LoginScreen
 import com.incleanhome.mobile.iam.presentation.LoginViewModel
+import com.incleanhome.mobile.iam.presentation.AccessActivityScreen
+import com.incleanhome.mobile.iam.presentation.AccessActivityViewModel
 import com.incleanhome.mobile.iam.presentation.AccountTypeScreen
+import com.incleanhome.mobile.iam.presentation.ChangePasswordScreen
+import com.incleanhome.mobile.iam.presentation.ChangePasswordViewModel
 import com.incleanhome.mobile.iam.presentation.AdministrativeAccessScreen
 import com.incleanhome.mobile.iam.presentation.ClientRegistrationScreen
 import com.incleanhome.mobile.iam.presentation.MembershipStatusScreen
@@ -115,7 +119,9 @@ private object Routes {
     const val CLIENT_HOME = "client_home"
     const val WORKER_HOME = "worker_home"
     const val WORKER_SEARCH = "worker_search"
-    const val WORKER_DETAIL = "worker_detail/{workerId}?source={source}&searchId={searchId}"
+    const val WORKER_DETAIL = "worker_detail/{workerId}?source={source}&searchId={searchId}&district={district}"
+    const val ACCESS_ACTIVITY = "access_activity"
+    const val CHANGE_PASSWORD = "change_password"
     const val WORKER_PROFILE = "worker_profile"
     const val CLIENT_PROFILE = "client_profile"
     const val WORKER_PROFILE_EDIT = "worker_profile_edit"
@@ -137,8 +143,9 @@ private object Routes {
     const val WORKER_EVENT_DETAIL = "worker_event_detail/{eventId}"
     const val WORKER_APPLICATIONS = "worker_applications"
 
-    fun workerDetail(workerId: Int, source: String = "direct", searchId: String? = null): String =
-        "worker_detail/$workerId?source=${Uri.encode(source)}&searchId=${Uri.encode(searchId.orEmpty())}"
+    fun workerDetail(workerId: Int, source: String = "direct", searchId: String? = null, district: String? = null): String =
+        "worker_detail/$workerId?source=${Uri.encode(source)}&searchId=${Uri.encode(searchId.orEmpty())}" +
+            "&district=${Uri.encode(district.orEmpty())}"
     fun createBooking(workerId: Int, origin: String = "direct", searchId: String? = null): String =
         "create_booking/$workerId?origin=${Uri.encode(origin)}&searchId=${Uri.encode(searchId.orEmpty())}"
     fun claimCreate(related: String = "") = "claim_create?related=${Uri.encode(related)}"
@@ -431,8 +438,8 @@ fun AppNavigation(
             WorkerSearchScreen(
                 viewModel = workerSearchViewModel,
                 onBack = navController::popBackStack,
-                onWorkerClick = { workerId, source, searchId ->
-                    navController.navigate(Routes.workerDetail(workerId, source, searchId))
+                onWorkerClick = { workerId, source, searchId, district ->
+                    navController.navigate(Routes.workerDetail(workerId, source, searchId, district))
                 }
             )
         }
@@ -441,14 +448,16 @@ fun AppNavigation(
             arguments = listOf(
                 navArgument("workerId") { type = NavType.IntType },
                 navArgument("source") { type = NavType.StringType; defaultValue = "direct" },
-                navArgument("searchId") { type = NavType.StringType; defaultValue = "" }
+                navArgument("searchId") { type = NavType.StringType; defaultValue = "" },
+                navArgument("district") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
             val workerId = backStackEntry.arguments?.getInt("workerId") ?: return@composable
             val source = backStackEntry.arguments?.getString("source") ?: "direct"
             val searchId = backStackEntry.arguments?.getString("searchId")?.takeIf(String::isNotBlank)
+            val district = backStackEntry.arguments?.getString("district")?.takeIf(String::isNotBlank)
             val workerDetailViewModel: WorkerDetailViewModel = viewModel(
-                factory = WorkerDetailViewModel.Factory(workerId, source, searchId)
+                factory = WorkerDetailViewModel.Factory(workerId, source, searchId, district)
             )
             WorkerDetailScreen(
                 viewModel = workerDetailViewModel,
@@ -695,7 +704,8 @@ fun AppNavigation(
                 onBack = navController::popBackStack,
                 onEdit = { navController.navigate(Routes.WORKER_PROFILE_EDIT) },
                 onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
-                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) },
+                onAccessActivity = { navController.navigate(Routes.ACCESS_ACTIVITY) }
             )
         }
         composable(Routes.CLIENT_PROFILE) {
@@ -704,7 +714,34 @@ fun AppNavigation(
                 vm = vm,
                 onBack = navController::popBackStack,
                 onTerms = { navController.navigate(Routes.TERMS_DOCUMENT) },
-                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) }
+                onPrivacy = { navController.navigate(Routes.PRIVACY_DOCUMENT) },
+                onAccessActivity = { navController.navigate(Routes.ACCESS_ACTIVITY) }
+            )
+        }
+        composable(Routes.ACCESS_ACTIVITY) { backStackEntry ->
+            val vm: AccessActivityViewModel = viewModel(factory = AccessActivityViewModel.Factory)
+            // After a password change the API clears passwordChangeRequired: read it again.
+            val passwordChanged by backStackEntry.savedStateHandle
+                .getStateFlow("password_changed", false)
+                .collectAsState()
+            LaunchedEffect(passwordChanged) {
+                if (passwordChanged) {
+                    vm.load()
+                    backStackEntry.savedStateHandle["password_changed"] = false
+                }
+            }
+            AccessActivityScreen(
+                viewModel = vm,
+                onBack = navController::popBackStack,
+                onChangePassword = { navController.navigate(Routes.CHANGE_PASSWORD) }
+            )
+        }
+        composable(Routes.CHANGE_PASSWORD) {
+            val vm: ChangePasswordViewModel = viewModel(factory = ChangePasswordViewModel.Factory)
+            ChangePasswordScreen(
+                viewModel = vm,
+                onBack = navController::popBackStack,
+                onChanged = { navController.previousBackStackEntry?.savedStateHandle?.set("password_changed", true) }
             )
         }
         composable(Routes.WORKER_PROFILE_EDIT) { val vm: WorkerProfileEditViewModel = viewModel(factory=WorkerProfileEditViewModel.Factory()); WorkerProfileEditScreen(vm, { navController.previousBackStackEntry?.savedStateHandle?.set("worker_profile_updated", true); navController.popBackStack() }) }

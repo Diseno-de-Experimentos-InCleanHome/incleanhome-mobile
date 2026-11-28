@@ -104,7 +104,8 @@ class CreateReviewViewModel(
                 bookingId = booking.id,
                 workerId = booking.workerId,
                 rating = state.rating,
-                comment = state.comment.trim()
+                comment = state.comment.trim(),
+                source = source
             )
             when (val result = reviewsRepository.createReview(request)) {
                 is ReviewResult.Success -> {

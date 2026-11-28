@@ -26,12 +26,25 @@ import com.incleanhome.mobile.ui.format.localizedUiMessage
 import com.incleanhome.mobile.worker.data.WorkerProfile
 
 @Composable private fun Head(title:String,back:()->Unit){ScreenHeader(title,back)}
+
+/** Entry to the access activity of the own account (US40), shared by both profiles. */
+@Composable
+fun AccountSecurityCard(onAccessActivity: () -> Unit) {
+    InCleanHomeCard {
+        Text(stringResource(R.string.access_activity_section), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+        Spacer(Modifier.height(4.dp))
+        Text(stringResource(R.string.access_activity_section_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(12.dp))
+        SecondaryButton(stringResource(R.string.access_activity_title), onAccessActivity, Modifier.fillMaxWidth())
+    }
+}
 @Composable
 fun ClientProfileScreen(
     vm: ClientProfileViewModel,
     onBack: () -> Unit,
     onTerms: () -> Unit,
-    onPrivacy: () -> Unit
+    onPrivacy: () -> Unit,
+    onAccessActivity: () -> Unit
 ) {
     val s by vm.state.collectAsState()
     var editing by remember { mutableStateOf(false) }
@@ -69,6 +82,7 @@ fun ClientProfileScreen(
                     s.error?.let { Text(localizedUiMessage(it), color = MaterialTheme.colorScheme.error) }
                 }
             }
+            AccountSecurityCard(onAccessActivity)
             InCleanHomeCard {
                 Text(
                     stringResource(R.string.legal_information),

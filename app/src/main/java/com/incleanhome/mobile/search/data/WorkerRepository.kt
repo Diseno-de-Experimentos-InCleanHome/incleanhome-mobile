@@ -22,8 +22,8 @@ class WorkerRepository(
         }
     }
 
-    suspend fun getWorker(workerId: Int): WorkerResult<Worker> {
-        return request { api.getWorker(workerId) }
+    suspend fun getWorker(workerId: Int, clientDistrict: String? = null): WorkerResult<Worker> {
+        return request { api.getWorker(workerId, clientDistrict?.takeIf(String::isNotBlank)) }
     }
 
     suspend fun getAvailability(workerId: Int): WorkerResult<List<AvailabilitySlot>> {

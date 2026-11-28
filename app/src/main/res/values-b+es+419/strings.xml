@@ -528,14 +528,54 @@
     <string name="service_area_title">Área de atención</string>
     <string name="service_area_intro">Registra tu ubicación base aproximada (distrito) y el radio en el que atiendes para recibir solicitudes cercanas.</string>
     <string name="service_area_district">Distrito base</string>
-    <string name="service_area_no_zones">Primero agrega zonas de trabajo en tu perfil.</string>
+    <string name="service_area_select_district">Selecciona un distrito</string>
     <string name="service_area_radius">Radio en km (%1$d–%2$d)</string>
     <string name="service_area_range">Rango permitido: %1$d a %2$d km.</string>
     <string name="service_area_privacy">Los clientes solo ven tu distrito y una distancia aproximada, nunca una ubicación exacta.</string>
-    <string name="service_area_unavailable">El servidor todavía no ofrece este servicio. Tus datos no se guardaron.</string>
     <string name="service_area_saved">Área de atención guardada.</string>
+    <string name="service_area_none">Todavía no registraste tu área de atención.</string>
+    <string name="service_area_current">Área registrada: %1$s · %2$d km</string>
+    <string name="service_area_not_active">El área de atención todavía no está disponible para tu cuenta.</string>
     <string name="ui_service_area_radius_invalid">El radio de atención debe estar dentro del rango permitido.</string>
     <string name="ui_service_area_district_required">Selecciona el distrito de tu ubicación base.</string>
+    <string name="suggestions_district">Distrito del servicio</string>
+    <string name="worker_service_district">Distrito base</string>
+    <string name="worker_approx_distance">A unos %1$s km</string>
+
+    <!-- To-Be (TB2): actividad de acceso, US40 -->
+    <string name="access_activity_section">Seguridad de la cuenta</string>
+    <string name="access_activity_section_hint">Revisa los últimos inicios de sesión de tu cuenta y reporta los que no reconozcas.</string>
+    <string name="access_activity_title">Actividad de acceso</string>
+    <string name="access_activity_intro">Últimos 10 intentos de inicio de sesión de tu cuenta, del más reciente al más antiguo.</string>
+    <string name="access_activity_2fa_on">La verificación en dos pasos está activada.</string>
+    <string name="access_activity_2fa_off">La verificación en dos pasos no está activada.</string>
+    <string name="access_activity_empty">Todavía no hay actividad registrada en tu cuenta.</string>
+    <string name="access_activity_password_required">Se reportó un acceso. Cambia tu contraseña para proteger tu cuenta.</string>
+    <string name="access_entry_platform">Plataforma: %1$s</string>
+    <string name="access_entry_success">Inicio de sesión correcto</string>
+    <string name="access_entry_failed">Intento fallido</string>
+    <string name="access_entry_2fa_verified">Segundo factor verificado</string>
+    <string name="access_entry_2fa_not_verified">Segundo factor no verificado</string>
+    <string name="access_entry_reported">Reportado como no reconocido</string>
+    <string name="access_platform_mobile">Aplicación móvil</string>
+    <string name="access_platform_web">Web</string>
+    <string name="access_platform_api">API</string>
+    <string name="access_platform_unknown">Desconocida</string>
+    <string name="access_report_action">No reconozco este acceso</string>
+    <string name="access_reporting">Reportando…</string>
+    <string name="access_report_confirm">Reportar</string>
+    <string name="access_report_confirm_title">¿Reportar este acceso?</string>
+    <string name="access_report_confirm_body">El acceso del %1$s se registrará como no reconocido. Se cerrarán tus otras sesiones y se te pedirá cambiar la contraseña. Esta sesión seguirá abierta.</string>
+    <string name="ui_access_reported">Reportamos el acceso. Cerramos tus otras sesiones; cambia tu contraseña.</string>
+    <string name="change_password_title">Cambiar contraseña</string>
+    <string name="change_password_intro">Ingresa tu contraseña actual y la nueva. Se cerrarán tus otras sesiones.</string>
+    <string name="change_password_current">Contraseña actual</string>
+    <string name="change_password_new">Nueva contraseña</string>
+    <string name="change_password_confirm">Confirma la nueva contraseña</string>
+    <string name="change_password_done">Tu contraseña se cambió y se cerraron tus otras sesiones.</string>
+    <string name="ui_password_fields_required">Ingresa tu contraseña actual y la nueva contraseña.</string>
+    <string name="ui_password_confirmation_mismatch">La confirmación no coincide con la nueva contraseña.</string>
+    <string name="ui_password_must_differ">La nueva contraseña debe ser distinta de la actual.</string>
 
     <!-- To-Be (TB2): diagnóstico del ambiente de pruebas -->
     <string name="diagnostics_title">Diagnóstico de pruebas</string>

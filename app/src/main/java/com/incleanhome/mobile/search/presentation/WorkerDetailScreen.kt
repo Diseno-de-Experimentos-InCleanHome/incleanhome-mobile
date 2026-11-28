@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.incleanhome.mobile.R
+import com.incleanhome.mobile.core.location.Districts
 import com.incleanhome.mobile.search.data.AvailabilitySlot
 import com.incleanhome.mobile.search.data.Worker
 import com.incleanhome.mobile.reviews.presentation.ReviewsColumn
@@ -44,6 +45,7 @@ import com.incleanhome.mobile.ui.components.ScreenBackground
 import com.incleanhome.mobile.ui.components.ScreenHeader
 import com.incleanhome.mobile.ui.components.SecondaryButton
 import com.incleanhome.mobile.ui.format.formatCurrency
+import com.incleanhome.mobile.ui.format.formatDistanceKm
 import com.incleanhome.mobile.ui.format.localizedDayOfWeek
 import com.incleanhome.mobile.ui.format.formatRating
 import com.incleanhome.mobile.ui.format.formatTime
@@ -180,6 +182,16 @@ private fun WorkerProfile(worker: Worker) {
         if (worker.bio.isNotBlank()) {
             SectionTitle(stringResource(R.string.worker_about))
             Text(worker.bio, style = MaterialTheme.typography.bodyLarge)
+        }
+        // US32 Escenario 3: only the district and an approximate distance, never an exact location.
+        worker.serviceDistrict?.let { district ->
+            SectionTitle(stringResource(R.string.worker_service_district))
+            Text(
+                text = Districts.label(district).orEmpty() + (
+                    worker.approxDistanceKm?.let { " · " + stringResource(R.string.worker_approx_distance, formatDistanceKm(it)) } ?: ""
+                ),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
         SectionTitle(stringResource(R.string.worker_work_zones))
         if (worker.zones.isEmpty()) {

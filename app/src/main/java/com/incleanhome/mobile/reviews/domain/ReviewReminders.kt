@@ -39,7 +39,8 @@ object ReviewReminderPolicy {
 /**
  * In-app delivery of the reminder: at most one reminder per booking (Escenario 3), only for the
  * treatment group (Escenario 5) and recorded as review_reminder_sent with channel in_app.
- * Push or e-mail delivery requires the backend job described in docs/backend-endpoints.md.
+ * The e-mail reminder is sent by the API job of incleanhome-backend (channel email); a review opened
+ * from either one is sent with source=reminder so the server event keeps the origin.
  */
 class ReviewReminderService(
     private val store: KeyValueStore,

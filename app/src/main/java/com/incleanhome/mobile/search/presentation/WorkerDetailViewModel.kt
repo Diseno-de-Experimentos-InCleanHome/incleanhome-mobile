@@ -53,6 +53,8 @@ class WorkerDetailViewModel(
     private val workerId: Int,
     private val source: String = "direct",
     private val searchId: String? = null,
+    /** District of the service when the client came from a suggestion: adds the approximate distance. */
+    private val clientDistrict: String? = null,
     private val repository: WorkerRepository = WorkerRepository(),
     private val reviewsRepository: ReviewsRepository = ReviewsRepository(),
     private val experiments: ExperimentService? = Experimentation.experimentsOrNull(),
@@ -87,7 +89,7 @@ class WorkerDetailViewModel(
         }
 
         viewModelScope.launch {
-            val workerRequest = async { repository.getWorker(workerId) }
+            val workerRequest = async { repository.getWorker(workerId, clientDistrict) }
             val availabilityRequest = async { repository.getAvailability(workerId) }
             val reviewsRequest = async { reviewsRepository.getWorkerReviews(workerId) }
             val summaryRequest = if (reviewsAssignment.featureActive) {
@@ -170,12 +172,22 @@ class WorkerDetailViewModel(
     }
 
     companion object {
-        fun Factory(workerId: Int, source: String = "direct", searchId: String? = null): ViewModelProvider.Factory {
+        fun Factory(
+            workerId: Int,
+            source: String = "direct",
+            searchId: String? = null,
+            clientDistrict: String? = null
+        ): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     if (modelClass.isAssignableFrom(WorkerDetailViewModel::class.java)) {
-                        return WorkerDetailViewModel(workerId = workerId, source = source, searchId = searchId) as T
+                        return WorkerDetailViewModel(
+                            workerId = workerId,
+                            source = source,
+                            searchId = searchId,
+                            clientDistrict = clientDistrict
+                        ) as T
                     }
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
                 }

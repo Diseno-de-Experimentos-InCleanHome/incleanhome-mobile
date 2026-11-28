@@ -24,6 +24,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         sessionManager = SessionManager(applicationContext)
         RetrofitClient.setTokenProvider(sessionManager::currentToken)
+        // US40: a session closed from another device stops working; the local copy is removed too.
+        RetrofitClient.setSessionRejectedHandler { rejectedToken ->
+            lifecycleScope.launch {
+                // Only the rejected session is closed: a newer sign-in is kept.
+                if (sessionManager.currentToken() == rejectedToken) runCatching { sessionManager.logout() }
+            }
+        }
         Experimentation.initialize(applicationContext) {
             sessionManager.currentSession()?.let { TrackingUser(it.userId, it.role) }
         }

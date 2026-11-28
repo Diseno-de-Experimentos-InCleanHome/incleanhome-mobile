@@ -520,14 +520,54 @@
     <string name="service_area_title">Service area</string>
     <string name="service_area_intro">Register your approximate base location (district) and the radius in which you work to receive nearby requests.</string>
     <string name="service_area_district">Base district</string>
-    <string name="service_area_no_zones">Add work zones to your profile first.</string>
+    <string name="service_area_select_district">Select a district</string>
     <string name="service_area_radius">Radius in km (%1$d–%2$d)</string>
     <string name="service_area_range">Allowed range: %1$d to %2$d km.</string>
     <string name="service_area_privacy">Clients only see your district and an approximate distance, never an exact location.</string>
-    <string name="service_area_unavailable">The server does not offer this service yet. Your data was not saved.</string>
     <string name="service_area_saved">Service area saved.</string>
+    <string name="service_area_none">You have not registered a service area yet.</string>
+    <string name="service_area_current">Registered area: %1$s · %2$d km</string>
+    <string name="service_area_not_active">The service area is not available for your account yet.</string>
     <string name="ui_service_area_radius_invalid">The service radius must be within the allowed range.</string>
     <string name="ui_service_area_district_required">Select the district of your base location.</string>
+    <string name="suggestions_district">District of the service</string>
+    <string name="worker_service_district">Base district</string>
+    <string name="worker_approx_distance">About %1$s km away</string>
+
+    <!-- To-Be (TB2): access activity, US40 -->
+    <string name="access_activity_section">Account security</string>
+    <string name="access_activity_section_hint">Review the latest sign-ins to your account and report the ones you do not recognize.</string>
+    <string name="access_activity_title">Access activity</string>
+    <string name="access_activity_intro">Latest 10 sign-in attempts to your account, newest first.</string>
+    <string name="access_activity_2fa_on">Two-step verification is enabled.</string>
+    <string name="access_activity_2fa_off">Two-step verification is not enabled.</string>
+    <string name="access_activity_empty">There is no recorded activity for your account yet.</string>
+    <string name="access_activity_password_required">An access was reported. Change your password to protect your account.</string>
+    <string name="access_entry_platform">Platform: %1$s</string>
+    <string name="access_entry_success">Successful sign-in</string>
+    <string name="access_entry_failed">Failed attempt</string>
+    <string name="access_entry_2fa_verified">Second factor verified</string>
+    <string name="access_entry_2fa_not_verified">Second factor not verified</string>
+    <string name="access_entry_reported">Reported as not recognized</string>
+    <string name="access_platform_mobile">Mobile app</string>
+    <string name="access_platform_web">Web</string>
+    <string name="access_platform_api">API</string>
+    <string name="access_platform_unknown">Unknown</string>
+    <string name="access_report_action">I do not recognize this access</string>
+    <string name="access_reporting">Reporting…</string>
+    <string name="access_report_confirm">Report</string>
+    <string name="access_report_confirm_title">Report this access?</string>
+    <string name="access_report_confirm_body">The access of %1$s will be recorded as not recognized. Your other sessions will be closed and you will be asked to change your password. This session stays open.</string>
+    <string name="ui_access_reported">We reported the access and closed your other sessions. Change your password.</string>
+    <string name="change_password_title">Change password</string>
+    <string name="change_password_intro">Enter your current password and the new one. Your other sessions will be closed.</string>
+    <string name="change_password_current">Current password</string>
+    <string name="change_password_new">New password</string>
+    <string name="change_password_confirm">Confirm the new password</string>
+    <string name="change_password_done">Your password was changed and your other sessions were closed.</string>
+    <string name="ui_password_fields_required">Enter your current password and the new password.</string>
+    <string name="ui_password_confirmation_mismatch">The confirmation does not match the new password.</string>
+    <string name="ui_password_must_differ">The new password must be different from the current one.</string>
 
     <!-- To-Be (TB2): testing environment diagnostics -->
     <string name="diagnostics_title">Testing diagnostics</string>

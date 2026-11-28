@@ -22,7 +22,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Radius limits of US32 until EXQ04 fixes them (assumption documented in the TB2 evidence).
+        // Radius limits of US32 until EXQ04 fixes them; they match ServiceArea:Min/MaxRadiusKm of the API.
         buildConfigField("int", "SERVICE_RADIUS_MIN_KM", "1")
         buildConfigField("int", "SERVICE_RADIUS_MAX_KM", "15")
     }
@@ -73,10 +73,6 @@ android {
     }
 
     buildTypes {
-        all {
-            // US32 endpoint still missing in incleanhome-backend (docs/backend-endpoints.md); enable once deployed.
-            buildConfigField("boolean", "SERVICE_AREA_API_ENABLED", gradleFlag("incleanhome.serviceAreaApi", false))
-        }
         release {
             optimization {
                 enable = false

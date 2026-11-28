@@ -114,7 +114,7 @@ class WorkerRepositoryTest {
             return workers
         }
 
-        override suspend fun getWorker(workerId: Int): Worker {
+        override suspend fun getWorker(workerId: Int, district: String?): Worker {
             lastWorkerId = workerId
             return worker
         }
@@ -123,5 +123,9 @@ class WorkerRepositoryTest {
             lastWorkerId = workerId
             return availability
         }
+
+        override suspend fun getSuggestions(
+            serviceType: String, date: String, startTime: String, endTime: String, district: String
+        ): List<Worker> = emptyList()
     }
 }
